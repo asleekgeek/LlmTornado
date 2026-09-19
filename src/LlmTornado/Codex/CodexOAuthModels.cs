@@ -4,6 +4,8 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using LlmTornado.ChatFunctions;
+using LlmTornado.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -375,6 +377,21 @@ public sealed class CodexOAuthThreadOptions
 public sealed class CodexOAuthTurnOptions
 {
     /// <summary>
+    /// Function tools available for this turn.
+    /// </summary>
+    public IReadOnlyList<Tool>? Tools { get; set; }
+
+    /// <summary>
+    /// Controls whether and which configured tool the model may call.
+    /// </summary>
+    public OutboundToolChoice? ToolChoice { get; set; }
+
+    /// <summary>
+    /// Whether the model may request multiple tool calls in parallel.
+    /// </summary>
+    public bool? ParallelToolCalls { get; set; }
+
+    /// <summary>
     /// Optional reasoning effort advertised by the selected model.
     /// </summary>
     public string? ReasoningEffort { get; set; }
@@ -435,7 +452,8 @@ public sealed class CodexOAuthTurnResult
         string finalResponse,
         string? status,
         JObject response,
-        IReadOnlyList<JObject> outputItems)
+        IReadOnlyList<JObject> outputItems,
+        IReadOnlyList<ToolCall> toolCalls)
     {
         ThreadId = threadId;
         ResponseId = responseId;
@@ -443,6 +461,7 @@ public sealed class CodexOAuthTurnResult
         Status = status;
         Response = response;
         OutputItems = outputItems;
+        ToolCalls = toolCalls;
     }
 
     /// <summary>
@@ -469,6 +488,11 @@ public sealed class CodexOAuthTurnResult
     /// Raw completed response object.
     /// </summary>
     public JObject Response { get; }
+
+    /// <summary>
+    /// Function calls requested by the model in output order.
+    /// </summary>
+    public IReadOnlyList<ToolCall> ToolCalls { get; }
 
     internal IReadOnlyList<JObject> OutputItems { get; }
 }

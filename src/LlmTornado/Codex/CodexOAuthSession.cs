@@ -8,6 +8,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LlmTornado.ChatFunctions;
+using LlmTornado.Code.Vendor;
+using LlmTornado.Common;
+using LlmTornado.Responses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,6 +23,7 @@ namespace LlmTornado.Codex;
 public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
 {
     private static readonly TimeSpan FallbackRefreshInterval = TimeSpan.FromDays(8);
+    private static readonly OpenAiEndpointProvider ToolSchemaProvider = new OpenAiEndpointProvider();
     private readonly CodexOAuthOptions options;
     private readonly ICodexOAuthCredentialStore credentialStore;
     private readonly HttpClient httpClient;
@@ -323,14 +328,17 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
         CodexOAuthTurnOptions turnOptions,
         CancellationToken cancellationToken)
     {
+        List<Tool>? tools = PrepareTools(turnOptions.Tools);
         JObject payload = new JObject
         {
             ["model"] = model,
             ["instructions"] = baseInstructions,
             ["input"] = new JArray(input.Select(item => item.DeepClone())),
-            ["tools"] = new JArray(),
-            ["tool_choice"] = "auto",
-            ["parallel_tool_calls"] = false,
+            ["tools"] = tools is null
+                ? new JArray()
+                : JArray.FromObject(ResponseHelpers.ConvertTools(tools)),
+            ["tool_choice"] = CreateToolChoiceToken(turnOptions.ToolChoice),
+            ["parallel_tool_calls"] = turnOptions.ParallelToolCalls ?? false,
             ["store"] = false,
             ["stream"] = true,
             ["include"] = new JArray("reasoning.encrypted_content")
@@ -379,8 +387,51 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
         return await ParseResponseStreamAsync(
             response,
             threadId,
+            turnOptions.Tools,
             turnOptions.OnTextDelta,
             cancellationToken).ConfigureAwait(false);
+    }
+
+    private static List<Tool>? PrepareTools(IReadOnlyList<Tool>? tools)
+    {
+        if (tools is null)
+        {
+            return null;
+        }
+
+        List<Tool> configuredTools = tools.ToList();
+        for (int index = 0; index < configuredTools.Count; index++)
+        {
+            Tool tool = configuredTools[index];
+            tool.Serialize(ToolSchemaProvider);
+
+            if (tool.Function is null)
+            {
+                throw new ArgumentException("Direct Codex OAuth currently supports function tools only.", nameof(tools));
+            }
+        }
+
+        return configuredTools;
+    }
+
+    private static JToken CreateToolChoiceToken(ChatFunctions.OutboundToolChoice? toolChoice)
+    {
+        if (toolChoice is null)
+        {
+            return "auto";
+        }
+
+        JToken token = JToken.FromObject(toolChoice);
+        if (token is JObject choice && choice["function"] is JObject function)
+        {
+            return new JObject
+            {
+                ["type"] = "function",
+                ["name"] = function.Value<string>("name")
+            };
+        }
+
+        return token;
     }
 
     private async Task<CodexOAuthCredentials> GetValidCredentialsAsync(
@@ -561,6 +612,7 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
     private static async Task<CodexOAuthTurnResult> ParseResponseStreamAsync(
         HttpResponseMessage response,
         string threadId,
+        IReadOnlyList<Tool>? tools,
         Func<CodexOAuthTextDelta, Task>? onTextDelta,
         CancellationToken cancellationToken)
     {
@@ -573,6 +625,7 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
         string? eventName = null;
         JObject? completedResponse = null;
         List<JObject> outputItems = [];
+        Dictionary<string, StringBuilder> functionArguments = [];
         string responseId = string.Empty;
         string? status = null;
 
@@ -589,6 +642,7 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
                 if (eventData.Length > 0)
                 {
                     await DispatchAsync(eventName, eventData.ToString()).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
 
                 eventName = null;
@@ -634,13 +688,19 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
             }
         }
 
+        List<ToolCall> toolCalls = outputItems
+            .Where(item => string.Equals(item.Value<string>("type"), "function_call", StringComparison.Ordinal))
+            .Select((item, index) => CreateToolCall(item, index, tools))
+            .ToList();
+
         return new CodexOAuthTurnResult(
             threadId,
             responseId,
             finalText.ToString(),
             status,
             completedResponse,
-            outputItems);
+            outputItems,
+            toolCalls);
 
         async Task DispatchAsync(string? sseEvent, string data)
         {
@@ -664,6 +724,35 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
                         responseId,
                         evt.Value<string>("item_id") ?? string.Empty,
                         delta)).ConfigureAwait(false);
+                }
+            }
+            else if (string.Equals(type, "response.output_item.added", StringComparison.Ordinal)
+                     && evt["item"] is JObject addedItem)
+            {
+                AddOutputItem(addedItem);
+            }
+            else if (string.Equals(type, "response.function_call_arguments.delta", StringComparison.Ordinal))
+            {
+                string itemId = evt.Value<string>("item_id") ?? string.Empty;
+                if (!functionArguments.TryGetValue(itemId, out StringBuilder? arguments))
+                {
+                    arguments = new StringBuilder();
+                    functionArguments[itemId] = arguments;
+                }
+
+                arguments.Append(evt.Value<string>("delta"));
+            }
+            else if (string.Equals(type, "response.function_call_arguments.done", StringComparison.Ordinal))
+            {
+                string itemId = evt.Value<string>("item_id") ?? string.Empty;
+                JObject? item = outputItems.FirstOrDefault(candidate =>
+                    string.Equals(candidate.Value<string>("id"), itemId, StringComparison.Ordinal));
+                if (item is not null)
+                {
+                    item["arguments"] = evt.Value<string>("arguments")
+                        ?? (functionArguments.TryGetValue(itemId, out StringBuilder? arguments)
+                            ? arguments.ToString()
+                            : string.Empty);
                 }
             }
             else if (string.Equals(type, "response.completed", StringComparison.Ordinal))
@@ -698,15 +787,45 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
         void AddOutputItem(JObject item)
         {
             string? itemId = item.Value<string>("id");
-            if (!string.IsNullOrWhiteSpace(itemId)
-                && outputItems.Any(existing =>
-                    string.Equals(existing.Value<string>("id"), itemId, StringComparison.Ordinal)))
+            int existingIndex = string.IsNullOrWhiteSpace(itemId)
+                ? -1
+                : outputItems.FindIndex(existing =>
+                    string.Equals(existing.Value<string>("id"), itemId, StringComparison.Ordinal));
+            if (existingIndex >= 0)
             {
+                JObject merged = (JObject)outputItems[existingIndex].DeepClone();
+                foreach (JProperty property in item.Properties())
+                {
+                    merged[property.Name] = property.Value.DeepClone();
+                }
+
+                outputItems[existingIndex] = merged;
                 return;
             }
 
             outputItems.Add((JObject)item.DeepClone());
         }
+    }
+
+    private static ToolCall CreateToolCall(JObject item, int index, IReadOnlyList<Tool>? tools)
+    {
+        string name = item.Value<string>("name") ?? string.Empty;
+        Tool? tool = tools?.FirstOrDefault(candidate =>
+            string.Equals(candidate.ResolvedName, name, StringComparison.Ordinal));
+        FunctionCall functionCall = new FunctionCall
+        {
+            Name = name,
+            Arguments = item.Value<string>("arguments") ?? string.Empty,
+            Tool = tool
+        };
+        ToolCall toolCall = new ToolCall
+        {
+            Index = index,
+            Id = item.Value<string>("call_id") ?? item.Value<string>("id"),
+            FunctionCall = functionCall
+        };
+        functionCall.ToolCall = toolCall;
+        return toolCall;
     }
 
     private static async Task<string> ReadContentAsync(
