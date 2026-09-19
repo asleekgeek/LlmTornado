@@ -110,6 +110,47 @@ CodexOAuthTurnResult turn = await thread.RunAsync(
 Console.WriteLine(turn.FinalResponse);
 ```
 
+### Direct OAuth function tools
+
+Direct OAuth threads accept the same function `Tool`, `FunctionCall`, and `FunctionResult` types as normal chat conversations:
+
+```csharp
+using LlmTornado.ChatFunctions;
+using LlmTornado.Common;
+
+Tool weather = new Tool(
+    (string location) => GetWeather(location),
+    "get_weather",
+    "Gets the current weather for a location.");
+
+CodexOAuthTurnResult turn = await thread.RunAsync(
+    "What is the weather in Prague?",
+    async (calls, cancellationToken) =>
+    {
+        foreach (FunctionCall call in calls)
+        {
+            // Validate the requested operation before invoking host code.
+            if (call.Tool != weather)
+            {
+                call.Result = new FunctionResult(call, new { error = "Tool denied." }, false);
+                continue;
+            }
+
+            await call.Invoke(call.Arguments ?? "{}");
+        }
+    },
+    new CodexOAuthTurnOptions
+    {
+        Tools = [weather],
+        ToolChoice = OutboundToolChoice.Auto,
+        ParallelToolCalls = false
+    });
+
+Console.WriteLine(turn.FinalResponse);
+```
+
+The handler runs before any attached delegate is invoked. LLMTornado supplies the function-calling protocol but does not authorize, sandbox, or grant filesystem access. Applications must validate each call and may return a failed `FunctionResult` for denied or unknown operations.
+
 The default callback port is `1455`. Port `1457` is used as a fallback. Set `CallbackPort` and `FallbackCallbackPort` in `CodexOAuthOptions` only when the OAuth redirect configuration supports those ports.
 
 Call `login.CancelAsync()` when the user cancels the browser flow. Call `codex.LogoutAsync()` to revoke the current refresh token when possible and clear the credential store.
@@ -190,6 +231,24 @@ await thread.RunAsync("Give me a shorter version.");
 ```
 
 The direct OAuth thread keeps the required response history on the client because subscription requests are not stored by the backend.
+
+To restore a thread after restarting the application, provide the previously persisted items in protocol order:
+
+```csharp
+CodexOAuthThread restoredThread = await codex.StartThreadAsync(new CodexOAuthThreadOptions
+{
+    Model = model.Model,
+    InitialHistory =
+    [
+        CodexOAuthHistoryItem.UserMessage("What time is it?"),
+        CodexOAuthHistoryItem.FunctionCall("call-1", "datetime", "{}"),
+        CodexOAuthHistoryItem.FunctionOutput("call-1", "2026-09-19T16:58:17Z"),
+        CodexOAuthHistoryItem.AssistantMessage("It is 18:58 local time.")
+    ]
+});
+```
+
+Function outputs must follow their matching calls and use the same call identifier. Initial history is copied when the thread is created.
 
 ## Client and protocol versions
 

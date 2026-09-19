@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LlmTornado.ChatFunctions;
 using Newtonsoft.Json.Linq;
 
 namespace LlmTornado.Codex;
@@ -22,7 +23,8 @@ public sealed class CodexOAuthThread
         string id,
         string model,
         string baseInstructions,
-        string? developerInstructions)
+        string? developerInstructions,
+        IReadOnlyList<CodexOAuthHistoryItem>? initialHistory)
     {
         this.session = session;
         this.baseInstructions = baseInstructions;
@@ -32,6 +34,15 @@ public sealed class CodexOAuthThread
         if (!string.IsNullOrWhiteSpace(developerInstructions))
         {
             history.Add(CreateMessage("developer", developerInstructions!));
+        }
+
+        if (initialHistory is not null)
+        {
+            foreach (CodexOAuthHistoryItem item in initialHistory)
+            {
+                ArgumentNullException.ThrowIfNull(item);
+                history.Add(item.ToJson());
+            }
         }
     }
 
@@ -52,6 +63,43 @@ public sealed class CodexOAuthThread
         string input,
         CodexOAuthTurnOptions? options = null,
         CancellationToken cancellationToken = default)
+        => await RunAsyncCore(input, options, null, cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Runs a turn, lets the host resolve requested function calls, and continues until final text is returned.
+    /// </summary>
+    public async Task<CodexOAuthTurnResult> RunAsync(
+        string input,
+        Func<List<FunctionCall>, ValueTask> functionCallHandler,
+        CodexOAuthTurnOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(functionCallHandler);
+        return await RunAsyncCore(
+            input,
+            options,
+            (calls, _) => functionCallHandler(calls),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Runs a turn with a cancellation-aware host function-call handler and continues until final text is returned.
+    /// </summary>
+    public async Task<CodexOAuthTurnResult> RunAsync(
+        string input,
+        Func<List<FunctionCall>, CancellationToken, ValueTask> functionCallHandler,
+        CodexOAuthTurnOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(functionCallHandler);
+        return await RunAsyncCore(input, options, functionCallHandler, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<CodexOAuthTurnResult> RunAsyncCore(
+        string input,
+        CodexOAuthTurnOptions? options,
+        Func<List<FunctionCall>, CancellationToken, ValueTask>? functionCallHandler,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
@@ -61,31 +109,78 @@ public sealed class CodexOAuthThread
         await turnLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            options ??= new CodexOAuthTurnOptions();
             JObject userMessage = CreateMessage("user", input);
             List<JObject> turnInput = history
                 .Select(item => (JObject)item.DeepClone())
                 .ToList();
             turnInput.Add(userMessage);
+            List<JObject> newHistory = [userMessage];
+            List<ToolCall> allToolCalls = [];
 
-            CodexOAuthTurnResult result = await session.RunTextTurnAsync(
-                Id,
-                Model,
-                baseInstructions,
-                turnInput,
-                options ?? new CodexOAuthTurnOptions(),
-                cancellationToken).ConfigureAwait(false);
-            history.Add(userMessage);
-            history.AddRange(result.OutputItems.Select(item => (JObject)item.DeepClone()));
-
-            bool hasAssistantMessage = result.OutputItems.Any(item =>
-                string.Equals(item.Value<string>("type"), "message", StringComparison.Ordinal)
-                && string.Equals(item.Value<string>("role"), "assistant", StringComparison.Ordinal));
-            if (!hasAssistantMessage)
+            for (int iteration = 0; iteration < 32; iteration++)
             {
-                history.Add(CreateMessage("assistant", result.FinalResponse, "output_text"));
+                CodexOAuthTurnResult result = await session.RunTextTurnAsync(
+                    Id,
+                    Model,
+                    baseInstructions,
+                    turnInput,
+                    options,
+                    cancellationToken).ConfigureAwait(false);
+                List<JObject> outputItems = result.OutputItems
+                    .Select(item => (JObject)item.DeepClone())
+                    .ToList();
+                turnInput.AddRange(outputItems.Select(item => (JObject)item.DeepClone()));
+                newHistory.AddRange(outputItems);
+                allToolCalls.AddRange(result.ToolCalls);
+
+                if (functionCallHandler is null || result.ToolCalls.Count == 0)
+                {
+                    history.AddRange(newHistory);
+
+                    bool hasAssistantMessage = newHistory.Any(item =>
+                        string.Equals(item.Value<string>("type"), "message", StringComparison.Ordinal)
+                        && string.Equals(item.Value<string>("role"), "assistant", StringComparison.Ordinal));
+                    if (!hasAssistantMessage)
+                    {
+                        history.Add(CreateMessage("assistant", result.FinalResponse, "output_text"));
+                    }
+
+                    return allToolCalls.Count == result.ToolCalls.Count
+                        ? result
+                        : new CodexOAuthTurnResult(
+                            result.ThreadId,
+                            result.ResponseId,
+                            result.FinalResponse,
+                            result.Status,
+                            result.Response,
+                            newHistory.Skip(1).ToList(),
+                            allToolCalls);
+                }
+
+                List<FunctionCall> functionCalls = result.ToolCalls
+                    .Select(call => call.FunctionCall)
+                    .Where(call => call is not null)
+                    .Cast<FunctionCall>()
+                    .ToList();
+                await functionCallHandler(functionCalls, cancellationToken).ConfigureAwait(false);
+
+                foreach (FunctionCall call in functionCalls)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    JObject output = new JObject
+                    {
+                        ["type"] = "function_call_output",
+                        ["call_id"] = call.ToolCall?.Id ?? call.Name,
+                        ["output"] = call.Result?.Content
+                            ?? new JObject { ["error"] = "The tool call was not handled." }.ToString(Newtonsoft.Json.Formatting.None)
+                    };
+                    turnInput.Add((JObject)output.DeepClone());
+                    newHistory.Add(output);
+                }
             }
 
-            return result;
+            throw new CodexOAuthException("Codex exceeded the maximum number of tool-call continuations.");
         }
         finally
         {
