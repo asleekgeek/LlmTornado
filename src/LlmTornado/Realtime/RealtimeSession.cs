@@ -134,7 +134,7 @@ public sealed class RealtimeSession : IAsyncDisposable
             while (webSocket.State == WebSocketState.Open && !linkedCts.IsCancellationRequested)
             {
                 sb.Clear();
-                WebSocketReceiveResult result;
+                ValueWebSocketReceiveResult result;
 
                 do
                 {
@@ -142,7 +142,7 @@ public sealed class RealtimeSession : IAsyncDisposable
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None).ConfigureAwait(false);
-                        options.OnClose?.Invoke(result.CloseStatusDescription);
+                        options.OnClose?.Invoke(webSocket.CloseStatusDescription);
                         return;
                     }
 

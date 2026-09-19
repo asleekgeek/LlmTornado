@@ -286,7 +286,11 @@ public sealed class OpenAiLiveSession : IAsyncDisposable
         await sendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+#if MODERN
             await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+#else
+            await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+#endif
         }
         finally
         {
@@ -304,11 +308,19 @@ public sealed class OpenAiLiveSession : IAsyncDisposable
             while (webSocket.State == WebSocketState.Open && !linkedCts.IsCancellationRequested)
             {
                 sb.Clear();
+#if MODERN
+                ValueWebSocketReceiveResult result;
+#else
                 WebSocketReceiveResult result;
+#endif
 
                 do
                 {
+#if MODERN
                     result = await webSocket.ReceiveAsync(buffer, linkedCts.Token).ConfigureAwait(false);
+#else
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), linkedCts.Token).ConfigureAwait(false);
+#endif
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         try
@@ -320,7 +332,11 @@ public sealed class OpenAiLiveSession : IAsyncDisposable
                             // already closing
                         }
 
+#if MODERN
+                        options.OnClose?.Invoke(webSocket.CloseStatusDescription);
+#else
                         options.OnClose?.Invoke(result.CloseStatusDescription);
+#endif
                         return;
                     }
 
