@@ -232,6 +232,24 @@ await thread.RunAsync("Give me a shorter version.");
 
 The direct OAuth thread keeps the required response history on the client because subscription requests are not stored by the backend.
 
+To restore a thread after restarting the application, provide the previously persisted items in protocol order:
+
+```csharp
+CodexOAuthThread restoredThread = await codex.StartThreadAsync(new CodexOAuthThreadOptions
+{
+    Model = model.Model,
+    InitialHistory =
+    [
+        CodexOAuthHistoryItem.UserMessage("What time is it?"),
+        CodexOAuthHistoryItem.FunctionCall("call-1", "datetime", "{}"),
+        CodexOAuthHistoryItem.FunctionOutput("call-1", "2026-09-19T16:58:17Z"),
+        CodexOAuthHistoryItem.AssistantMessage("It is 18:58 local time.")
+    ]
+});
+```
+
+Function outputs must follow their matching calls and use the same call identifier. Initial history is copied when the thread is created.
+
 ## Client and protocol versions
 
 `CodexOAuthOptions.ClientVersion` identifies your application in request headers and the user agent. When it is omitted, LLMTornado uses its assembly version.

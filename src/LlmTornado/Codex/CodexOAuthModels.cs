@@ -369,6 +369,95 @@ public sealed class CodexOAuthThreadOptions
     /// Optional developer instructions added to the client-managed thread history.
     /// </summary>
     public string? Instructions { get; set; }
+
+    /// <summary>
+    /// Optional prior conversation items copied into the client-managed thread history.
+    /// </summary>
+    public IReadOnlyList<CodexOAuthHistoryItem>? InitialHistory { get; set; }
+}
+
+/// <summary>
+/// A text or function item used to restore a direct OAuth thread's client-managed history.
+/// </summary>
+public sealed class CodexOAuthHistoryItem
+{
+    private readonly JObject value;
+
+    private CodexOAuthHistoryItem(JObject value)
+    {
+        this.value = value;
+    }
+
+    /// <summary>
+    /// Creates a prior user message.
+    /// </summary>
+    public static CodexOAuthHistoryItem UserMessage(string text)
+        => Message("user", text, "input_text");
+
+    /// <summary>
+    /// Creates a prior assistant message.
+    /// </summary>
+    public static CodexOAuthHistoryItem AssistantMessage(string text)
+        => Message("assistant", text, "output_text");
+
+    /// <summary>
+    /// Creates a prior function call requested by the assistant.
+    /// </summary>
+    public static CodexOAuthHistoryItem FunctionCall(
+        string callId,
+        string name,
+        string arguments)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(callId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(arguments);
+        return new CodexOAuthHistoryItem(new JObject
+        {
+            ["type"] = "function_call",
+            ["call_id"] = callId,
+            ["name"] = name,
+            ["arguments"] = arguments
+        });
+    }
+
+    /// <summary>
+    /// Creates a prior function result linked to its call identifier.
+    /// </summary>
+    public static CodexOAuthHistoryItem FunctionOutput(string callId, string output)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(callId);
+        ArgumentNullException.ThrowIfNull(output);
+        return new CodexOAuthHistoryItem(new JObject
+        {
+            ["type"] = "function_call_output",
+            ["call_id"] = callId,
+            ["output"] = output
+        });
+    }
+
+    internal JObject ToJson()
+        => (JObject)value.DeepClone();
+
+    private static CodexOAuthHistoryItem Message(
+        string role,
+        string text,
+        string contentType)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        return new CodexOAuthHistoryItem(new JObject
+        {
+            ["type"] = "message",
+            ["role"] = role,
+            ["content"] = new JArray
+            {
+                new JObject
+                {
+                    ["type"] = contentType,
+                    ["text"] = text
+                }
+            }
+        });
+    }
 }
 
 /// <summary>

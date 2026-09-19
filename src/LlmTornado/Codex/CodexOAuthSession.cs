@@ -273,7 +273,8 @@ public sealed class CodexOAuthSession : IDisposable, IAsyncDisposable
             Guid.NewGuid().ToString(),
             selectedModel.Model,
             selectedModel.BaseInstructions,
-            options.Instructions);
+            options.Instructions,
+            options.InitialHistory);
     }
 
     internal async Task<CodexAccount> CompleteBrowserLoginAsync(

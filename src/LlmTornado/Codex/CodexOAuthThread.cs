@@ -23,7 +23,8 @@ public sealed class CodexOAuthThread
         string id,
         string model,
         string baseInstructions,
-        string? developerInstructions)
+        string? developerInstructions,
+        IReadOnlyList<CodexOAuthHistoryItem>? initialHistory)
     {
         this.session = session;
         this.baseInstructions = baseInstructions;
@@ -33,6 +34,15 @@ public sealed class CodexOAuthThread
         if (!string.IsNullOrWhiteSpace(developerInstructions))
         {
             history.Add(CreateMessage("developer", developerInstructions!));
+        }
+
+        if (initialHistory is not null)
+        {
+            foreach (CodexOAuthHistoryItem item in initialHistory)
+            {
+                ArgumentNullException.ThrowIfNull(item);
+                history.Add(item.ToJson());
+            }
         }
     }
 

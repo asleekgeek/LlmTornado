@@ -287,6 +287,69 @@ public class CodexOAuthTests
     }
 
     [Test]
+    public async Task TextThread_IncludesConfiguredInitialHistory()
+    {
+        CodexOAuthMemoryCredentialStore store = new CodexOAuthMemoryCredentialStore(
+            Credentials(
+                Jwt(new JObject { ["exp"] = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds() }),
+                "refresh-1",
+                DateTimeOffset.UtcNow.AddHours(1)));
+        JObject? payload = null;
+        string? payloadJson = null;
+        RecordingHandler handler = new RecordingHandler(async request =>
+        {
+            if (request.RequestUri?.AbsolutePath.EndsWith("/models", StringComparison.Ordinal) == true)
+            {
+                return JsonResponse(new JObject
+                {
+                    ["models"] = new JArray { BackendModel("gpt-5.4", true, "medium") }
+                });
+            }
+
+            payloadJson = await request.Content!.ReadAsStringAsync();
+            payload = JObject.Parse(payloadJson);
+            return EventStreamResponse(CompletedSse("response-1"));
+        });
+
+        await using CodexOAuthSession session = await new TornadoApi().Codex.ConnectOAuthAsync(
+            new CodexOAuthOptions
+            {
+                CredentialStore = store,
+                HttpClient = new HttpClient(handler)
+            });
+        CodexOAuthThread thread = await session.StartThreadAsync(new CodexOAuthThreadOptions
+        {
+            Model = "gpt-5.4",
+            InitialHistory = new[]
+            {
+                CodexOAuthHistoryItem.UserMessage("What time is it?"),
+                CodexOAuthHistoryItem.FunctionCall("call-1", "datetime", "{}"),
+                CodexOAuthHistoryItem.FunctionOutput("call-1", "2026-09-19T16:58:17Z"),
+                CodexOAuthHistoryItem.AssistantMessage("It is 18:58 local time.")
+            }
+        });
+
+        await thread.RunAsync("What was the date?");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(payload?["input"]?.Count(), Is.EqualTo(5));
+            Assert.That(payload?["input"]?[0]?["role"]?.Value<string>(), Is.EqualTo("user"));
+            Assert.That(payload?["input"]?[0]?["content"]?[0]?["text"]?.Value<string>(), Is.EqualTo("What time is it?"));
+            Assert.That(payload?["input"]?[1]?["type"]?.Value<string>(), Is.EqualTo("function_call"));
+            Assert.That(payload?["input"]?[1]?["call_id"]?.Value<string>(), Is.EqualTo("call-1"));
+            Assert.That(payload?["input"]?[1]?["name"]?.Value<string>(), Is.EqualTo("datetime"));
+            Assert.That(payload?["input"]?[1]?["arguments"]?.Value<string>(), Is.EqualTo("{}"));
+            Assert.That(payload?["input"]?[2]?["type"]?.Value<string>(), Is.EqualTo("function_call_output"));
+            Assert.That(payload?["input"]?[2]?["call_id"]?.Value<string>(), Is.EqualTo("call-1"));
+            Assert.That(payloadJson, Does.Contain("\"output\":\"2026-09-19T16:58:17Z\""));
+            Assert.That(payload?["input"]?[3]?["role"]?.Value<string>(), Is.EqualTo("assistant"));
+            Assert.That(payload?["input"]?[3]?["content"]?[0]?["type"]?.Value<string>(), Is.EqualTo("output_text"));
+            Assert.That(payload?["input"]?[4]?["content"]?[0]?["text"]?.Value<string>(), Is.EqualTo("What was the date?"));
+        });
+    }
+
+    [Test]
     public async Task TextThread_SerializesConfiguredFunctionTools()
     {
         CodexOAuthMemoryCredentialStore store = new CodexOAuthMemoryCredentialStore(
