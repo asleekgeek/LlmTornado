@@ -56,4 +56,16 @@ public class SpeechRequest
     /// </summary>
     [JsonProperty("sample_rate", NullValueHandling = NullValueHandling.Ignore)]
     public int? SampleRate { get; set; }
+
+    /// <summary>
+    ///     Saved Mistral voice identifier for Voxtral TTS. Use this or <see cref="RefAudio"/>.
+    /// </summary>
+    [JsonProperty("voice_id", NullValueHandling = NullValueHandling.Ignore)]
+    public string? VoiceId { get; set; }
+
+    /// <summary>
+    ///     One-off reference audio (base64) for Mistral Voxtral zero-shot voice cloning.
+    /// </summary>
+    [JsonProperty("ref_audio", NullValueHandling = NullValueHandling.Ignore)]
+    public string? RefAudio { get; set; }
 }

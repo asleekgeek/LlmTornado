@@ -11,6 +11,176 @@ namespace LlmTornado.Chat.Models.Alibaba;
 public class ChatModelAlibabaCostOptimized : IVendorModelClassProvider
 {
     /// <summary>
+    /// Qwen3.8-Flash - Fast native vision-language model. Hybrid thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen38Flash = new ChatModel("qwen3.8-flash", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen38Flash"/>
+    /// </summary>
+    public readonly ChatModel Qwen38Flash = ModelQwen38Flash;
+
+    /// <summary>
+    /// Qwen3.7-Flash - Fast 3.7 vision-language model. Thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Flash = new ChatModel("qwen3.7-flash", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Flash"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Flash = ModelQwen37Flash;
+
+    /// <summary>
+    /// Qwen3.7-Flash-2026-07-15 - Snapshot from July 15, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Flash20260715 = new ChatModel("qwen3.7-flash-2026-07-15", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Flash20260715"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Flash20260715 = ModelQwen37Flash20260715;
+
+    /// <summary>
+    /// Qwen3.6-Flash - Fast 3.6 vision-language model. Thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen36Flash = new ChatModel("qwen3.6-flash", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen36Flash"/>
+    /// </summary>
+    public readonly ChatModel Qwen36Flash = ModelQwen36Flash;
+
+    /// <summary>
+    /// Qwen3.6-Flash-2026-04-16 - Snapshot from April 16, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen36Flash20260416 = new ChatModel("qwen3.6-flash-2026-04-16", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen36Flash20260416"/>
+    /// </summary>
+    public readonly ChatModel Qwen36Flash20260416 = ModelQwen36Flash20260416;
+
+    /// <summary>
+    /// Qwen3.5-Flash - Fast 3.5 vision-language model. Thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen35Flash = new ChatModel("qwen3.5-flash", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35Flash"/>
+    /// </summary>
+    public readonly ChatModel Qwen35Flash = ModelQwen35Flash;
+
+    /// <summary>
+    /// Qwen3.5-Flash-2026-02-23 - Snapshot from February 23, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen35Flash20260223 = new ChatModel("qwen3.5-flash-2026-02-23", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35Flash20260223"/>
+    /// </summary>
+    public readonly ChatModel Qwen35Flash20260223 = ModelQwen35Flash20260223;
+
+    /// <summary>
+    /// Qwen3.6-35B-A3B - Open-source 3.6 MoE vision-language model
+    /// </summary>
+    public static readonly ChatModel ModelQwen3635BA3B = new ChatModel("qwen3.6-35b-a3b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3635BA3B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3635BA3B = ModelQwen3635BA3B;
+
+    /// <summary>
+    /// Qwen3.6-27B - Open-source 3.6 dense vision-language model
+    /// </summary>
+    public static readonly ChatModel ModelQwen3627B = new ChatModel("qwen3.6-27b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3627B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3627B = ModelQwen3627B;
+
+    /// <summary>
+    /// Qwen3.5-397B-A17B - Open-source 3.5 MoE model
+    /// </summary>
+    public static readonly ChatModel ModelQwen35397BA17B = new ChatModel("qwen3.5-397b-a17b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35397BA17B"/>
+    /// </summary>
+    public readonly ChatModel Qwen35397BA17B = ModelQwen35397BA17B;
+
+    /// <summary>
+    /// Qwen3.5-122B-A10B - Open-source 3.5 MoE model
+    /// </summary>
+    public static readonly ChatModel ModelQwen35122BA10B = new ChatModel("qwen3.5-122b-a10b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35122BA10B"/>
+    /// </summary>
+    public readonly ChatModel Qwen35122BA10B = ModelQwen35122BA10B;
+
+    /// <summary>
+    /// Qwen3.5-27B - Open-source 3.5 dense model
+    /// </summary>
+    public static readonly ChatModel ModelQwen3527B = new ChatModel("qwen3.5-27b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3527B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3527B = ModelQwen3527B;
+
+    /// <summary>
+    /// Qwen3.5-35B-A3B - Open-source 3.5 MoE model
+    /// </summary>
+    public static readonly ChatModel ModelQwen3535BA3B = new ChatModel("qwen3.5-35b-a3b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3535BA3B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3535BA3B = ModelQwen3535BA3B;
+
+    /// <summary>
+    /// Qwen3-Coder-Next - Next-generation coding model, 256k context
+    /// </summary>
+    public static readonly ChatModel ModelQwen3CoderNext = new ChatModel("qwen3-coder-next", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3CoderNext"/>
+    /// </summary>
+    public readonly ChatModel Qwen3CoderNext = ModelQwen3CoderNext;
+
+    /// <summary>
+    /// Qwen-MT-Flash - Fast translation model
+    /// </summary>
+    public static readonly ChatModel ModelQwenMtFlash = new ChatModel("qwen-mt-flash", LLmProviders.Alibaba, 16_384);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenMtFlash"/>
+    /// </summary>
+    public readonly ChatModel QwenMtFlash = ModelQwenMtFlash;
+
+    /// <summary>
+    /// Qwen-MT-Lite - Lightweight translation model
+    /// </summary>
+    public static readonly ChatModel ModelQwenMtLite = new ChatModel("qwen-mt-lite", LLmProviders.Alibaba, 16_384);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenMtLite"/>
+    /// </summary>
+    public readonly ChatModel QwenMtLite = ModelQwenMtLite;
+
+    /// <summary>
+    /// Qwen-Flash-Character - Role-playing model for anthropomorphic interaction
+    /// </summary>
+    public static readonly ChatModel ModelQwenFlashCharacter = new ChatModel("qwen-flash-character", LLmProviders.Alibaba, 8_192);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenFlashCharacter"/>
+    /// </summary>
+    public readonly ChatModel QwenFlashCharacter = ModelQwenFlashCharacter;
+
+    /// <summary>
     /// Qwen3-Coder-Flash - Code generation model with tool interaction
     /// </summary>
     public static readonly ChatModel ModelQwen3CoderFlash = new ChatModel("qwen3-coder-flash", LLmProviders.Alibaba, 1_000_000);
@@ -33,7 +203,7 @@ public class ChatModelAlibabaCostOptimized : IVendorModelClassProvider
     /// <summary>
     /// Qwen-MT-Turbo - Fast translation model with 92 languages
     /// </summary>
-    public static readonly ChatModel ModelQwenMtTurbo = new ChatModel("qwen-mt-turbo", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwenMtTurbo = new ChatModel("qwen-mt-turbo", LLmProviders.Alibaba, 16_384);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwenMtTurbo"/>
@@ -156,7 +326,10 @@ public class ChatModelAlibabaCostOptimized : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelQwen3CoderFlash, ModelQwenFlash, ModelQwenMtTurbo, ModelQwenFlash20250728, ModelQwen3CoderFlash20250728,
+        ModelQwen38Flash, ModelQwen37Flash, ModelQwen37Flash20260715, ModelQwen36Flash, ModelQwen36Flash20260416,
+        ModelQwen35Flash, ModelQwen35Flash20260223, ModelQwen3635BA3B, ModelQwen3627B, ModelQwen35397BA17B,
+        ModelQwen35122BA10B, ModelQwen3527B, ModelQwen3535BA3B, ModelQwen3CoderNext, ModelQwenMtFlash, ModelQwenMtLite,
+        ModelQwenFlashCharacter, ModelQwen3CoderFlash, ModelQwenFlash, ModelQwenMtTurbo, ModelQwenFlash20250728, ModelQwen3CoderFlash20250728,
         ModelQwen3Coder30BA3BInstruct, ModelQwen330BA3BInstruct2507, ModelQwen330BA3BThinking2507, ModelQwen330BA3B,
         ModelQwen314B, ModelQwen38B, ModelQwen34B, ModelQwen31_7B, ModelQwen30_6B
     ]);

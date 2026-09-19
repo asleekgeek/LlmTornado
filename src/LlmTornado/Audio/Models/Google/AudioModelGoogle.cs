@@ -17,6 +17,11 @@ public class AudioModelGoogle : BaseVendorModelProvider
     /// Lyria music generation models.
     /// </summary>
     public readonly AudioModelGoogleLyria Lyria = new AudioModelGoogleLyria();
+
+    /// <summary>
+    /// Gemini speech-to-text models.
+    /// </summary>
+    public readonly AudioModelGoogleGemini Gemini = new AudioModelGoogleGemini();
     
     /// <summary>
     /// All known audio models from Google.
@@ -51,7 +56,8 @@ public class AudioModelGoogle : BaseVendorModelProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
     
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ..AudioModelGoogleLyria.ModelsAll
+        ..AudioModelGoogleLyria.ModelsAll,
+        ..AudioModelGoogleGemini.ModelsAll
     ]);
     
     internal AudioModelGoogle()

@@ -11,10 +11,11 @@ namespace LlmTornado.Chat.Models.XAi;
 public class ChatModelXAiGrok45 : IVendorModelClassProvider
 {
     /// <summary>
-    /// Grok 4.5 is xAI's most intelligent and fastest model for chat, coding, and agentic tool use.
-    /// 500K context window. Supports function calling, structured outputs, and reasoning.
+    /// Grok 4.5 is xAI's model for coding, agentic tasks, and knowledge work.
+    /// 500K context window. Supports function calling, structured outputs, and reasoning
+    /// (low, medium, or high; default high). Released July 9, 2026.
     /// </summary>
-    public static readonly ChatModel ModelV45 = new ChatModel("grok-4.5", LLmProviders.XAi, 500_000, [ "grok-4.5-latest", "grok-build-latest" ]);
+    public static readonly ChatModel ModelV45 = new ChatModel("grok-4.5", LLmProviders.XAi, 500_000, [ "grok-4.5-latest" ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelV45"/>

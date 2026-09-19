@@ -93,7 +93,25 @@ public enum RetrievedFilePurpose
     ///     Video generation output. MiniMax only.
     /// </summary>
     [EnumMember(Value = "video_generation")]
-    VideoGeneration
+    VideoGeneration,
+    
+    /// <summary>
+    ///     Extract text content from documents. Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "file-extract")]
+    FileExtract,
+    
+    /// <summary>
+    ///     Image upload for native vision understanding. Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "image")]
+    Image,
+    
+    /// <summary>
+    ///     Video upload for native video understanding. Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "video")]
+    Video
 }
 
 /// <summary>
@@ -117,6 +135,9 @@ public static class RetrievedFilePurposeExtensions
             FilePurpose.VoiceClone => RetrievedFilePurpose.VoiceClone,
             FilePurpose.PromptAudio => RetrievedFilePurpose.PromptAudio,
             FilePurpose.TextToAudioAsyncInput => RetrievedFilePurpose.TextToAudioAsyncInput,
+            FilePurpose.FileExtract => RetrievedFilePurpose.FileExtract,
+            FilePurpose.Image => RetrievedFilePurpose.Image,
+            FilePurpose.Video => RetrievedFilePurpose.Video,
             _ => RetrievedFilePurpose.Finetune
         };
     }

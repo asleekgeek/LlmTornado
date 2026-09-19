@@ -281,16 +281,44 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
     }
     
     private static bool IsOpus46OrNewer(string? modelName)
+        => ChatModelAnthropicHelper.IsOpus46OrNewer(modelName);
+
+    private static bool RequiresThinkingDisplayUpdatesHeader(object? data)
     {
-        if (modelName is null)
-        {
-            return false;
-        }
-        
-        return modelName.StartsWith("claude-opus-4-6", StringComparison.OrdinalIgnoreCase)
-            || modelName.StartsWith("claude-opus-4-7", StringComparison.OrdinalIgnoreCase)
-            || modelName.StartsWith("claude-opus-4-8", StringComparison.OrdinalIgnoreCase)
-            || ChatModelAnthropicHelper.IsClaude5Model(modelName);
+        return data is ChatRequest chatRequest
+            && chatRequest.VendorExtensions?.Anthropic?.Thinking?.Display is AnthropicThinkingDisplay.Updates;
+    }
+
+    private static bool RequiresThinkingBindingHeader(object? data)
+    {
+        return data is ChatRequest chatRequest
+            && chatRequest.VendorExtensions?.Anthropic?.Thinking?.BlockBinding is not null;
+    }
+
+    private static bool RequiresServerSideFallbackHeader(object? data)
+    {
+        return data is ChatRequest chatRequest
+            && chatRequest.VendorExtensions?.Anthropic?.Fallbacks is not null;
+    }
+
+    private static bool RequiresMidConversationToolChangesHeader(object? data)
+    {
+        return data is ChatRequest chatRequest
+            && chatRequest.VendorExtensions?.Anthropic?.EnableMidConversationToolChanges is true;
+    }
+
+    private static bool RequiresMidConversationOutputConfigHeader(object? data)
+    {
+        return data is ChatRequest chatRequest
+            && chatRequest.Messages?.Any(x =>
+                x.VendorExtensions is ChatMessageVendorExtensionsAnthropic { Effort: not null }) is true;
+    }
+
+    private static bool RequiresMidConversationSystemClearAtHeader(object? data)
+    {
+        return data is ChatRequest chatRequest
+            && chatRequest.Messages?.Any(x =>
+                x.VendorExtensions is ChatMessageVendorExtensionsAnthropic { ClearAt: not null }) is true;
     }
     
     private static bool RequiresFastModeHeader(object? data)
@@ -1002,6 +1030,36 @@ public class AnthropicEndpointProvider : BaseEndpointProvider, IEndpointProvider
             if (RequiresAdvisorToolHeader(sourceObject))
             {
                 betaHeaders.Add("advisor-tool-2026-03-01");
+            }
+
+            if (RequiresThinkingDisplayUpdatesHeader(sourceObject))
+            {
+                betaHeaders.Add("thinking-display-updates-2026-08-18");
+            }
+
+            if (RequiresThinkingBindingHeader(sourceObject))
+            {
+                betaHeaders.Add("thinking-binding-controls-2026-08-01");
+            }
+
+            if (RequiresServerSideFallbackHeader(sourceObject))
+            {
+                betaHeaders.Add("server-side-fallback-2026-07-01");
+            }
+
+            if (RequiresMidConversationToolChangesHeader(sourceObject))
+            {
+                betaHeaders.Add("mid-conversation-tool-changes-2026-07-01");
+            }
+
+            if (RequiresMidConversationOutputConfigHeader(sourceObject))
+            {
+                betaHeaders.Add("mid-conversation-output-config-2026-07-01");
+            }
+
+            if (RequiresMidConversationSystemClearAtHeader(sourceObject))
+            {
+                betaHeaders.Add("mid-conversation-system-clear-at-2026-08-21");
             }
             
             req.Headers.Add("anthropic-beta", AccumulateHeaders(betaHeaders, sourceObject));

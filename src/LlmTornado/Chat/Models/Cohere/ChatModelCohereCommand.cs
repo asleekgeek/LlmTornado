@@ -6,10 +6,25 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Chat.Models;
 
 /// <summary>
-/// Command class models from Anthropic.
+/// Command class models from Cohere.
 /// </summary>
 public class ChatModelCohereCommand : IVendorModelClassProvider
 {
+    /// <summary>
+    /// Command A+ is Cohere's first Mixture of Experts model (218B total / 25B active), combining vision, agentic, reasoning, and translation capabilities. Supports 48 languages. 128K context, 64K max output.
+    /// </summary>
+    public static readonly ChatModel ModelAPlus2605 = new ChatModel("command-a-plus-05-2026", LLmProviders.Cohere, 128_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelAPlus2605"/>
+    /// </summary>
+    public readonly ChatModel APlus2605 = ModelAPlus2605;
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelAPlus2605"/>
+    /// </summary>
+    public readonly ChatModel APlus = ModelAPlus2605;
+    
     /// <summary>
     /// Command A Translate is Cohere’s state of the art machine translation model, excelling at a variety of translation tasks on 23 languages: English, French, Spanish, Italian, German, Portuguese, Japanese, Korean, Chinese, Arabic, Russian, Polish, Turkish, Vietnamese, Dutch, Czech, Indonesian, Ukrainian, Romanian, Greek, Hindi, Hebrew, Persian.
     /// </summary>
@@ -71,6 +86,11 @@ public class ChatModelCohereCommand : IVendorModelClassProvider
     public readonly ChatModel RPlus2408 = ModelRPlus2408;
     
     /// <summary>
+    /// <inheritdoc cref="ModelRPlus2408"/>
+    /// </summary>
+    public readonly ChatModel RPlus = ModelRPlus2408;
+    
+    /// <summary>
     /// Be advised that command-nightly is the latest, most experimental, and (possibly) unstable version of its default counterpart. Nightly releases are updated regularly, without warning, and are not recommended for production use.
     /// </summary>
     public static readonly ChatModel ModelNightly = new ChatModel("command-nightly", LLmProviders.Cohere, 128_000);
@@ -93,7 +113,7 @@ public class ChatModelCohereCommand : IVendorModelClassProvider
     /// <summary>
     /// Newest model from 24/08. An instruction-following conversational model that performs language tasks with high quality, more reliably and with a longer context than our base generative models.
     /// </summary>
-    public static readonly ChatModel ModelDefault2408 = new ChatModel("command-r-08-2024", LLmProviders.Cohere, 4_000);
+    public static readonly ChatModel ModelDefault2408 = new ChatModel("command-r-08-2024", LLmProviders.Cohere, 128_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelDefault2408"/>
@@ -125,7 +145,7 @@ public class ChatModelCohereCommand : IVendorModelClassProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelRPlus2408, ModelNightly, ModelDefault, ModelDefault2408, ModelLightNightly, ModelR7B, ModelR7BArabic2412, ModelA0325, ModelAVision2507, ModelAReasoning2508, ModelATranslate2508]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelAPlus2605, ModelRPlus2408, ModelNightly, ModelDefault, ModelDefault2408, ModelLightNightly, ModelR7B, ModelR7BArabic2412, ModelA0325, ModelAVision2507, ModelAReasoning2508, ModelATranslate2508]);
 
     /// <summary>
     /// <inheritdoc cref="ModelsAll"/>

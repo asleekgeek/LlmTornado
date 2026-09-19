@@ -157,21 +157,16 @@ internal class VendorVoyageEmbeddingRequest
         if (request.VendorExtensions?.Voyage is not null)
         {
             Truncation = request.VendorExtensions.Voyage.Truncation;
-            OutputDtype = request.OutputDType switch
-            {
-                null => null,
-                EmbeddingOutputDtypes.Float => "float",
-                EmbeddingOutputDtypes.Int8 => "int8",
-                EmbeddingOutputDtypes.Uint8 => "uint8",
-                EmbeddingOutputDtypes.Binary => "binary",
-                EmbeddingOutputDtypes.Ubinary => "ubinary",
-                _ => "float"
-            };
             InputType = request.VendorExtensions.Voyage.InputType switch
             {
                 null => null,
                 EmbeddingVendorVoyageInputTypes.Query => "query",
                 EmbeddingVendorVoyageInputTypes.Document => "document",
+                _ => null
+            };
+            EncodingFormat = request.VendorExtensions.Voyage.EncodingFormat switch
+            {
+                EmbeddingVendorVoyageEncodingFormats.Base64 => "base64",
                 _ => null
             };
         }

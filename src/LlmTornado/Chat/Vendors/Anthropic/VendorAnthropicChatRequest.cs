@@ -519,11 +519,31 @@ internal class VendorAnthropicChatRequestMessage
     [JsonProperty("content")]
     [JsonConverter(typeof(VendorAnthropicChatRequestMessageContent.VendorAnthropicChatRequestMessageContentJsonConverter))]
     public VendorAnthropicChatRequestMessageContent Content { get; set; }
+
+    [JsonProperty("output_config")]
+    public VendorAnthropicChatRequest.VendorAnthropicChatRequestOutputConfig? OutputConfig { get; set; }
+
+    [JsonProperty("clear_at")]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public AnthropicSystemClearAt? ClearAt { get; set; }
         
     public VendorAnthropicChatRequestMessage(ChatMessageRoles role, ChatMessage msg)
     {
         Role = ChatMessageRolesCls.MemberToString(role) ?? "user";
         Content = new VendorAnthropicChatRequestMessageContent(msg);
+
+        if (msg.VendorExtensions is ChatMessageVendorExtensionsAnthropic anthropic)
+        {
+            if (anthropic.Effort is AnthropicEffortLevels effort)
+            {
+                OutputConfig = new VendorAnthropicChatRequest.VendorAnthropicChatRequestOutputConfig
+                {
+                    Effort = AnthropicEffortHelper.ToApiValue(effort)
+                };
+            }
+
+            ClearAt = anthropic.ClearAt;
+        }
     }
 }
 
@@ -561,6 +581,9 @@ internal class VendorAnthropicChatRequest
         [JsonProperty("display")]
         [JsonConverter(typeof(StringEnumConverter))]
         public AnthropicThinkingDisplay? Display { get; set; }
+
+        [JsonProperty("block_binding")]
+        public AnthropicThinkingBlockBinding? BlockBinding { get; set; }
     }
     
     internal class VendorAnthropicChatRequestOutputConfigFormat
@@ -642,10 +665,13 @@ internal class VendorAnthropicChatRequest
     
     [JsonProperty("diagnostics")]
     public AnthropicCacheDiagnosticsRequest? Diagnostics { get; set; }
+
+    [JsonProperty("fallbacks")]
+    public AnthropicFallbacks? Fallbacks { get; set; }
     
     public VendorAnthropicChatRequest(ChatRequest request, IEndpointProvider provider)
     {
-        Model = request.Model?.Name ?? ChatModel.Anthropic.Claude4.Sonnet250514.Name;
+        Model = request.Model?.Name ?? ChatModel.Anthropic.Claude5.Sonnet.Name;
         MaxTokens = request.MaxTokens ?? 1024;
         StopSequences = request.StopSequence?.Split(',').ToList();
         Stream = request.Stream;
@@ -699,7 +725,14 @@ internal class VendorAnthropicChatRequest
                     }
                     case ChatMessageRoles.System:
                     {
-                        System = new VendorAnthropicChatRequestMessageContent(msg);
+                        if (System is null && Messages.Count == 0)
+                        {
+                            System = new VendorAnthropicChatRequestMessageContent(msg);
+                        }
+                        else
+                        {
+                            Messages.Add(new VendorAnthropicChatRequestMessage(ChatMessageRoles.System, msg));
+                        }
                         break;
                     }
                 }
@@ -714,10 +747,17 @@ internal class VendorAnthropicChatRequest
 
         if (request.ToolChoice is not null)
         {
+            string toolChoiceType = ToolChoiceMap.GetValueOrDefault(request.ToolChoice.Mode) ?? "auto";
+            if (ChatModelAnthropicHelper.RejectsForcedToolChoice(Model)
+                && toolChoiceType is "any" or "tool")
+            {
+                toolChoiceType = "auto";
+            }
+
             ToolChoice = new VendorAnthropicChatRequestToolChoice
             {
-                Type = ToolChoiceMap.GetValueOrDefault(request.ToolChoice.Mode) ?? "auto",
-                Name = request.ToolChoice.Mode is OutboundToolChoiceModes.ToolFunction ? request.ToolChoice.Function?.Name : null
+                Type = toolChoiceType,
+                Name = toolChoiceType is "tool" ? request.ToolChoice.Function?.Name : null
             };
         }
 
@@ -822,6 +862,11 @@ internal class VendorAnthropicChatRequest
                 Diagnostics = request.VendorExtensions.Anthropic.CacheDiagnostics;
             }
 
+            if (request.VendorExtensions.Anthropic.Fallbacks is not null)
+            {
+                Fallbacks = request.VendorExtensions.Anthropic.Fallbacks;
+            }
+
             request.VendorExtensions.Anthropic.OutboundRequest?.Invoke(
                 System,
                 Messages.Select(x => x.Content).ToList(),
@@ -861,6 +906,7 @@ internal class VendorAnthropicChatRequest
         }
 
         Thinking = BuildThinkingSettings(request);
+        ClampDisabledThinkingEffort();
     }
 
     private VendorAnthropicThinkingSettings? BuildThinkingSettings(ChatRequest request)
@@ -884,7 +930,23 @@ internal class VendorAnthropicChatRequest
             budgetTokens = request.ReasoningBudget;
         }
 
-        if (mode is null or AnthropicThinkingTypes.Disabled)
+        if (mode is AnthropicThinkingTypes.Disabled)
+        {
+            if (ChatModelAnthropicHelper.IsAlwaysOnAdaptiveThinkingModel(Model)
+                || !ChatModelAnthropicHelper.IsThinkingOnByDefault(Model))
+            {
+                return null;
+            }
+
+            return new VendorAnthropicThinkingSettings
+            {
+                Type = "disabled",
+                Display = vendorThinking?.Display,
+                BlockBinding = vendorThinking?.BlockBinding
+            };
+        }
+
+        if (mode is null)
         {
             return null;
         }
@@ -899,7 +961,8 @@ internal class VendorAnthropicChatRequest
         {
             Type = ToApiThinkingType(mode.Value),
             BudgetTokens = mode == AnthropicThinkingTypes.Enabled ? budgetTokens : null,
-            Display = vendorThinking?.Display
+            Display = vendorThinking?.Display,
+            BlockBinding = vendorThinking?.BlockBinding
         };
 
         if (mode == AnthropicThinkingTypes.Enabled && settings.BudgetTokens is int budget && MaxTokens < budget)
@@ -908,6 +971,18 @@ internal class VendorAnthropicChatRequest
         }
 
         return settings;
+    }
+
+    private void ClampDisabledThinkingEffort()
+    {
+        if (Thinking?.Type is not "disabled"
+            || !ChatModelAnthropicHelper.RestrictsDisabledThinkingToHighEffortOrBelow(Model)
+            || OutputConfig?.Effort is not ("xhigh" or "max"))
+        {
+            return;
+        }
+
+        OutputConfig.Effort = "high";
     }
 
     private static string ToApiThinkingType(AnthropicThinkingTypes type) => type switch
@@ -919,16 +994,7 @@ internal class VendorAnthropicChatRequest
     };
 
     private static bool RequiresAdaptiveThinkingOnly(string? modelName)
-    {
-        if (modelName is null)
-        {
-            return false;
-        }
-
-        return modelName.StartsWith("claude-opus-4-7", StringComparison.OrdinalIgnoreCase)
-            || modelName.StartsWith("claude-opus-4-8", StringComparison.OrdinalIgnoreCase)
-            || ChatModelAnthropicHelper.IsClaude5Model(modelName);
-    }
+        => ChatModelAnthropicHelper.RequiresAdaptiveThinkingWhenEnabled(modelName);
     
     
     private static bool IsExtendedThinkingModel(string? modelName)

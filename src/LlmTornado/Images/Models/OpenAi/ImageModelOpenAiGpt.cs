@@ -11,9 +11,32 @@ namespace LlmTornado.Images.Models.OpenAi;
 public class ImageModelOpenAiGpt : IVendorModelClassProvider
 {
     /// <summary>
-    /// Latest GPT Image model. Recommended default for image generation and editing.
+    /// GPT Image 2.5 Sunburst — most capable model for image generation and editing.
+    /// Released September 10, 2026. Supports low, medium, high, xhigh, max, and auto quality.
     /// </summary>
-    public static readonly ImageModel ModelV2 = new ImageModel("gpt-image-2", LLmProviders.OpenAi);
+    public static readonly ImageModel ModelV25Sunburst = new ImageModel("gpt-image-2.5-sunburst", LLmProviders.OpenAi, ["gpt-image-2.5-sunburst-2026-09-08"]);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelV25Sunburst"/>
+    /// </summary>
+    public readonly ImageModel V25Sunburst = ModelV25Sunburst;
+
+    /// <summary>
+    /// GPT Image 2.5 Flare — fastest high-quality everyday image generation.
+    /// Released September 10, 2026. Supports low, medium, high, xhigh, max, and auto quality.
+    /// </summary>
+    public static readonly ImageModel ModelV25Flare = new ImageModel("gpt-image-2.5-flare", LLmProviders.OpenAi, ["gpt-image-2.5-flare-2026-09-08"]);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelV25Flare"/>
+    /// </summary>
+    public readonly ImageModel V25Flare = ModelV25Flare;
+
+    /// <summary>
+    /// Latest GPT Image 2 model. Recommended default for image generation and editing.
+    /// Transparent backgrounds are supported in preview (png/webp).
+    /// </summary>
+    public static readonly ImageModel ModelV2 = new ImageModel("gpt-image-2", LLmProviders.OpenAi, ["gpt-image-2-2026-04-21"]);
 
     /// <summary>
     /// <inheritdoc cref="ModelV2"/>
@@ -71,7 +94,7 @@ public class ImageModelOpenAiGpt : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
     
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelV2, ModelV1, ModelV1Mini, ModelV15, ModelChatGptLatest
+        ModelV25Sunburst, ModelV25Flare, ModelV2, ModelV1, ModelV1Mini, ModelV15, ModelChatGptLatest
     ]);
 
     /// <summary>

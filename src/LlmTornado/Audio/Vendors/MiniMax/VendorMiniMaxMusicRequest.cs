@@ -25,13 +25,33 @@ internal class VendorMiniMaxMusicRequest
     
     [JsonProperty("audio_setting")]
     public VendorMiniMaxAudioSetting? AudioSetting { get; set; }
+    
+    [JsonProperty("lyrics_optimizer")]
+    public bool? LyricsOptimizer { get; set; }
+    
+    [JsonProperty("is_instrumental")]
+    public bool? IsInstrumental { get; set; }
+    
+    [JsonProperty("audio_url")]
+    public string? AudioUrl { get; set; }
+    
+    [JsonProperty("audio_base64")]
+    public string? AudioBase64 { get; set; }
+    
+    [JsonProperty("cover_feature_id")]
+    public string? CoverFeatureId { get; set; }
 
     public VendorMiniMaxMusicRequest(MusicGenerationRequest request)
     {
-        Model = (request.Model ?? AudioModel.MiniMax.Music.Music25).GetApiName;
+        Model = (request.Model ?? AudioModel.MiniMax.Music.Music30).GetApiName;
         Prompt = request.Prompt;
         Lyrics = request.Lyrics;
         Stream = false;
+        LyricsOptimizer = request.LyricsOptimizer;
+        IsInstrumental = request.IsInstrumental;
+        AudioUrl = request.AudioUrl;
+        AudioBase64 = request.AudioBase64;
+        CoverFeatureId = request.CoverFeatureId;
         
         if (request.OutputFormat.HasValue)
         {

@@ -23,6 +23,18 @@ public class ContextualEmbeddingRequest : ISerializableRequest
     }
 
     /// <summary>
+    /// Creates a new request with a flat list of documents or queries.
+    /// Use this with <see cref="EnableAutoChunking"/> for backend document chunking, or with <see cref="ContextualEmbeddingInputType.Query"/> for queries.
+    /// </summary>
+    /// <param name="model">The model to use for the embeddings.</param>
+    /// <param name="documents">Full documents or queries as a flat list of strings.</param>
+    public ContextualEmbeddingRequest(ContextualEmbeddingModel model, List<string> documents)
+    {
+        Model = model;
+        DocumentInputs = documents;
+    }
+
+    /// <summary>
     /// The model to use for the embeddings.
     /// </summary>
     [JsonProperty("model")]
@@ -32,8 +44,17 @@ public class ContextualEmbeddingRequest : ISerializableRequest
     /// <summary>
     /// A list of lists, where each inner list contains a query, a document, or document chunks to be vectorized.
     /// </summary>
+    [JsonIgnore]
+    public List<List<string>>? Inputs { get; set; }
+
+    /// <summary>
+    /// A flat list of full documents or queries. Required when <see cref="EnableAutoChunking"/> is true.
+    /// </summary>
+    [JsonIgnore]
+    public List<string>? DocumentInputs { get; set; }
+
     [JsonProperty("inputs")]
-    public List<List<string>> Inputs { get; set; }
+    public object SerializedInputs => DocumentInputs is not null ? DocumentInputs : Inputs ?? [];
 
     /// <summary>
     /// Type of the input text.
@@ -58,6 +79,25 @@ public class ContextualEmbeddingRequest : ISerializableRequest
     /// </summary>
     [JsonProperty("encoding_format")]
     public ContextualEmbeddingEncodingFormat? EncodingFormat { get; set; }
+
+    /// <summary>
+    /// Whether to automatically chunk each input document on the backend.
+    /// When true, <see cref="DocumentInputs"/> must be a flat list of full-document strings and <see cref="InputType"/> must be <see cref="ContextualEmbeddingInputType.Document"/>.
+    /// </summary>
+    [JsonProperty("enable_auto_chunking")]
+    public bool? EnableAutoChunking { get; set; }
+
+    /// <summary>
+    /// Target chunk size in tokens when <see cref="EnableAutoChunking"/> is true. The server defaults to 512. Must not exceed 32K tokens.
+    /// </summary>
+    [JsonProperty("chunk_size")]
+    public int? ChunkSize { get; set; }
+
+    /// <summary>
+    /// Chunk overlap in tokens when <see cref="EnableAutoChunking"/> is true. Must be smaller than <see cref="ChunkSize"/>.
+    /// </summary>
+    [JsonProperty("chunk_overlap")]
+    public int? ChunkOverlap { get; set; }
 
     [JsonIgnore]
     internal string? UrlOverride { get; set; }

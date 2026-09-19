@@ -404,6 +404,8 @@ internal class VendorOpenAiImageEditJsonRequest
 				TornadoImageQualities.Low => "low",
 				TornadoImageQualities.Medium => "medium",
 				TornadoImageQualities.High or TornadoImageQualities.Hd => "high",
+				TornadoImageQualities.XHigh => "xhigh",
+				TornadoImageQualities.Max => "max",
 				TornadoImageQualities.Auto => "auto",
 				_ => "auto"
 			};

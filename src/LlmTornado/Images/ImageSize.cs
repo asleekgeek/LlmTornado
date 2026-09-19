@@ -84,7 +84,85 @@ public enum TornadoImageSizes
     /// <summary>
     /// When used, forces <see cref="ImageGenerationRequest.Width"/> and <see cref="ImageGenerationRequest.Height"/> to be use instead.
     /// </summary>
-    Custom
+    Custom,
+    
+    /// <summary>
+    /// Square, default for GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1280x1280")]
+    Size1280x1280,
+    
+    /// <summary>
+    /// Landscape ~3:2, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1568x1056")]
+    Size1568x1056,
+    
+    /// <summary>
+    /// Portrait ~2:3, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1056x1568")]
+    Size1056x1568,
+    
+    /// <summary>
+    /// Landscape ~4:3, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1472x1088")]
+    Size1472x1088,
+    
+    /// <summary>
+    /// Portrait ~3:4, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1088x1472")]
+    Size1088x1472,
+    
+    /// <summary>
+    /// Ultrawide ~16:9, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "1728x960")]
+    Size1728x960,
+    
+    /// <summary>
+    /// Tall ~9:16, supported by GLM-Image.
+    /// </summary>
+    [EnumMember(Value = "960x1728")]
+    Size960x1728,
+    
+    /// <summary>
+    /// Portrait, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "768x1344")]
+    Size768x1344,
+    
+    /// <summary>
+    /// Portrait ~3:4, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "864x1152")]
+    Size864x1152,
+    
+    /// <summary>
+    /// Landscape, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "1344x768")]
+    Size1344x768,
+    
+    /// <summary>
+    /// Landscape ~4:3, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "1152x864")]
+    Size1152x864,
+    
+    /// <summary>
+    /// Ultrawide 2:1, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "1440x720")]
+    Size1440x720,
+    
+    /// <summary>
+    /// Tall 1:2, supported by CogView-4.
+    /// </summary>
+    [EnumMember(Value = "720x1440")]
+    Size720x1440
 }
 
 /// <summary>
@@ -241,10 +319,16 @@ public enum ImageAspectRatio
     Landscape2x1,
     
     /// <summary>
-    /// 21:9 ultrawide landscape aspect ratio. Supported by: MiniMax.
+    /// 21:9 ultrawide landscape aspect ratio. Supported by: xAI, MiniMax.
     /// </summary>
     [EnumMember(Value = "21:9")]
     Landscape21x9,
+    
+    /// <summary>
+    /// 5:2 wide banner aspect ratio. Supported by: xAI.
+    /// </summary>
+    [EnumMember(Value = "5:2")]
+    Landscape5x2,
     
     /// <summary>
     /// Automatic aspect ratio selection. Supported by: xAI.
@@ -266,7 +350,7 @@ public enum ImageResolution
     Resolution1k,
     
     /// <summary>
-    /// 2K resolution. Supported by: xAI (coming soon).
+    /// 2K resolution. Supported by: xAI (Grok Imagine Image 2.0).
     /// </summary>
     [EnumMember(Value = "2k")]
     Resolution2k

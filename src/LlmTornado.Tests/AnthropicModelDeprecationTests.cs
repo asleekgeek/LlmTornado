@@ -19,7 +19,19 @@ public class AnthropicModelDeprecationTests
 
         Assert.That(attr, Is.Not.Null);
         Assert.That(attr!.Message, Does.Contain("August 5, 2026"));
-        Assert.That(attr.Message, Does.Contain("ChatModel.Anthropic.Claude48.Opus"));
+        Assert.That(attr.Message, Does.Contain("ChatModel.Anthropic.Claude5.Opus"));
+    }
+
+    [Test]
+    public void Claude4Sonnet_IsMarkedObsoleteWithJune2026Retirement()
+    {
+        ObsoleteAttribute? attr = typeof(ChatModelAnthropicClaude4)
+            .GetField(nameof(ChatModelAnthropicClaude4.ModelSonnet250514), BindingFlags.Public | BindingFlags.Static)!
+            .GetCustomAttribute<ObsoleteAttribute>();
+
+        Assert.That(attr, Is.Not.Null);
+        Assert.That(attr!.Message, Does.Contain("June 15, 2026"));
+        Assert.That(attr.Message, Does.Contain("ChatModel.Anthropic.Claude5.Sonnet"));
     }
 
     [Test]

@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using LlmTornado.Audio;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Cohere;
@@ -11,6 +12,9 @@ using LlmTornado.Code.Models;
 using LlmTornado.Code.Sse;
 using LlmTornado.Embedding;
 using LlmTornado.Models.Vendors;
+using LlmTornado.Ocr;
+using LlmTornado.Ocr.Vendors.Cohere;
+using LlmTornado.Rerank;
 using LlmTornado.Tokenize;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -121,6 +125,9 @@ public class CohereEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             CapabilityEndpoints.Embeddings => "embed",
             CapabilityEndpoints.Models => "models",
             CapabilityEndpoints.Tokenize => "tokenize",
+            CapabilityEndpoints.Rerank => "rerank",
+            CapabilityEndpoints.Audio => "audio",
+            CapabilityEndpoints.Ocr => "parse",
             _ => throw new Exception($"Cohere doesn't support endpoint {endpoint}")
         };
     }
@@ -534,7 +541,21 @@ public class CohereEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
     {
         { typeof(ChatResult), (jsonData, postData, req) => ChatResult.Deserialize(LLmProviders.Cohere, jsonData, postData, req) },
         { typeof(EmbeddingResult), (jsonData, postData, req) => EmbeddingResult.Deserialize(LLmProviders.Cohere, jsonData, postData) },
-        { typeof(RetrievedModelsResult), (jsonData, postData, req) => RetrievedModelsResult.Deserialize(LLmProviders.Cohere, jsonData, postData) }
+        { typeof(RetrievedModelsResult), (jsonData, postData, req) => RetrievedModelsResult.Deserialize(LLmProviders.Cohere, jsonData, postData) },
+        { typeof(RerankResult), (jsonData, postData, req) =>
+        {
+            RerankResult? result = JsonConvert.DeserializeObject<RerankResult>(jsonData);
+
+            if (result is not null)
+            {
+                result.Data ??= result.Results;
+                result.Results ??= result.Data;
+            }
+
+            return result;
+        } },
+        { typeof(TranscriptionResult), (jsonData, postData, req) => JsonConvert.DeserializeObject<TranscriptionResult>(jsonData) },
+        { typeof(OcrResult), (jsonData, postData, req) => VendorCohereParse.DeserializeResult(jsonData) }
     };
     
     public override T? InboundMessage<T>(string jsonData, string? postData, object? requestObject) where T : default

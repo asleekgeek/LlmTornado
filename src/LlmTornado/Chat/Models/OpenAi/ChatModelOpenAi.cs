@@ -80,6 +80,22 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     public readonly ChatModelOpenAiGpt56 Gpt56 = new ChatModelOpenAiGpt56();
     
     /// <summary>
+    /// GPT-6 models, including GPT-6 Astra (September 8, 2026).
+    /// </summary>
+    public readonly ChatModelOpenAiGpt6 Gpt6 = new ChatModelOpenAiGpt6();
+    
+    /// <summary>
+    /// OpenAI Daybreak cybersecurity models (GPT-5.6 Cyber, Daybreak Red/Blue).
+    /// Requires separate Daybreak program approval.
+    /// </summary>
+    public readonly ChatModelOpenAiDaybreak Daybreak = new ChatModelOpenAiDaybreak();
+    
+    /// <summary>
+    /// GPT-Rosalind life sciences models. Requires trusted-access provisioning.
+    /// </summary>
+    public readonly ChatModelOpenAiRosalind Rosalind = new ChatModelOpenAiRosalind();
+    
+    /// <summary>
     /// O3 models.
     /// </summary>
     public readonly ChatModelOpenAiO3 O3 = new ChatModelOpenAiO3();
@@ -95,7 +111,7 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     public readonly ChatModelOpenAiCodex Codex = new ChatModelOpenAiCodex();
 
     /// <summary>
-    /// Realtime API models (gpt-realtime-2, translate, whisper, etc.).
+    /// Realtime and Live API models (gpt-realtime-2.1, gpt-live-1, translate, whisper, etc.).
     /// </summary>
     public readonly ChatModelOpenAiRealtime Realtime = new ChatModelOpenAiRealtime();
 
@@ -133,14 +149,14 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelOpenAiGpt35.ModelsAll, ..ChatModelOpenAiGpt4.ModelsAll, ..ChatModelOpenAiO3.ModelsAll, ..ChatModelOpenAiO4.ModelsAll, ..ChatModelOpenAiGpt41.ModelsAll, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt53.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ..ChatModelOpenAiCodex.ModelsAll, ..ChatModelOpenAiRealtime.ModelsAll, ModelChatLatest]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelOpenAiGpt35.ModelsAll, ..ChatModelOpenAiGpt4.ModelsAll, ..ChatModelOpenAiO3.ModelsAll, ..ChatModelOpenAiO4.ModelsAll, ..ChatModelOpenAiGpt41.ModelsAll, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt53.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ..ChatModelOpenAiGpt6.ModelsAll, ..ChatModelOpenAiDaybreak.ModelsAll, ..ChatModelOpenAiRosalind.ModelsAll, ..ChatModelOpenAiCodex.ModelsAll, ..ChatModelOpenAiRealtime.ModelsAll, ModelChatLatest]);
 
     /// <summary>
     /// All reasoning models. Requests for these models are serialized differently.
     /// </summary>
     public static List<IModel> ReasoningModelsAll => LazyReasoningModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyReasoningModelsAll = new Lazy<List<IModel>>(() => [..ChatModelOpenAiGpt4.ReasoningModels, ..ChatModelOpenAiO3.ModelsAll, ..ChatModelOpenAiO4.ModelsAll, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ChatModelOpenAiCodex.ModelGpt53Codex]);
+    private static readonly Lazy<List<IModel>> LazyReasoningModelsAll = new Lazy<List<IModel>>(() => [..ChatModelOpenAiGpt4.ReasoningModels, ..ChatModelOpenAiO3.ModelsAll, ..ChatModelOpenAiO4.ModelsAll, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ..ChatModelOpenAiGpt6.ModelsAll, ..ChatModelOpenAiDaybreak.ModelsAll, ..ChatModelOpenAiRosalind.ModelsAll, ChatModelOpenAiCodex.ModelGpt53Codex]);
     
     /// <summary>
     /// HashSet version of ReasoningModelsAll.
@@ -154,7 +170,7 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> WebSearchCompatibleModelsAll => LazyWebSearchCompatibleModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyWebSearchCompatibleModelsAll = new Lazy<List<IModel>>(() => [ChatModelOpenAiGpt4.ModelOSearchPreview, ChatModelOpenAiGpt4.ModelOMiniSearchPreview, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt53.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ModelChatLatest]);
+    private static readonly Lazy<List<IModel>> LazyWebSearchCompatibleModelsAll = new Lazy<List<IModel>>(() => [ChatModelOpenAiGpt4.ModelOSearchPreview, ChatModelOpenAiGpt4.ModelOMiniSearchPreview, ..ChatModelOpenAiGpt5.ModelsAll, ..ChatModelOpenAiGpt51.ModelsAll, ..ChatModelOpenAiGpt52.ModelsAll, ..ChatModelOpenAiGpt53.ModelsAll, ..ChatModelOpenAiGpt54.ModelsAll, ..ChatModelOpenAiGpt55.ModelsAll, ..ChatModelOpenAiGpt56.ModelsAll, ..ChatModelOpenAiGpt6.ModelsAll, ..ChatModelOpenAiDaybreak.ModelsAll, ..ChatModelOpenAiRosalind.ModelsAll, ModelChatLatest]);
 
     internal static HashSet<IModel> TempIncompatibleModels => LazyTempIncompatibleModels.Value;
 
@@ -162,6 +178,7 @@ public class ChatModelOpenAi : BaseVendorModelProvider
         // Web-search / o-series / GPT-5 models that never accept temperature.
         // Conditionally supported models (GPT-5.1/5.2/5.4/5.5/5.6) are excluded so
         // ChatRequest can keep temperature when reasoning_effort is "none".
+        // GPT-6 Astra never accepts sampling params and is listed in SamplingParamsNeverSupported.
         ..WebSearchCompatibleModelsAll
             .Concat(ChatModelOpenAiO3.ModelsAll)
             .Concat(ChatModelOpenAiO4.ModelsAll)
@@ -177,7 +194,8 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     private static readonly Lazy<HashSet<IModel>> LazySamplingParamsNeverSupported = new Lazy<HashSet<IModel>>(() => [
         ChatModelOpenAiGpt5.ModelV5, ChatModelOpenAiGpt5.ModelV5Mini, ChatModelOpenAiGpt5.ModelV5Nano, ChatModelOpenAiGpt5.ModelV5Pro, ChatModelOpenAiGpt5.ModelV5Codex,
         ChatModelOpenAiGpt52.ModelV52Codex, ChatModelOpenAiCodex.ModelGpt53Codex,
-        ChatModelOpenAiGpt54.ModelV54Pro, ChatModelOpenAiGpt55.ModelV55Pro
+        ChatModelOpenAiGpt54.ModelV54Pro, ChatModelOpenAiGpt55.ModelV55Pro,
+        ChatModelOpenAiGpt6.ModelV6Astra
     ]);
     
     /// <summary>
@@ -199,7 +217,10 @@ public class ChatModelOpenAi : BaseVendorModelProvider
 
     private static readonly Lazy<HashSet<IModel>> LazyComputerUseModelsAllSet = new Lazy<HashSet<IModel>>(() => [
         ChatModelOpenAiGpt54.ModelV54, ChatModelOpenAiGpt54.ModelV54Mini,
-        ..ChatModelOpenAiGpt56.ModelsAll
+        ..ChatModelOpenAiGpt55.ModelsAll,
+        ..ChatModelOpenAiGpt56.ModelsAll,
+        ..ChatModelOpenAiGpt6.ModelsAll,
+        ..ChatModelOpenAiDaybreak.ModelsAll
     ]);
 
     /// <summary>
@@ -209,7 +230,10 @@ public class ChatModelOpenAi : BaseVendorModelProvider
 
     private static readonly Lazy<HashSet<IModel>> LazyToolSearchModelsAllSet = new Lazy<HashSet<IModel>>(() => [
         ChatModelOpenAiGpt54.ModelV54, ChatModelOpenAiGpt54.ModelV54Mini,
-        ..ChatModelOpenAiGpt56.ModelsAll
+        ..ChatModelOpenAiGpt55.ModelsAll,
+        ..ChatModelOpenAiGpt56.ModelsAll,
+        ..ChatModelOpenAiGpt6.ModelsAll,
+        ..ChatModelOpenAiDaybreak.ModelsAll
     ]);
 
     /// <summary>
@@ -219,7 +243,20 @@ public class ChatModelOpenAi : BaseVendorModelProvider
 
     private static readonly Lazy<HashSet<IModel>> LazyCompactionModelsAllSet = new Lazy<HashSet<IModel>>(() => [
         ..ChatModelOpenAiGpt54.ModelsAll,
-        ..ChatModelOpenAiGpt56.ModelsAll
+        ..ChatModelOpenAiGpt55.ModelsAll,
+        ..ChatModelOpenAiGpt56.ModelsAll,
+        ..ChatModelOpenAiGpt6.ModelsAll,
+        ..ChatModelOpenAiDaybreak.ModelsAll
+    ]);
+
+    /// <summary>
+    /// Models that support function/custom tools only through the Responses API.
+    /// Chat Completions rejects tool calls unless reasoning effort is none; these models do not support none.
+    /// </summary>
+    internal static HashSet<IModel> ToolsRequireResponsesModelsAllSet => LazyToolsRequireResponsesModelsAllSet.Value;
+
+    private static readonly Lazy<HashSet<IModel>> LazyToolsRequireResponsesModelsAllSet = new Lazy<HashSet<IModel>>(() => [
+        ChatModelOpenAiGpt6.ModelV6Astra
     ]);
 
     /// <summary>
@@ -248,9 +285,10 @@ public class ChatModelOpenAi : BaseVendorModelProvider
     }
     
     /// <summary>
-    /// Determines whether sampling parameters (temperature, top_p, logprobs) should be cleared for GPT-5.x models.
-    /// GPT-5.6, GPT-5.5, and GPT-5.4 parameter compatibility:
+    /// Determines whether sampling parameters (temperature, top_p, logprobs) should be cleared for GPT-5.x / GPT-6 models.
+    /// Parameter compatibility:
     /// - Older GPT-5 models (gpt-5, gpt-5-mini, gpt-5-nano) never support these parameters
+    /// - GPT-6 Astra never supports these parameters and does not expose reasoning effort none
     /// - GPT-5.6, GPT-5.5, and GPT-5.4 only support these when reasoning effort is none, while GPT-5.5/5.4 pro variants never support them
     /// - GPT-5.3-Codex and GPT-5.2-Codex never support these because they only expose reasoning modes low, medium, high, and xhigh
     /// - GPT-5.2 and GPT-5.1 only support these when reasoning effort is none

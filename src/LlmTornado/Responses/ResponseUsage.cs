@@ -41,6 +41,18 @@ public class ResponseUsage : IChatUsage
     /// </summary>
     [JsonProperty("total_tokens")]
     public int TotalTokens { get; set; }
+    
+    /// <summary>
+    /// Exact request cost in USD ticks. Returned by xAI. Divide by 1e10 to get USD.
+    /// </summary>
+    [JsonProperty("cost_in_usd_ticks")]
+    public long? CostInUsdTicks { get; set; }
+    
+    /// <summary>
+    /// Request cost in USD derived from <see cref="CostInUsdTicks"/> (xAI: ticks / 1e10).
+    /// </summary>
+    [JsonIgnore]
+    public decimal? CostUsd => CostInUsdTicks is null ? null : CostInUsdTicks.Value / 10_000_000_000m;
 }
 
 /// <summary>

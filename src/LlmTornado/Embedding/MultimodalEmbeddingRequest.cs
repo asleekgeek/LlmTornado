@@ -53,6 +53,12 @@ public class MultimodalEmbeddingRequest : ISerializableRequest
     /// </summary>
     [JsonProperty("output_encoding")]
     public MultimodalEmbeddingEncodingFormat? OutputEncoding { get; set; }
+
+    /// <summary>
+    /// The number of dimensions for resulting output embeddings. Supported by voyage-multimodal-3.5: 2048, 1024 (default), 512, and 256.
+    /// </summary>
+    [JsonProperty("output_dimension")]
+    public int? OutputDimension { get; set; }
     
     [JsonIgnore]
     internal string? UrlOverride { get; set; }

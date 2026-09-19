@@ -18,7 +18,7 @@ public class TokenizeDemo : DemoBase
     [TornadoTest]
     public static async Task TokenizeMoonshotAiText()
     {
-        TokenizeRequest request = new TokenizeRequest(ChatModel.MoonshotAi.Models.MoonshotV18k, "Hello, world! This is a test message.");
+        TokenizeRequest request = new TokenizeRequest(ChatModel.MoonshotAi.Models.KimiK3, "Hello, world! This is a test message.");
         TokenizeResult? result = await Program.ConnectMulti().Tokenize.CountTokens(request);
         
         Assert.That(result, Is.NotNull);
@@ -30,7 +30,7 @@ public class TokenizeDemo : DemoBase
     [TornadoTest]
     public static async Task TokenizeMoonshotAiMessages()
     {
-        TokenizeRequest request = new TokenizeRequest(ChatModel.MoonshotAi.Models.MoonshotV18k, [
+        TokenizeRequest request = new TokenizeRequest(ChatModel.MoonshotAi.Models.KimiK3, [
             new ChatMessage(ChatMessageRoles.System, "You are a helpful assistant."),
             new ChatMessage(ChatMessageRoles.User, "Hello, how are you?"),
             new ChatMessage(ChatMessageRoles.Assistant, "I'm doing well, thank you!")

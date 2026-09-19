@@ -57,6 +57,14 @@ public class ChatTests
         Assert.That(zaiModels.Glm.Glm46.Name, Is.EqualTo("glm-4.6"));
         Assert.That(zaiModels.Glm.Glm45.Name, Is.EqualTo("glm-4.5"));
         Assert.That(zaiModels.Glm.Glm45V.Name, Is.EqualTo("glm-4.5v"));
+        Assert.That(zaiModels.Glm.Glm51.Name, Is.EqualTo("glm-5.1"));
+        Assert.That(zaiModels.Glm.Glm52.Name, Is.EqualTo("glm-5.2"));
+        Assert.That(zaiModels.Glm.Glm53.Name, Is.EqualTo("glm-5.3"));
+        Assert.That(zaiModels.Glm.Glm53Flash.Name, Is.EqualTo("glm-5.3-flash"));
+        Assert.That(zaiModels.Glm.Glm53FlashX.Name, Is.EqualTo("glm-5.3-flashx"));
+        Assert.That(zaiModels.Glm.Glm53.ContextTokens, Is.EqualTo(1_000_000));
+        Assert.That(zaiModels.Glm.Glm52.ContextTokens, Is.EqualTo(1_000_000));
+        Assert.That(zaiModels.Glm.Glm51.ContextTokens, Is.EqualTo(200_000));
     }
 
     [Test]
@@ -204,6 +212,86 @@ public class ChatTests
         string bodyJson = serialized.Body.ToString();
         Assert.That(bodyJson, Does.Contain("function"));
         Assert.That(bodyJson, Does.Contain("get_weather"));
+    }
+
+    [Test]
+    public void ZaiProvider_ReasoningEffort_SerializesForGlm53()
+    {
+        var api = new TornadoApi("test-key");
+        var request = new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm53,
+            Messages = [new ChatMessage(ChatMessageRoles.User, "Hello")],
+            ReasoningEffort = ChatReasoningEfforts.Max
+        };
+
+        var serialized = request.Serialize(api.GetProvider(LLmProviders.Zai));
+        string bodyJson = serialized.Body.ToString();
+
+        Assert.That(bodyJson, Does.Contain("\"reasoning_effort\":\"max\""));
+        Assert.That(bodyJson, Does.Contain("\"type\":\"enabled\""));
+    }
+
+    [Test]
+    public void ZaiProvider_ReasoningEffort_MapsMediumToHigh()
+    {
+        var api = new TornadoApi("test-key");
+        var request = new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm52,
+            Messages = [new ChatMessage(ChatMessageRoles.User, "Hello")],
+            ReasoningEffort = ChatReasoningEfforts.Medium
+        };
+
+        var serialized = request.Serialize(api.GetProvider(LLmProviders.Zai));
+        string bodyJson = serialized.Body.ToString();
+
+        Assert.That(bodyJson, Does.Contain("\"reasoning_effort\":\"high\""));
+        Assert.That(bodyJson, Does.Not.Contain("\"reasoning_effort\":\"medium\""));
+    }
+
+    [Test]
+    public void ZaiProvider_Glm53_ForcesThinkingWhenDisabled()
+    {
+        var api = new TornadoApi("test-key");
+        var request = new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm53Flash,
+            Messages = [new ChatMessage(ChatMessageRoles.User, "Hello")],
+            ReasoningEffort = ChatReasoningEfforts.None,
+            VendorExtensions = new ChatRequestVendorExtensions(new ChatRequestVendorZaiExtensions
+            {
+                Thinking = new ChatRequestVendorZaiThinking
+                {
+                    Type = ChatRequestVendorZaiThinkingType.Disabled
+                }
+            })
+        };
+
+        var serialized = request.Serialize(api.GetProvider(LLmProviders.Zai));
+        string bodyJson = serialized.Body.ToString();
+
+        Assert.That(bodyJson, Does.Contain("\"type\":\"enabled\""));
+        Assert.That(bodyJson, Does.Not.Contain("\"type\":\"disabled\""));
+        Assert.That(bodyJson, Does.Contain("\"reasoning_effort\":\"low\""));
+    }
+
+    [Test]
+    public void ZaiProvider_OlderModels_OmitReasoningEffort()
+    {
+        var api = new TornadoApi("test-key");
+        var request = new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm46,
+            Messages = [new ChatMessage(ChatMessageRoles.User, "Hello")],
+            ReasoningEffort = ChatReasoningEfforts.High
+        };
+
+        var serialized = request.Serialize(api.GetProvider(LLmProviders.Zai));
+        string bodyJson = serialized.Body.ToString();
+
+        Assert.That(bodyJson, Does.Not.Contain("reasoning_effort"));
+        Assert.That(bodyJson, Does.Contain("\"type\":\"enabled\""));
     }
 
     [Test]

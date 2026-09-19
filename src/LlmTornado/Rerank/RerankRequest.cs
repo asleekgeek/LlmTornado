@@ -89,6 +89,29 @@ public class RerankRequest : ISerializableRequest
     /// </summary>
     internal TornadoRequestContent SerializeInternal(IEndpointProvider provider, RequestSerializeOptions? options)
     {
-        return new TornadoRequestContent(this.ToJson(options?.Pretty ?? false), Model, UrlOverride ?? EndpointBase.BuildRequestUrl(null, provider, CapabilityEndpoints.Rerank, Model), provider, CapabilityEndpoints.Rerank);
+        string body = provider.Provider switch
+        {
+            LLmProviders.Cohere => SerializeCohere(options?.Pretty ?? false),
+            _ => this.ToJson(options?.Pretty ?? false)
+        };
+
+        return new TornadoRequestContent(body, Model, UrlOverride ?? EndpointBase.BuildRequestUrl(null, provider, CapabilityEndpoints.Rerank, Model), provider, CapabilityEndpoints.Rerank);
+    }
+
+    private string SerializeCohere(bool pretty)
+    {
+        Dictionary<string, object?> payload = new Dictionary<string, object?>
+        {
+            ["model"] = Model?.Name,
+            ["query"] = Query,
+            ["documents"] = Documents
+        };
+
+        if (TopK.HasValue)
+        {
+            payload["top_n"] = TopK.Value;
+        }
+
+        return payload.ToJson(pretty);
     }
 }

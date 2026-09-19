@@ -56,6 +56,18 @@ public class MultimodalEmbeddingModel : ModelEmbeddingBase
         ContextTokens = contextTokens;
         OutputDimensions = outputDimensions;
     }
+
+    /// <summary>
+    /// Represents a Model with the given name, default dimensions, and supported Matryoshka dimensions.
+    /// </summary>
+    public MultimodalEmbeddingModel(string name, LLmProviders provider, int contextTokens, int outputDimensions, List<int> matryoshkaDimensions)
+    {
+        Name = name;
+        Provider = provider;
+        ContextTokens = contextTokens;
+        OutputDimensions = outputDimensions;
+        MatryoshkaDimensions = matryoshkaDimensions;
+    }
     
     /// <summary>
     /// Allows a model to be implicitly cast to the string of its <see cref="ModelBase.Name" />

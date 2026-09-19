@@ -54,5 +54,12 @@ internal class VendorZaiChatRequest
                 ExtendedRequest.Thinking = extensions.Thinking;
             }
         }
+
+        // GLM-5.3 / Flash / FlashX reject thinking.type = disabled. Force enabled so the request cannot fail.
+        if (VendorZaiChatRequestData.IsForcedThinkingModel(request.Model?.Name))
+        {
+            ExtendedRequest.Thinking ??= new ChatRequestVendorZaiThinking();
+            ExtendedRequest.Thinking.Type = ChatRequestVendorZaiThinkingType.Enabled;
+        }
     }
 }

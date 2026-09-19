@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
+using LlmTornado.Rerank.Models.Cohere;
 using LlmTornado.Rerank.Models.Voyage;
 
 namespace LlmTornado.Rerank.Models;
@@ -16,6 +17,11 @@ public class RerankModel : ModelBase
     public static readonly RerankModelVoyage Voyage = new();
     
     /// <summary>
+    /// Models from Cohere.
+    /// </summary>
+    public static readonly RerankModelCohere Cohere = new();
+    
+    /// <summary>
     /// All known models keyed by name.
     /// </summary>
     public static readonly Dictionary<string, IModel> AllModelsMap = [];
@@ -29,7 +35,8 @@ public class RerankModel : ModelBase
     {
         AllModels =
         [
-            ..Voyage.AllModels
+            ..Voyage.AllModels,
+            ..Cohere.AllModels
         ];
         
         AllModels.ForEach(x =>

@@ -6,14 +6,16 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Chat.Models.Perplexity;
 
 /// <summary>
-/// Sonar class models from Perplexity.
+/// Sonar class models from Perplexity. The Sonar Chat Completions surface retires September 27, 2026.
+/// Prefer Agent API presets: sonar → fast, sonar-pro → low, sonar-reasoning-pro → medium, sonar-deep-research → high.
 /// </summary>
 public class ChatModelPerplexitySonar : IVendorModelClassProvider
 {
     /// <summary>
     /// Advanced search offering with grounding, supporting complex queries and follow-ups.
+    /// Maps to the Agent API <c>low</c> preset.
     /// </summary>
-    public static readonly ChatModel ModelPro = new ChatModel("sonar-pro", LLmProviders.Perplexity, 128_000);
+    public static readonly ChatModel ModelPro = new ChatModel("sonar-pro", LLmProviders.Perplexity, 200_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelPro"/>
@@ -21,7 +23,7 @@ public class ChatModelPerplexitySonar : IVendorModelClassProvider
     public readonly ChatModel Pro = ModelPro;
     
     /// <summary>
-    /// Latest Sonar snapshot.
+    /// Fast grounded search model. Maps to the Agent API <c>fast</c> preset.
     /// </summary>
     public static readonly ChatModel ModelDefault = new ChatModel("sonar", LLmProviders.Perplexity, 128_000);
     
@@ -32,6 +34,7 @@ public class ChatModelPerplexitySonar : IVendorModelClassProvider
     
     /// <summary>
     /// Expert-level research model conducting exhaustive searches and generating comprehensive reports.
+    /// Maps to the Agent API <c>high</c> preset.
     /// </summary>
     public static readonly ChatModel ModelDeepResearch = new ChatModel("sonar-deep-research", LLmProviders.Perplexity, 128_000);
     
@@ -41,7 +44,7 @@ public class ChatModelPerplexitySonar : IVendorModelClassProvider
     public readonly ChatModel DeepResearch = ModelDeepResearch;
     
     /// <summary>
-    /// Premier reasoning offering powered by DeepSeek R1 with Chain of Thought (CoT).
+    /// Premier reasoning offering with Chain of Thought (CoT). Maps to the Agent API <c>medium</c> preset.
     /// </summary>
     public static readonly ChatModel ModelReasoningPro = new ChatModel("sonar-reasoning-pro", LLmProviders.Perplexity, 128_000);
     
@@ -51,7 +54,7 @@ public class ChatModelPerplexitySonar : IVendorModelClassProvider
     public readonly ChatModel ReasoningPro = ModelReasoningPro;
     
     /// <summary>
-    /// Fast, real-time reasoning model designed for quick problem-solving with search.
+    /// Deprecated as of December 15, 2025. Use <see cref="ModelReasoningPro"/> or the Agent API <c>medium</c> preset.
     /// </summary>
     public static readonly ChatModel ModelReasoning = new ChatModel("sonar-reasoning", LLmProviders.Perplexity, 128_000);
     
@@ -67,9 +70,7 @@ public class ChatModelPerplexitySonar : IVendorModelClassProvider
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelPro, ModelDefault, ModelDeepResearch, ModelReasoningPro, ModelReasoning]);
     
-    /// <summary>
-    /// <inheritdoc cref="ModelsAll"/>
-    /// </summary>
+    /// <inheritdoc />
     public List<IModel> AllModels => ModelsAll;
     
     internal ChatModelPerplexitySonar()

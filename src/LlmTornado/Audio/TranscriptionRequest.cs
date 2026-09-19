@@ -113,6 +113,19 @@ public class TranscriptionRequest
     public HashSet<TranscriptionRequestIncludeItems>? Include { get; set; }
 
     /// <summary>
+    /// When true, Mistral Voxtral Transcribe 2 returns speaker labels and per-segment start/end times.
+    /// Not compatible with the realtime transcription model.
+    /// </summary>
+    [JsonProperty("diarize")]
+    public bool? Diarize { get; set; }
+
+    /// <summary>
+    /// Up to 100 words or phrases that bias Mistral transcription toward correct spellings (names, technical terms).
+    /// </summary>
+    [JsonProperty("context_bias")]
+    public List<string>? ContextBias { get; set; }
+
+    /// <summary>
     /// Cancellation token.
     /// </summary>
     [JsonIgnore]
@@ -132,7 +145,8 @@ public class TranscriptionRequest
     {
         { LLmProviders.OpenAi, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) },
         { LLmProviders.Groq, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) },
-        { LLmProviders.Zai, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) }
+        { LLmProviders.Zai, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) },
+        { LLmProviders.Cohere, (x, y) => JsonConvert.SerializeObject(x, EndpointBase.NullSettings) }
     };
     
     /// <summary>

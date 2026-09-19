@@ -41,9 +41,45 @@ public class ChatModelMistralFree : IVendorModelClassProvider
     public readonly ChatModel DevstralSmall2507 = ModelDevstralSmall2507;
     
     /// <summary>
+    /// Mistral Small 4 — hybrid instruct / reasoning / coding multimodal model released March 2026.
+    /// 256k context. Toggle reasoning per request with <c>reasoning_effort</c> (<c>none</c> / <c>high</c>). Apache 2.0.
+    /// </summary>
+    public static readonly ChatModel ModelMistralSmall2603 = new ChatModel("mistral-small-2603", LLmProviders.Mistral, 256_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelMistralSmall2603"/>
+    /// </summary>
+    public readonly ChatModel MistralSmall2603 = ModelMistralSmall2603;
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelMistralSmall2603"/>
+    /// </summary>
+    public readonly ChatModel MistralSmall4 = ModelMistralSmall2603;
+    
+    /// <summary>
+    /// Leanstral 1.5 — Lean 4 formal proof engineering model released June 2026. 256k context. Apache 2.0.
+    /// </summary>
+    public static readonly ChatModel ModelLeanstral15 = new ChatModel("labs-leanstral-1-5", LLmProviders.Mistral, 256_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelLeanstral15"/>
+    /// </summary>
+    public readonly ChatModel Leanstral15 = ModelLeanstral15;
+    
+    /// <summary>
+    /// Leanstral — first Lean 4 formal proof engineering model released March 2026.
+    /// </summary>
+    public static readonly ChatModel ModelLeanstral2603 = new ChatModel("labs-leanstral-2603", LLmProviders.Mistral, 256_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelLeanstral2603"/>
+    /// </summary>
+    public readonly ChatModel Leanstral2603 = ModelLeanstral2603;
+    
+    /// <summary>
     /// Devstral Small 2 (24B) - Next-generation coding model for software development. Apache 2.0 license.
     /// </summary>
-    public static readonly ChatModel ModelDevstralSmall2512 = new ChatModel("devstral-small-2512", LLmProviders.Mistral, 128_000);
+    public static readonly ChatModel ModelDevstralSmall2512 = new ChatModel("devstral-small-2512", LLmProviders.Mistral, 128_000, [ "labs-devstral-small-2512" ]);
     
     /// <summary>
     /// <inheritdoc cref="ModelDevstralSmall2512"/>
@@ -141,9 +177,10 @@ public class ChatModelMistralFree : IVendorModelClassProvider
     public readonly ChatModel DevstralSmall = ModelDevstralSmall2505;
     
     /// <summary>
-    /// A new leader in the small models category with image understanding capabilities, with the lastest version v3.1 released March 2025.
+    /// <summary>
+    /// Alias for the latest Small family snapshot. Currently Mistral Small 4 (<c>mistral-small-2603</c>): hybrid instruct, reasoning, and coding with 256k context.
     /// </summary>
-    public static readonly ChatModel ModelMistralSmall = new ChatModel("mistral-small-latest", LLmProviders.Mistral, 128_000);
+    public static readonly ChatModel ModelMistralSmall = new ChatModel("mistral-small-latest", LLmProviders.Mistral, 256_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelMistralSmall"/>
@@ -186,9 +223,9 @@ public class ChatModelMistralFree : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelMistralSmall2503, ModelMistralSmall, ModelPixtral, ModelDevstralSmall2505, ModelMagistralSmall2506, ModelMagistralSmall2507, 
+        ModelMistralSmall2503, ModelMistralSmall, ModelMistralSmall2603, ModelPixtral, ModelDevstralSmall2505, ModelMagistralSmall2506, ModelMagistralSmall2507, 
         ModelMistralSmall2506, ModelDevstralSmall2507, ModelDevstralSmall2512, ModelVoxtralSmall2507, ModelVoxtralMini2507, ModelMagistralSmall2509,
-        ModelMistralLarge2512, ModelMinistral3b2512, ModelMinistral8b2512, ModelMinistral14b2512, ModelMistralSmallCreative
+        ModelMistralLarge2512, ModelMinistral3b2512, ModelMinistral8b2512, ModelMinistral14b2512, ModelMistralSmallCreative, ModelLeanstral15, ModelLeanstral2603
     ]);
 
     /// <summary>

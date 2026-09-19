@@ -33,6 +33,12 @@ public class ContextualEmbeddingResult
     /// </summary>
     [JsonProperty("usage")]
     public Usage Usage { get; set; }
+
+    /// <summary>
+    /// Version of the backend chunker used when auto-chunking is enabled.
+    /// </summary>
+    [JsonProperty("chunker_version")]
+    public string? ChunkerVersion { get; set; }
 }
 
 /// <summary>
@@ -82,6 +88,12 @@ public class ContextualEmbedding
     /// </summary>
     [JsonProperty("index")]
     public int Index { get; set; }
+
+    /// <summary>
+    /// Backend-generated chunk text, returned when auto-chunking is enabled.
+    /// </summary>
+    [JsonProperty("text")]
+    public string? Text { get; set; }
 }
 
 

@@ -15,7 +15,7 @@ internal static class VendorGoogleLiveMapper
 {
     internal static VendorGoogleLiveSetup ToSetup(LiveSessionConfig config)
     {
-        ChatModel model = config.Model ?? ChatModelGoogleGeminiPreview.ModelGemini31FlashLivePreview;
+        ChatModel model = config.Model ?? ChatModelGoogleGemini.ModelGemini38Live;
 
         VendorGoogleLiveGenerationConfig generationConfig = new VendorGoogleLiveGenerationConfig
         {

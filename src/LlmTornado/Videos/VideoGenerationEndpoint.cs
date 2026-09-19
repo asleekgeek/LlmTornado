@@ -72,7 +72,7 @@ public class VideoGenerationEndpoint : EndpointBase
             LLmProviders.Google => await VendorGoogleVideoHandler.Get(videoId, resolvedProvider, this, model?.Name, cancellationToken).ConfigureAwait(false),
             LLmProviders.XAi => await VendorXAiVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
             LLmProviders.Zai => await VendorZaiVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
-            LLmProviders.MiniMax => await VendorMiniMaxVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken).ConfigureAwait(false),
+            LLmProviders.MiniMax => await VendorMiniMaxVideoHandler.Get(videoId, resolvedProvider, this, cancellationToken, model).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Video API is not supported for provider {resolvedProvider.Provider}")
         };
     }

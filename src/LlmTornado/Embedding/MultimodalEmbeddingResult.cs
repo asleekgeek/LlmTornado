@@ -76,7 +76,13 @@ public class MultimodalUsage
     public int ImagePixels { get; set; }
 
     /// <summary>
-    /// The combined total of text and image tokens.
+    /// The total number of video pixels in the list of inputs.
+    /// </summary>
+    [JsonProperty("video_pixels")]
+    public int VideoPixels { get; set; }
+
+    /// <summary>
+    /// The combined total of text, image, and video tokens.
     /// </summary>
     [JsonProperty("total_tokens")]
     public int TotalTokens { get; set; }

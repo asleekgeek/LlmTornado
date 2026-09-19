@@ -14,9 +14,19 @@ public class RerankModelVoyage : BaseVendorModelProvider
     public override LLmProviders Provider => LLmProviders.Voyage;
     
     /// <summary>
+    /// Voyage Rerank Gen 2 models.
+    /// </summary>
+    public readonly RerankModelVoyageGen2 Gen2 = new RerankModelVoyageGen2();
+    
+    /// <summary>
     /// Voyage Rerank Gen 2.5 models.
     /// </summary>
     public readonly RerankModelVoyageGen25 Gen25 = new RerankModelVoyageGen25();
+
+    /// <summary>
+    /// Voyage Rerank Gen 3 models.
+    /// </summary>
+    public readonly RerankModelVoyageGen3 Gen3 = new RerankModelVoyageGen3();
     
     /// <summary>
     /// All known rerank models from Voyage.
@@ -41,7 +51,9 @@ public class RerankModelVoyage : BaseVendorModelProvider
     /// </summary>
     public static readonly List<IModel> ModelsAll =
     [
-        ..RerankModelVoyageGen25.ModelsAll
+        ..RerankModelVoyageGen2.ModelsAll,
+        ..RerankModelVoyageGen25.ModelsAll,
+        ..RerankModelVoyageGen3.ModelsAll
     ];
     
     static RerankModelVoyage()

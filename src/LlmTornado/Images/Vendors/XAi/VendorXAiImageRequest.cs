@@ -53,7 +53,6 @@ internal class VendorXAiImageRequest
             };
         }
         
-        // Map quality (reserved for future use, currently no-op)
         if (request.Quality.HasValue)
         {
             Quality = request.Quality.Value switch
@@ -61,6 +60,7 @@ internal class VendorXAiImageRequest
                 TornadoImageQualities.Low => "low",
                 TornadoImageQualities.Medium => "medium",
                 TornadoImageQualities.High or TornadoImageQualities.Hd => "high",
+                TornadoImageQualities.Auto => "auto",
                 _ => null
             };
         }
@@ -83,6 +83,8 @@ internal class VendorXAiImageRequest
                 ImageAspectRatio.Landscape20x9 => "20:9",
                 ImageAspectRatio.Portrait1x2 => "1:2",
                 ImageAspectRatio.Landscape2x1 => "2:1",
+                ImageAspectRatio.Landscape21x9 => "21:9",
+                ImageAspectRatio.Landscape5x2 => "5:2",
                 ImageAspectRatio.Auto => "auto",
                 _ => null
             };

@@ -6,10 +6,50 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Chat.Models;
 
 /// <summary>
-/// Aya class models from Anthropic.
+/// Aya class models from Cohere.
 /// </summary>
 public class ChatModelCohereAya : IVendorModelClassProvider
 {
+    /// <summary>
+    /// Tiny Aya Global is a 3.35B instruction-tuned multilingual model with the best balance across languages and regions. Supports 70 languages.
+    /// </summary>
+    public static readonly ChatModel ModelTinyGlobal = new ChatModel("tiny-aya-global", LLmProviders.Cohere, 8_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelTinyGlobal"/>
+    /// </summary>
+    public readonly ChatModel TinyGlobal = ModelTinyGlobal;
+    
+    /// <summary>
+    /// Tiny Aya Earth is a 3.35B region-specialized multilingual model, best for West Asian and African languages. Supports 70 languages.
+    /// </summary>
+    public static readonly ChatModel ModelTinyEarth = new ChatModel("tiny-aya-earth", LLmProviders.Cohere, 8_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelTinyEarth"/>
+    /// </summary>
+    public readonly ChatModel TinyEarth = ModelTinyEarth;
+    
+    /// <summary>
+    /// Tiny Aya Fire is a 3.35B region-specialized multilingual model, best for South Asian languages. Supports 70 languages.
+    /// </summary>
+    public static readonly ChatModel ModelTinyFire = new ChatModel("tiny-aya-fire", LLmProviders.Cohere, 8_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelTinyFire"/>
+    /// </summary>
+    public readonly ChatModel TinyFire = ModelTinyFire;
+    
+    /// <summary>
+    /// Tiny Aya Water is a 3.35B region-specialized multilingual model, best for European and Asia-Pacific languages. Supports 70 languages.
+    /// </summary>
+    public static readonly ChatModel ModelTinyWater = new ChatModel("tiny-aya-water", LLmProviders.Cohere, 8_000);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelTinyWater"/>
+    /// </summary>
+    public readonly ChatModel TinyWater = ModelTinyWater;
+    
     /// <summary>
     /// Aya Vision is a state-of-the-art multimodal model excelling at a variety of critical benchmarks for language, text, and image capabilities. This 8 billion parameter variant is focused on low latency and best-in-class performance. Supports 23 languages.
     /// </summary>
@@ -55,7 +95,7 @@ public class ChatModelCohereAya : IVendorModelClassProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelExpanse8B, ModelExpanse32B, ModelVision8B, ModelVision32B]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelTinyGlobal, ModelTinyEarth, ModelTinyFire, ModelTinyWater, ModelExpanse8B, ModelExpanse32B, ModelVision8B, ModelVision32B]);
 
     /// <summary>
     /// <inheritdoc cref="ModelsAll"/>

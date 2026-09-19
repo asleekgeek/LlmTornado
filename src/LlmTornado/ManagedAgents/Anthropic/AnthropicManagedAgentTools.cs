@@ -56,6 +56,10 @@ public class AnthropicManagedAgentModelConfig
 /// </summary>
 public static class AnthropicManagedAgentModels
 {
+    public const string ClaudeFable51 = "claude-fable-5-1";
+    public const string ClaudeOpus5 = "claude-opus-5";
+    public const string ClaudeSonnet5 = "claude-sonnet-5";
+    public const string ClaudeFable5 = "claude-fable-5";
     public const string ClaudeOpus48 = "claude-opus-4-8";
     public const string ClaudeOpus46 = "claude-opus-4-6";
     public const string ClaudeSonnet46 = "claude-sonnet-4-6";

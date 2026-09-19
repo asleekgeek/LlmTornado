@@ -7,7 +7,7 @@ using LlmTornado.Embedding.Models;
 namespace LlmTornado.Embedding.Models.Voyage;
 
 /// <summary>
-/// Voyage 3 embedding models from Voyage.
+/// Voyage 4 embedding models from Voyage. All embeddings in this series share one embedding space.
 /// </summary>
 public class EmbeddingModelVoyageGen4 : BaseVendorModelProvider
 {
@@ -25,7 +25,7 @@ public class EmbeddingModelVoyageGen4 : BaseVendorModelProvider
     public readonly EmbeddingModel Large = ModelLarge;
     
     /// <summary>
-    /// Approaches the retrieval quality of voyage-3-large while maintaining the efficiency of a mid-sized model.
+    /// Optimized for general-purpose and multilingual retrieval quality.
     /// </summary>
     public static readonly EmbeddingModel ModelStandard = new EmbeddingModel("voyage-4", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
@@ -35,9 +35,9 @@ public class EmbeddingModelVoyageGen4 : BaseVendorModelProvider
     public readonly EmbeddingModel Standard = ModelStandard;
     
     /// <summary>
-    /// Approaches the retrieval accuracy of voyage-3.5 while requiring significantly fewer parameters.
+    /// Optimized for latency and cost. Shares the Voyage 4 embedding space.
     /// </summary>
-    public static readonly EmbeddingModel ModelLite = new EmbeddingModel("voyage-4-lite", LLmProviders.Voyage, 32_000, 512, [ 2048, 1024, 512, 256 ]);
+    public static readonly EmbeddingModel ModelLite = new EmbeddingModel("voyage-4-lite", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelLite"/>
@@ -45,14 +45,24 @@ public class EmbeddingModelVoyageGen4 : BaseVendorModelProvider
     public readonly EmbeddingModel Lite = ModelLite;
     
     /// <summary>
-    /// First open-weight model, ideal for local development and prototyping.
+    /// Open-weight model for local development and prototyping. Shares the Voyage 4 embedding space.
     /// </summary>
-    public static readonly EmbeddingModel ModelNano = new EmbeddingModel("voyage-4-nano", LLmProviders.Voyage, 32_000, 128, [ 2048, 1024, 512, 256 ]); // Note: dimension for nano might need verification, assuming similar flexibility or smaller default
+    public static readonly EmbeddingModel ModelNano = new EmbeddingModel("voyage-4-nano", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
     
     /// <summary>
     /// <inheritdoc cref="ModelNano"/>
     /// </summary>
     public readonly EmbeddingModel Nano = ModelNano;
+    
+    /// <summary>
+    /// Optimized for code retrieval and coding-agent use cases.
+    /// </summary>
+    public static readonly EmbeddingModel ModelCode = new EmbeddingModel("voyage-code-4", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelCode"/>
+    /// </summary>
+    public readonly EmbeddingModel Code = ModelCode;
     
     /// <summary>
     /// All known embedding models.
@@ -90,7 +100,8 @@ public class EmbeddingModelVoyageGen4 : BaseVendorModelProvider
         ModelLarge,
         ModelStandard,
         ModelLite,
-        ModelNano
+        ModelNano,
+        ModelCode
     ]);
     
     internal EmbeddingModelVoyageGen4()

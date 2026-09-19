@@ -33,7 +33,7 @@ public class AudioDemo : DemoBase
         TranscriptionResult? transcription = await Program.Connect().Audio.CreateTranscription(new TranscriptionRequest
         {
             File = new AudioFile(audioData, AudioFileTypes.Wav),
-            Model = AudioModel.Mistral.Free.VoxtralMini2507,
+            Model = AudioModel.Mistral.Free.VoxtralMiniTranscribe2,
             ResponseFormat = AudioTranscriptionResponseFormats.Text
         });
 
@@ -607,7 +607,7 @@ public class AudioDemo : DemoBase
     {
         MusicGenerationResult? result = await Program.ConnectMulti().Audio.GenerateMusic(new MusicGenerationRequest
         {
-            Model = AudioModel.MiniMax.Music.Music25,
+            Model = AudioModel.MiniMax.Music.Music30,
             Prompt = "Indie folk, melancholic, introspective, longing, solitary walk, coffee shop",
             Lyrics = "[verse]\nStreetlights flicker, the night breeze sighs\nShadows stretch as I walk alone\nAn old coat wraps my silent sorrow\nWandering, longing, where should I go\n[chorus]\nPushing the wooden door, the aroma spreads\nIn a familiar corner, a stranger gazes",
             OutputFormat = MusicOutputFormat.Url,

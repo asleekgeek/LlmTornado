@@ -14,6 +14,11 @@ public class ChatModelMiniMax: BaseVendorModelProvider
     public override LLmProviders Provider => LLmProviders.MiniMax;
     
     /// <summary>
+    /// M3 series models.
+    /// </summary>
+    public readonly ChatModelMiniMaxM3 M3 = new ChatModelMiniMaxM3();
+    
+    /// <summary>
     /// M2 series models.
     /// </summary>
     public readonly ChatModelMiniMaxM2 M2 = new ChatModelMiniMaxM2();
@@ -52,7 +57,7 @@ public class ChatModelMiniMax: BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelMiniMaxM2.ModelsAll]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelMiniMaxM3.ModelsAll, ..ChatModelMiniMaxM2.ModelsAll]);
     
     internal ChatModelMiniMax()
     {

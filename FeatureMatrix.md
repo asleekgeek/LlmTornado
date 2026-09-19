@@ -12,12 +12,12 @@ _Empty field means the feature is unsupported by the provider._
 | **OpenAI** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | | | ✅ | ✅ |
 | **Anthropic** | ✅ | ✅ | | ✅ | | | | | | | ✅ | | | ✅ |
 | **Google** | ✅ | ✅ | ✅ | ✅ | ✅ | | | | | ✅ | ✅ | | ❌ | ✅ |
-| **Cohere** | ✅ | ✅ | ✅ | | | | | | | | ✅ | | | |
+| **Cohere** | ✅ | ✅ | ✅ | | | ✅ | | | | | ✅ | | | |
 | **DeepSeek** | ✅ | ✅ | | | | | | | | | | ❌ | | |
 | **Groq** | ✅ | ✅ | | ✅ | | ✅ | | | | | | | | ❌ |
 | **Mistral** | ✅ | ✅ | ✅ | ✅ | | ✅ | | | | | | ❌ | ❌ | ❌ |
 | **xAI** | ✅ | ✅ | | | ✅ | | | | ❌ | ✅ | | | | |
-| **MoonshotAI**| ✅ | ✅ | | ✅ | | | | | | | ✅ | | | |
+| **MoonshotAI**| ✅ | ✅ | | ✅ | | | | | ✅ | | ✅ | | | ✅ |
 | **Perplexity**| ✅ | | | | | | | | | | | | | |
 | **Voyage** | | | ✅ | | | | | | | | | | | |
 | **DeepInfra** | ✅ | | | | | | | | | | | | | |
@@ -58,9 +58,9 @@ Conversations | Assistants | Threads | Messages | Runs | Run steps | Vector stor
 
 ## Cohere Specific
 
-| Rerank |
-|-----------|
-| ❌ |
+| Rerank | Parse |
+|-----------|-----------|
+| ✅ | ✅ |
 
 ## MiniMax Specific
 
@@ -70,9 +70,9 @@ Conversations | Assistants | Threads | Messages | Runs | Run steps | Vector stor
 
 ## Mistral Specific
 
-Agents | Classifiers | OCR | Agents |
-| ------------ | ------------ | ------------ | ------------ |
-| ❌ |  ❌ | ✅ | ❌ |
+Agents | Classifiers | OCR | Guardrails | Reasoning effort |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+| ❌ |  ❌ | ✅ | ✅ | ✅ |
 
 ## Misc
 

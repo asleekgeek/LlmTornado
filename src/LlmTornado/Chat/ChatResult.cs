@@ -6,6 +6,7 @@ using LlmTornado.Vendor.Anthropic;
 using LlmTornado;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Cohere;
+using LlmTornado.Chat.Vendors.Groq;
 using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Responses;
 using LlmTornado.Vendor.Google;
@@ -26,6 +27,7 @@ public class ChatResult : ApiResultBase
 		ServiceTier = basedOn.ServiceTier;
 		Speed = basedOn.Speed;
 		SystemFingerprint = basedOn.SystemFingerprint;
+		UsageBreakdown = basedOn.UsageBreakdown;
 		RawResponse = basedOn.RawResponse;
 		VendorExtensions = basedOn.VendorExtensions;
 		StreamInternalKind = basedOn.StreamInternalKind;
@@ -74,6 +76,12 @@ public class ChatResult : ApiResultBase
 	/// </summary>
 	[JsonProperty("system_fingerprint")]
 	public string? SystemFingerprint { get; set; }
+
+	/// <summary>
+	///     Per-model usage reported by Groq Compound systems.
+	/// </summary>
+	[JsonProperty("usage_breakdown")]
+	public ChatGroqUsageBreakdown? UsageBreakdown { get; set; }
 
 	/// <summary>
 	/// Raw response from the API.
@@ -125,8 +133,23 @@ public class ChatResult : ApiResultBase
 			LLmProviders.Anthropic => JsonConvert.DeserializeObject<VendorAnthropicChatResult>(jsonData)?.ToChatResult(postData, requestObj),
 			LLmProviders.Cohere => JsonConvert.DeserializeObject<VendorCohereChatResult>(jsonData)?.ToChatResult(postData, requestObj),
 			LLmProviders.Google => JsonConvert.DeserializeObject<VendorGoogleChatResult>(jsonData)?.ToChatResult(postData, requestObj),
+			LLmProviders.Groq => DeserializeGroq(jsonData),
 			_ => JsonConvert.DeserializeObject<ChatResult>(jsonData)
 		};
+	}
+
+	private static ChatResult? DeserializeGroq(string jsonData)
+	{
+		ChatResult? result = JsonConvert.DeserializeObject<ChatResult>(jsonData);
+
+		if (result?.UsageBreakdown is not null)
+		{
+			result.VendorExtensions ??= new ChatResponseVendorExtensions();
+			result.VendorExtensions.Groq ??= new ChatResponseVendorGroqExtensions();
+			result.VendorExtensions.Groq.UsageBreakdown = result.UsageBreakdown;
+		}
+
+		return result;
 	}
 }
 
@@ -411,6 +434,19 @@ public class ChatUsage : Usage
 	public ChatUsageTokenDetails? CompletionTokensDetails { get; set; }
 	
 	/// <summary>
+	/// Exact request cost in USD ticks. Returned by xAI on chat, Responses, image, and video calls.
+	/// Divide by 10,000,000,000 (1e10) to get USD. See <see cref="CostUsd"/>.
+	/// </summary>
+	[JsonProperty("cost_in_usd_ticks")]
+	public long? CostInUsdTicks { get; set; }
+	
+	/// <summary>
+	/// Request cost in USD derived from <see cref="CostInUsdTicks"/> (xAI: ticks / 1e10).
+	/// </summary>
+	[JsonIgnore]
+	public decimal? CostUsd => CostInUsdTicks is null ? null : CostInUsdTicks.Value / 10_000_000_000m;
+	
+	/// <summary>
 	///		Number of cached tokens.
 	/// </summary>
 	[JsonIgnore]
@@ -457,9 +493,15 @@ public class ChatUsage : Usage
 	
 	internal ChatUsage(VendorPerplexityUsage usage)
 	{
-		CompletionTokens = usage.CompletionTokens;
-		PromptTokens = usage.PromptTokens;
-		TotalTokens = usage.TotalTokens;
+		CompletionTokens = usage.OutputTokens ?? usage.CompletionTokens;
+		PromptTokens = usage.InputTokens ?? usage.PromptTokens;
+		TotalTokens = usage.TotalTokens > 0 ? usage.TotalTokens : CompletionTokens + PromptTokens;
+		CacheCreationTokens = usage.InputTokensDetails?.CacheCreationInputTokens;
+		CacheReadTokens = usage.InputTokensDetails?.CacheReadInputTokens ?? usage.InputTokensDetails?.CachedTokens;
+		CompletionTokensDetails = usage.OutputTokensDetails?.ReasoningTokens is null ? null : new ChatUsageTokenDetails
+		{
+			ReasoningTokens = usage.OutputTokensDetails.ReasoningTokens
+		};
 		VendorUsageObject = usage;
 		Provider = LLmProviders.Perplexity;
 	}
@@ -496,7 +538,7 @@ public class ChatUsage : Usage
 		TotalTokens = responseUsage.TotalTokens;
 		CacheReadTokens = responseUsage.InputTokenDetails?.CachedTokens;
 		CacheCreationTokens = 0;
-		CacheReadTokens = 0;
+		CostInUsdTicks = responseUsage.CostInUsdTicks;
 		
 		CompletionTokensDetails = new ChatUsageTokenDetails
 		{

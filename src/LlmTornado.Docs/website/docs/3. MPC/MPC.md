@@ -101,7 +101,7 @@ The Model Context Protocol (MCP) is an open standard that enables seamless integ
 
 #### ListTornadoToolsAsync
 ```csharp
-public static async Task<List<Tool>> ListTornadoToolsAsync(this IMcpClient client)
+public static async ValueTask<List<Tool>> ListTornadoToolsAsync(this McpClient client)
 ```
 Fetches all tools from the MCP server and converts them to LlmTornado Tool objects.
 
@@ -117,8 +117,7 @@ Executes a function call on the remote MCP server.
 ```csharp
 public class MCPServer
 {
-    public MCPServer(IMcpClient client)
-    public IMcpClient Client { get; }
+    public McpClient? McpClient { get; set; }
 }
 ```
 

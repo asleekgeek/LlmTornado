@@ -11,6 +11,74 @@ namespace LlmTornado.Chat.Models.MoonshotAi;
 public class ChatModelMoonshotAiModels : IVendorModelClassProvider
 {
     /// <summary>
+    /// kimi-k3 — Kimi's flagship 2.8T model for long-horizon coding, knowledge work, and deep reasoning.
+    /// Native visual and video understanding, always-on thinking, and a 1M-token context window.
+    /// Configure reasoning with <see cref="ChatReasoningEfforts"/> values Low, High, and Max (default Max).
+    /// </summary>
+    public static readonly ChatModel ModelKimiK3 = new ChatModel("kimi-k3", LLmProviders.MoonshotAi, 1_048_576)
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat, ChatModelEndpointCapabilities.Responses, ChatModelEndpointCapabilities.Batch ]
+    };
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK3"/>
+    /// </summary>
+    public readonly ChatModel KimiK3 = ModelKimiK3;
+    
+    /// <summary>
+    /// kimi-k2.7-code — Kimi's dedicated coding model with 256K context, multimodal input, and always-on thinking.
+    /// </summary>
+    public static readonly ChatModel ModelKimiK27Code = new ChatModel("kimi-k2.7-code", LLmProviders.MoonshotAi, 262_144)
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat, ChatModelEndpointCapabilities.Responses, ChatModelEndpointCapabilities.Batch ]
+    };
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK27Code"/>
+    /// </summary>
+    public readonly ChatModel KimiK27Code = ModelKimiK27Code;
+    
+    /// <summary>
+    /// kimi-k2.7-code-highspeed — High-speed variant of Kimi K2.7 Code (~180 tok/s, up to 260 tok/s in short context).
+    /// Same capabilities and parameter constraints as <see cref="ModelKimiK27Code"/>.
+    /// </summary>
+    public static readonly ChatModel ModelKimiK27CodeHighspeed = new ChatModel("kimi-k2.7-code-highspeed", LLmProviders.MoonshotAi, 262_144)
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat, ChatModelEndpointCapabilities.Responses, ChatModelEndpointCapabilities.Batch ]
+    };
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK27CodeHighspeed"/>
+    /// </summary>
+    public readonly ChatModel KimiK27CodeHighspeed = ModelKimiK27CodeHighspeed;
+    
+    /// <summary>
+    /// kimi-k2.6 — General-purpose multimodal model with 256K context, thinking and non-thinking modes,
+    /// plus text, image, and video input. Disable thinking with <see cref="LlmTornado.Chat.ChatRequest.ReasoningBudget"/> = 0
+    /// or <see cref="ChatReasoningEfforts.None"/>.
+    /// </summary>
+    public static readonly ChatModel ModelKimiK26 = new ChatModel("kimi-k2.6", LLmProviders.MoonshotAi, 262_144)
+    {
+        EndpointCapabilities = [ ChatModelEndpointCapabilities.Chat, ChatModelEndpointCapabilities.Responses, ChatModelEndpointCapabilities.Batch ]
+    };
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK26"/>
+    /// </summary>
+    public readonly ChatModel KimiK26 = ModelKimiK26;
+    
+    /// <summary>
+    /// kimi-k2.5 — Discontinued 31 Aug 2026. Prefer <see cref="ModelKimiK3"/>.
+    /// Native multimodal support, thinking mode, and 256K context.
+    /// </summary>
+    public static readonly ChatModel ModelKimiK25 = new ChatModel("kimi-k2.5", LLmProviders.MoonshotAi, 262_144);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelKimiK25"/>
+    /// </summary>
+    public readonly ChatModel KimiK25 = ModelKimiK25;
+    
+    /// <summary>
     /// kimi-k2-0905-preview
     /// </summary>
     public static readonly ChatModel ModelKimiK20905Preview = new ChatModel("kimi-k2-0905-preview", LLmProviders.MoonshotAi, 262_144);
@@ -59,16 +127,6 @@ public class ChatModelMoonshotAiModels : IVendorModelClassProvider
     /// <inheritdoc cref="ModelKimiK2ThinkingTurbo"/>
     /// </summary>
     public readonly ChatModel KimiK2ThinkingTurbo = ModelKimiK2ThinkingTurbo;
-    
-    /// <summary>
-    /// kimi-k2.5 - Kimi's most intelligent model with native multimodal support, thinking mode, and 256K context.
-    /// </summary>
-    public static readonly ChatModel ModelKimiK25 = new ChatModel("kimi-k2.5", LLmProviders.MoonshotAi, 262_144);
-    
-    /// <summary>
-    /// <inheritdoc cref="ModelKimiK25"/>
-    /// </summary>
-    public readonly ChatModel KimiK25 = ModelKimiK25;
     
     /// <summary>
     /// moonshot-v1-8k
@@ -196,12 +254,16 @@ public class ChatModelMoonshotAiModels : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ModelKimiK3,
+        ModelKimiK27Code,
+        ModelKimiK27CodeHighspeed,
+        ModelKimiK26,
+        ModelKimiK25,
         ModelKimiK20905Preview,
         ModelKimiK20711Preview,
         ModelKimiK2TurboPreview,
         ModelKimiK2Thinking,
         ModelKimiK2ThinkingTurbo,
-        ModelKimiK25,
         ModelMoonshotV18k,
         ModelMoonshotV132k,
         ModelMoonshotV1128k,
@@ -224,5 +286,35 @@ public class ChatModelMoonshotAiModels : IVendorModelClassProvider
     internal ChatModelMoonshotAiModels()
     {
 
+    }
+
+    internal static bool IsK3(string? modelName)
+    {
+        return modelName?.Contains("kimi-k3", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    internal static bool IsK27(string? modelName)
+    {
+        return modelName?.Contains("k2.7", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    internal static bool IsK26(string? modelName)
+    {
+        return modelName?.Contains("k2.6", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    internal static bool IsK25(string? modelName)
+    {
+        return modelName?.Contains("k2.5", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    internal static bool UsesFixedSampling(string? modelName)
+    {
+        return IsK3(modelName) || IsK27(modelName) || IsK26(modelName) || IsK25(modelName);
+    }
+
+    internal static bool SupportsThinkingToggle(string? modelName)
+    {
+        return IsK26(modelName) || IsK25(modelName);
     }
 }

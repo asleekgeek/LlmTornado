@@ -16,10 +16,10 @@ public class ManagedAgentCreateRequest
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Base managed agent to extend (currently <see cref="GoogleManagedAgentIds.AntigravityPreview052026"/>).
+    /// Base managed agent to extend (currently <see cref="GoogleManagedAgentIds.AntigravityPreview092026"/>).
     /// </summary>
     [JsonProperty("base_agent")]
-    public string BaseAgent { get; set; } = GoogleManagedAgentIds.AntigravityPreview052026;
+    public string BaseAgent { get; set; } = GoogleManagedAgentIds.AntigravityPreview092026;
 
     /// <summary>
     /// System instruction for the agent.

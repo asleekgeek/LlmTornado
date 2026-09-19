@@ -123,20 +123,62 @@ public class ChatModelGoogleGeminiPreview : IVendorModelClassProvider
     public readonly ChatModel Gemini25ComputerUsePreview102025 = ModelGemini25ComputerUsePreview102025;
 
     /// <summary>
+    /// Gemini Robotics-ER 2 Preview delivers advanced video understanding, spatial reasoning, multi-step tool orchestration,
+    /// video moment finding, progress classification, and multi-robot collaboration.
+    /// Input: Text, Image, Video, Audio. Output: Text. Function calling uses blocking behavior for physical robot actions.
+    /// </summary>
+    public static readonly ChatModel ModelGeminiRoboticsRe2Preview = new ChatModel("gemini-robotics-er-2-preview", LLmProviders.Google, 131_072)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        ReasoningTokensSpecialValues = [ -1, 0 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Preview }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGeminiRoboticsRe2Preview"/>
+    /// </summary>
+    public readonly ChatModel GeminiRoboticsRe2Preview = ModelGeminiRoboticsRe2Preview;
+
+    /// <summary>
+    /// Gemini Robotics-ER 2 Streaming Preview is optimized for real-time text streaming using the Live API,
+    /// enabling low-latency robot agents with bidirectional audio and video input.
+    /// </summary>
+    public static readonly ChatModel ModelGeminiRoboticsRe2StreamingPreview = new ChatModel("gemini-robotics-er-2-streaming-preview", LLmProviders.Google, 131_072)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Preview }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGeminiRoboticsRe2StreamingPreview"/>
+    /// </summary>
+    public readonly ChatModel GeminiRoboticsRe2StreamingPreview = ModelGeminiRoboticsRe2StreamingPreview;
+
+    /// <summary>
     /// Gemini Robotics-ER 1.6 Preview is a vision-language model that brings Gemini's agentic capabilities to robotics.
     /// Supports spatial reasoning, object detection, trajectory planning, and task orchestration from natural language.
     /// Input: Text, Image, Video, Audio. Output: Text. Context: 131k in / 65k out.
     /// </summary>
+    [Obsolete("Shut down August 31, 2026. Use ModelGeminiRoboticsRe2Preview instead.")]
     public static readonly ChatModel ModelGeminiRoboticsRe16Preview = new ChatModel("gemini-robotics-er-1.6-preview", LLmProviders.Google, 131_072)
     {
         ReasoningTokensMin = 0,
         ReasoningTokensMax = 24_576,
-        ReasoningTokensSpecialValues = [ -1, 0 ]
+        ReasoningTokensSpecialValues = [ -1, 0 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo
+        {
+            Stage = GoogleModelStage.Retired,
+            RetirementTime = new DateTime(2026, 8, 31, 0, 0, 0, DateTimeKind.Utc),
+            ReplacementModel = "gemini-robotics-er-2-preview"
+        }
     };
 
     /// <summary>
     /// <inheritdoc cref="ModelGeminiRoboticsRe16Preview"/>
     /// </summary>
+    [Obsolete("Shut down August 31, 2026. Use GeminiRoboticsRe2Preview instead.")]
     public readonly ChatModel GeminiRoboticsRe16Preview = ModelGeminiRoboticsRe16Preview;
 
     /// <summary>
@@ -301,8 +343,37 @@ public class ChatModelGoogleGeminiPreview : IVendorModelClassProvider
     public readonly ChatModel Gemini2FlashPreviewImageGeneration = ModelGemini2FlashPreviewImageGeneration;
     
     /// <summary>
-    /// Gemini 3.1 Flash Live Preview is a low-latency, audio-to-audio model optimized for real-time dialogue
-    /// and voice-first AI applications with acoustic nuance detection and multimodal awareness.
+    /// Gemini 3.5 Live Translate Preview is a low-latency, real-time speech-to-speech translation model that supports 70+ languages.
+    /// Live API only.
+    /// </summary>
+    public static readonly ChatModel ModelGemini35LiveTranslatePreview = new ChatModel("gemini-3.5-live-translate-preview", LLmProviders.Google, 131_072)
+    {
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Preview }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini35LiveTranslatePreview"/>
+    /// </summary>
+    public readonly ChatModel Gemini35LiveTranslatePreview = ModelGemini35LiveTranslatePreview;
+
+    /// <summary>
+    /// Gemini 3.5 Transcribe Live is a low-latency bidirectional streaming speech-to-text model over the Live API.
+    /// Supports interim and finalized transcription events, Smart transcription, and multiple VAD strategies.
+    /// Sessions up to 10 minutes.
+    /// </summary>
+    public static readonly ChatModel ModelGemini35TranscribeLive = new ChatModel("gemini-3.5-transcribe-live", LLmProviders.Google, 131_072)
+    {
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini35TranscribeLive"/>
+    /// </summary>
+    public readonly ChatModel Gemini35TranscribeLive = ModelGemini35TranscribeLive;
+
+    /// <summary>
+    /// Gemini 3.1 Flash Live Preview is a legacy audio-to-audio model. Prefer
+    /// <see cref="ChatModelGoogleGemini.ModelGemini38Live"/> for new Live API work.
     /// Input: Text, images, audio, video. Output: Text and audio. Context: 131k in / 65k out. Live API only.
     /// Uses <c>thinkingLevel</c> (default <c>minimal</c>) instead of <c>thinkingBudget</c>.
     /// </summary>
@@ -342,10 +413,11 @@ public class ChatModelGoogleGeminiPreview : IVendorModelClassProvider
         ModelGemini3FlashPreview, ModelGemini3ProPreview, ModelGemini3ProImagePreview, ModelGemini31FlashImagePreview,
         ModelGemini31FlashLitePreview, ModelGemini31ProPreview, ModelGemini31ProPreviewCustomtools,
         ModelGemini31FlashLivePreview, ModelGemini25FlashNativeAudioPreview122025,
+        ModelGemini35LiveTranslatePreview, ModelGemini35TranscribeLive,
         ModelGemini25ComputerUsePreview102025, ModelGemini25ProPreview0325, ModelGemini25ProPreview0506, ModelGemini25ProPreview0605, ModelGemini25FlashPreview0417,
         ModelGemini25FlashPreview0520, ModelGemini2FlashPreviewImageGeneration, ModelGemini25FlashPreviewTts, ModelGemini25ProPreviewTts, ModelGemini31FlashTtsPreview,
         ModelGemini25FlashLitePreview0617, ModelGemini25FlashImagePreview, ModelGemini25FlashPreview0925, ModelGemini25FlashLitePreview0925,
-        ModelGeminiRoboticsRe16Preview, ModelGeminiRoboticsRe15Preview
+        ModelGeminiRoboticsRe2Preview, ModelGeminiRoboticsRe2StreamingPreview, ModelGeminiRoboticsRe16Preview, ModelGeminiRoboticsRe15Preview
     ]);
 
     /// <summary>

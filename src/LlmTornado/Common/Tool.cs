@@ -773,6 +773,16 @@ public class Tool
     {
         Type = type;
     }
+
+    /// <summary>
+    /// Groq GPT-OSS hosted browser search tool.
+    /// </summary>
+    public static Tool GroqBrowserSearch => new Tool("browser_search");
+
+    /// <summary>
+    /// Groq GPT-OSS hosted code interpreter tool.
+    /// </summary>
+    public static Tool GroqCodeInterpreter => new Tool("code_interpreter");
     
     /// <summary>
     /// Empty tool.

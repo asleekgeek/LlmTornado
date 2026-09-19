@@ -22,7 +22,7 @@ public class ImageModelXAiGrok : IVendorModelClassProvider
     public readonly ImageModel V2241212 = ModelV2241212;
     
     /// <summary>
-    /// Grok Imagine image generation model, capable of creating and editing high-quality images from text prompts.
+    /// Grok Imagine image 1.0. Generate and edit images from text prompts.
     /// Supports aspect ratios, resolutions, and image editing with masks.
     /// </summary>
     public static readonly ImageModel ModelImagine = new ImageModel("grok-imagine-image", LLmProviders.XAi);
@@ -33,13 +33,38 @@ public class ImageModelXAiGrok : IVendorModelClassProvider
     public readonly ImageModel Imagine = ModelImagine;
     
     /// <summary>
+    /// Grok Imagine Image 2.0 — current recommended image model.
+    /// Supports quality (auto / low / medium), 1k and 2k resolution, cinematic 21:9 and 5:2 ratios,
+    /// and multi-image editing (up to 5 source images).
+    /// </summary>
+    public static readonly ImageModel ModelImagine20 = new ImageModel("grok-imagine-image-2.0", LLmProviders.XAi);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelImagine20"/>
+    /// </summary>
+    public readonly ImageModel Imagine20 = ModelImagine20;
+    
+    /// <summary>
+    /// Grok Imagine Image Quality. Retires November 2, 2026; requests then route to
+    /// <see cref="ModelImagine20"/> with quality set to low.
+    /// </summary>
+    public static readonly ImageModel ModelImagineQuality = new ImageModel("grok-imagine-image-quality", LLmProviders.XAi);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelImagineQuality"/>
+    /// </summary>
+    public readonly ImageModel ImagineQuality = ModelImagineQuality;
+    
+    /// <summary>
     /// All known Grok models from xAI.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
     
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
         ModelV2241212,
-        ModelImagine
+        ModelImagine,
+        ModelImagine20,
+        ModelImagineQuality
     ]);
 
     /// <summary>

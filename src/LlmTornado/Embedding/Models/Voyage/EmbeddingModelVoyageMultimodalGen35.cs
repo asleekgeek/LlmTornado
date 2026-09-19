@@ -16,7 +16,7 @@ public class EmbeddingModelVoyageMultimodalGen35 : BaseVendorModelProvider
     /// <summary>
     /// Rich multimodal embedding model that can vectorize interleaved text and visual data, such as screenshots of PDFs, slides, tables, figures, videos, and more.
     /// </summary>
-    public static readonly MultimodalEmbeddingModel ModelMultimodal = new MultimodalEmbeddingModel("voyage-multimodal-3.5", LLmProviders.Voyage, 32_000, 1024);
+    public static readonly MultimodalEmbeddingModel ModelMultimodal = new MultimodalEmbeddingModel("voyage-multimodal-3.5", LLmProviders.Voyage, 32_000, 1024, [ 256, 512, 1024, 2048 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelMultimodal"/>

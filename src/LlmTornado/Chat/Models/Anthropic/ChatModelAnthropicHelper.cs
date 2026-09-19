@@ -5,7 +5,7 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Chat.Models;
 
 /// <summary>
-/// Shared capability checks for Anthropic Claude Opus 4.7+ models.
+/// Shared capability checks for Anthropic Claude models.
 /// </summary>
 public static class ChatModelAnthropicHelper
 {
@@ -35,9 +35,29 @@ public static class ChatModelAnthropicHelper
     public const string Opus47ModelId = "claude-opus-4-7";
 
     /// <summary>
+    /// API model ID for Claude Opus 5.
+    /// </summary>
+    public const string Opus5ModelId = "claude-opus-5";
+
+    /// <summary>
     /// API model ID for Claude Fable 5.
     /// </summary>
     public const string Fable5ModelId = "claude-fable-5";
+
+    /// <summary>
+    /// API model ID for Claude Fable 5.1.
+    /// </summary>
+    public const string Fable51ModelId = "claude-fable-5-1";
+
+    /// <summary>
+    /// API model ID for Claude Mythos 5 (Project Glasswing).
+    /// </summary>
+    public const string Mythos5ModelId = "claude-mythos-5";
+
+    /// <summary>
+    /// API model ID for Claude Mythos 5.1 (Project Glasswing).
+    /// </summary>
+    public const string Mythos51ModelId = "claude-mythos-5-1";
 
     /// <summary>
     /// API model ID for Claude Sonnet 5.
@@ -45,7 +65,7 @@ public static class ChatModelAnthropicHelper
     public const string Sonnet5ModelId = "claude-sonnet-5";
 
     /// <summary>
-    /// Returns true for <c>claude-opus-4-7</c> and <c>claude-opus-4-8</c> (and aliases resolving to them).
+    /// Returns true for <c>claude-opus-4-7</c>, <c>claude-opus-4-8</c>, and Claude 5 generation models.
     /// </summary>
     public static bool IsOpus47OrNewer(string? modelName)
     {
@@ -60,7 +80,7 @@ public static class ChatModelAnthropicHelper
     }
 
     /// <summary>
-    /// Returns true for Claude 5 generation models (<c>claude-fable-5</c>, <c>claude-sonnet-5</c>).
+    /// Returns true for Claude 5 generation models (Fable 5/5.1, Mythos 5/5.1, Opus 5, Sonnet 5).
     /// </summary>
     public static bool IsClaude5Model(string? modelName)
     {
@@ -70,8 +90,63 @@ public static class ChatModelAnthropicHelper
         }
 
         return modelName.StartsWith(Fable5ModelId, StringComparison.OrdinalIgnoreCase)
-            || modelName.StartsWith(Sonnet5ModelId, StringComparison.OrdinalIgnoreCase);
+            || modelName.StartsWith(Sonnet5ModelId, StringComparison.OrdinalIgnoreCase)
+            || modelName.StartsWith(Opus5ModelId, StringComparison.OrdinalIgnoreCase)
+            || modelName.StartsWith(Mythos5ModelId, StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>
+    /// Returns true for Claude Opus 5 and later Opus 5.x snapshots.
+    /// </summary>
+    public static bool IsOpus5OrNewer(string? modelName)
+    {
+        return modelName is not null
+            && modelName.StartsWith(Opus5ModelId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Returns true for Claude Fable 5.1 / Mythos 5.1 (and later 5.1.x snapshots).
+    /// </summary>
+    public static bool IsFable51OrNewer(string? modelName)
+    {
+        if (modelName is null)
+        {
+            return false;
+        }
+
+        return modelName.StartsWith(Fable51ModelId, StringComparison.OrdinalIgnoreCase)
+            || modelName.StartsWith(Mythos51ModelId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Fable 5 / Mythos 5 families reject <c>thinking.type = "disabled"</c> (adaptive thinking is always on).
+    /// </summary>
+    public static bool IsAlwaysOnAdaptiveThinkingModel(string? modelName)
+    {
+        if (modelName is null)
+        {
+            return false;
+        }
+
+        return modelName.StartsWith(Fable5ModelId, StringComparison.OrdinalIgnoreCase)
+            || modelName.StartsWith(Mythos5ModelId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Models that turn adaptive thinking on when the <c>thinking</c> field is omitted (Claude 5 generation).
+    /// Send <c>thinking: { type: "disabled" }</c> to turn it off on models that allow it.
+    /// </summary>
+    public static bool IsThinkingOnByDefault(string? modelName) => IsClaude5Model(modelName);
+
+    /// <summary>
+    /// Claude Fable 5.1 and Mythos 5.1 reject <c>tool_choice</c> types <c>any</c> and <c>tool</c>.
+    /// </summary>
+    public static bool RejectsForcedToolChoice(string? modelName) => IsFable51OrNewer(modelName);
+
+    /// <summary>
+    /// On Claude Opus 5+, <c>thinking.type = "disabled"</c> is rejected when effort is <c>xhigh</c> or <c>max</c>.
+    /// </summary>
+    public static bool RestrictsDisabledThinkingToHighEffortOrBelow(string? modelName) => IsOpus5OrNewer(modelName);
 
     /// <summary>
     /// Returns true for models that only support adaptive thinking (Opus 4.7+ and Claude 5 generation).
@@ -97,7 +172,7 @@ public static class ChatModelAnthropicHelper
     /// <summary>
     /// Returns true when <c>thinking.type = "adaptive"</c> is supported (Opus 4.6+, Sonnet 4.6, Opus 4.7/4.8, Claude 5).
     /// On Opus 4.7+ and Claude 5 manual <c>thinking.type = "enabled"</c> is upgraded to adaptive automatically.
-    /// On Claude Fable 5 adaptive thinking is always on and <c>thinking.type = "disabled"</c> is not supported.
+    /// On Claude Fable 5 / Mythos 5 adaptive thinking is always on and <c>thinking.type = "disabled"</c> is not supported.
     /// </summary>
     public static bool SupportsAdaptiveThinking(string? modelName)
     {
@@ -163,6 +238,10 @@ public static class ChatModelAnthropicHelper
         ChatModelAnthropicClaude48.ModelOpus,
         ChatModelAnthropicClaude48.ModelNextOpus,
         ChatModelAnthropicClaude5.ModelFable,
+        ChatModelAnthropicClaude5.ModelFable51,
+        ChatModelAnthropicClaude5.ModelMythos,
+        ChatModelAnthropicClaude5.ModelMythos51,
+        ChatModelAnthropicClaude5.ModelOpus,
         ChatModelAnthropicClaude5.ModelSonnet
     ]);
 

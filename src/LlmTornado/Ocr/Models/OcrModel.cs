@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
+using LlmTornado.Ocr.Models.Cohere;
 using LlmTornado.Ocr.Models.Mistral;
+using LlmTornado.Ocr.Models.Zai;
 
 namespace LlmTornado.Ocr.Models;
 
@@ -23,6 +25,16 @@ public class OcrModel : ModelBase, IModel
     public static readonly OcrModelMistral Mistral = new OcrModelMistral();
 
     /// <summary>
+    /// Known OCR models from Z.AI.
+    /// </summary>
+    public static readonly OcrModelZai Zai = new OcrModelZai();
+    
+    /// <summary>
+    /// Known parse / OCR models from Cohere.
+    /// </summary>
+    public static readonly OcrModelCohere Cohere = new OcrModelCohere();
+
+    /// <summary>
     /// All known OCR models.
     /// </summary>
     public static List<IModel> AllModels => LazyModelsAll.Value;
@@ -39,7 +51,11 @@ public class OcrModel : ModelBase, IModel
         return map;
     });
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..OcrModelMistral.ModelsAll]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ..OcrModelMistral.ModelsAll,
+        ..OcrModelZai.ModelsAll,
+        ..OcrModelCohere.ModelsAll
+    ]);
 
     /// <summary>
     /// Creates an OCR model.

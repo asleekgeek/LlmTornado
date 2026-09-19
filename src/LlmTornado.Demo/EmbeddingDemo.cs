@@ -87,7 +87,7 @@ public class EmbeddingDemo : DemoBase
     [TornadoTest]
     public static async Task EmbedVoyage()
     {
-        EmbeddingResult? result = await Program.ConnectMulti().Embeddings.CreateEmbedding(EmbeddingModel.Voyage.Gen35.Default, "lorem ipsum", 256, new EmbeddingRequestVendorExtensions
+        EmbeddingResult? result = await Program.ConnectMulti().Embeddings.CreateEmbedding(EmbeddingModel.Voyage.Gen4.Standard, "lorem ipsum", 256, new EmbeddingRequestVendorExtensions
         {
             Voyage = new EmbeddingRequestVendorVoyageExtensions
             {

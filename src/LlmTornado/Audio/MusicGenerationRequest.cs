@@ -53,11 +53,41 @@ public class MusicGenerationRequest
     public MusicAudioSetting? AudioSetting { get; set; }
     
     /// <summary>
+    /// Automatically generate lyrics from <see cref="Prompt"/> when <see cref="Lyrics"/> is empty.
+    /// Supported on music-3.0 and music-2.6 (including free tiers).
+    /// </summary>
+    public bool? LyricsOptimizer { get; set; }
+    
+    /// <summary>
+    /// Generate instrumental music with no vocals. When true, <see cref="Lyrics"/> is not required.
+    /// Supported on music-3.0 and music-2.6 (including free tiers).
+    /// </summary>
+    public bool? IsInstrumental { get; set; }
+    
+    /// <summary>
+    /// Reference audio URL for music-cover / music-cover-free. Mutually exclusive with
+    /// <see cref="AudioBase64"/> and <see cref="CoverFeatureId"/>.
+    /// </summary>
+    public string? AudioUrl { get; set; }
+    
+    /// <summary>
+    /// Base64-encoded reference audio for music-cover / music-cover-free.
+    /// Mutually exclusive with <see cref="AudioUrl"/> and <see cref="CoverFeatureId"/>.
+    /// </summary>
+    public string? AudioBase64 { get; set; }
+    
+    /// <summary>
+    /// Feature ID from the Music Cover Preprocess API for two-step cover generation with edited lyrics.
+    /// Valid for 24 hours. Mutually exclusive with <see cref="AudioUrl"/> and <see cref="AudioBase64"/>.
+    /// </summary>
+    public string? CoverFeatureId { get; set; }
+    
+    /// <summary>
     /// Creates a music generation request with lyrics.
     /// </summary>
     /// <param name="lyrics">Song lyrics with optional structure tags.</param>
     /// <param name="prompt">Style/mood description.</param>
-    /// <param name="model">Model to use. Defaults to music-2.5.</param>
+    /// <param name="model">Model to use. Defaults to music-3.0 when omitted at the vendor layer.</param>
     public MusicGenerationRequest(string lyrics, string? prompt = null, AudioModel? model = null)
     {
         Lyrics = lyrics;

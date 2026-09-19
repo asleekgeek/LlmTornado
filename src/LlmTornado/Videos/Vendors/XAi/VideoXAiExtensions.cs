@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LlmTornado.Images;
 
 namespace LlmTornado.Videos.Vendors.XAi;
@@ -23,4 +24,14 @@ public class VideoXAiExtensions
     /// Specifies the detail level of the input image for image-to-video generation.
     /// </summary>
     public ImageDetail? ImageDetail { get; set; }
+    
+    /// <summary>
+    /// Files API IDs for reference-to-video on Imagine Video 1.5.
+    /// </summary>
+    public List<string>? ReferenceImageFileIds { get; set; }
+    
+    /// <summary>
+    /// Optional preset voice for reference-to-video on Imagine Video 1.5.
+    /// </summary>
+    public string? Voice { get; set; }
 }

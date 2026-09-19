@@ -17,7 +17,7 @@ File System Knowledge Base (FSKB) is a semantic search engine and indexing tool 
 ## Installation
 
 ### Requirements
-* Python 3.9+
+* Python 3.10+
 * Required packages (see `requirements.txt`)
 
 ### Basic Setup

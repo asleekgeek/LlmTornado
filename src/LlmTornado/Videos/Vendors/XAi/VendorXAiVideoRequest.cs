@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using LlmTornado.Code;
@@ -36,6 +38,24 @@ internal class VendorXAiVideoGenerationRequest
     /// </summary>
     [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
     public VendorXAiVideoImage? Image { get; set; }
+    
+    /// <summary>
+    /// Reference images that influence the video without forcing the first frame.
+    /// </summary>
+    [JsonProperty("reference_images", NullValueHandling = NullValueHandling.Ignore)]
+    public List<VendorXAiVideoImage>? ReferenceImages { get; set; }
+    
+    /// <summary>
+    /// Files API IDs for reference-to-video.
+    /// </summary>
+    [JsonProperty("reference_image_file_ids", NullValueHandling = NullValueHandling.Ignore)]
+    public List<string>? ReferenceImageFileIds { get; set; }
+    
+    /// <summary>
+    /// Optional preset voice for reference-to-video.
+    /// </summary>
+    [JsonProperty("voice", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Voice { get; set; }
     
     /// <summary>
     /// Model to be used.
@@ -94,7 +114,6 @@ internal class VendorXAiVideoGenerationRequest
             xaiRequest.Resolution = GetEnumMemberValue(request.Resolution.Value);
         }
         
-        // Image (for image-to-video)
         if (request.Image is not null)
         {
             xaiRequest.Image = new VendorXAiVideoImage
@@ -102,8 +121,15 @@ internal class VendorXAiVideoGenerationRequest
                 Url = request.Image.Url
             };
         }
+
+        if (request.ReferenceImages is { Count: > 0 })
+        {
+            xaiRequest.ReferenceImages = request.ReferenceImages
+                .Where(x => x.Image is not null)
+                .Select(x => new VendorXAiVideoImage { Url = x.Image.Url })
+                .ToList();
+        }
         
-        // xAI-specific extensions
         if (request.XAiExtensions is not null)
         {
             if (!string.IsNullOrEmpty(request.XAiExtensions.User))
@@ -123,6 +149,16 @@ internal class VendorXAiVideoGenerationRequest
             {
                 xaiRequest.Image ??= new VendorXAiVideoImage();
                 xaiRequest.Image.Detail = request.XAiExtensions.ImageDetail.ToString()?.ToLowerInvariant();
+            }
+
+            if (request.XAiExtensions.ReferenceImageFileIds is { Count: > 0 })
+            {
+                xaiRequest.ReferenceImageFileIds = request.XAiExtensions.ReferenceImageFileIds;
+            }
+
+            if (!string.IsNullOrEmpty(request.XAiExtensions.Voice))
+            {
+                xaiRequest.Voice = request.XAiExtensions.Voice;
             }
         }
         

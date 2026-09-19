@@ -1,5 +1,5 @@
 # MCP Server
-mcp>=1.0.0
+mcp>=2.2.0
 
 # Embeddings - Local
 sentence-transformers>=2.7.0

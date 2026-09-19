@@ -12,12 +12,15 @@ public class ChatModelAnthropicClaude3 : IVendorModelClassProvider
 {
     /// <summary>
     /// Fastest and most compact model, designed for near-instant responsiveness and seamless AI experiences that mimic human interactions.
+    /// Retired April 20, 2026 on the Claude API.
     /// </summary>
+    [Obsolete("Retired April 20, 2026 on the Claude API. Use ChatModel.Anthropic.Claude45.Haiku251001 instead.")]
     public static readonly ChatModel ModelHaiku = new ChatModel("claude-3-haiku-20240307", LLmProviders.Anthropic, 200_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelHaiku"/>
     /// </summary>
+    [Obsolete("Retired April 20, 2026 on the Claude API. Use ChatModel.Anthropic.Claude45.Haiku251001 instead.")]
     public readonly ChatModel Haiku = ModelHaiku;
 
     /// <summary>
@@ -34,12 +37,15 @@ public class ChatModelAnthropicClaude3 : IVendorModelClassProvider
 
     /// <summary>
     /// Most powerful model, delivering state-of-the-art performance on highly complex tasks and demonstrating fluency and human-like understanding.
+    /// Retired January 5, 2026 on the Claude API.
     /// </summary>
+    [Obsolete("Retired January 5, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Opus instead.")]
     public static readonly ChatModel ModelOpus = new ChatModel("claude-3-opus-20240229", LLmProviders.Anthropic, 200_000);
 
     /// <summary>
-    /// <inheritdoc cref="ModelSonnet"/>
+    /// <inheritdoc cref="ModelOpus"/>
     /// </summary>
+    [Obsolete("Retired January 5, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Opus instead.")]
     public readonly ChatModel Opus = ModelOpus;
 
     /// <summary>

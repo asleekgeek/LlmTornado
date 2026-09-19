@@ -49,31 +49,37 @@ public class VideoModelGoogleVeo : BaseVendorModelProvider
     /// <summary>
     /// Veo 3.0 model.
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use ModelV31 or ModelV31Fast instead.")]
     public static readonly VideoModel ModelV3 = new VideoModel("veo-3.0-generate-001", "google", LLmProviders.Google);
     
     /// <summary>
     /// <inheritdoc cref="ModelV3"/>
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use V31 or V31Fast instead.")]
     public readonly VideoModel V3 = ModelV3;
     
     /// <summary>
     /// Veo 3.0 Fast model.
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use ModelV31Fast instead.")]
     public static readonly VideoModel ModelV3Fast = new VideoModel("veo-3.0-fast-generate-001", "google", LLmProviders.Google);
     
     /// <summary>
     /// <inheritdoc cref="ModelV3Fast"/>
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use V31Fast instead.")]
     public readonly VideoModel V3Fast = ModelV3Fast;
     
     /// <summary>
     /// Veo 2.0 model.
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use ModelV31 instead.")]
     public static readonly VideoModel ModelV2 = new VideoModel("veo-2.0-generate-001", "google", LLmProviders.Google);
     
     /// <summary>
     /// <inheritdoc cref="ModelV2"/>
     /// </summary>
+    [Obsolete("Shut down June 30, 2026. Use V31 instead.")]
     public readonly VideoModel V2 = ModelV2;
     
     /// <summary>

@@ -89,6 +89,49 @@ public class ContextualEmbeddingDemo : DemoBase
     }
     
     [TornadoTest]
+    public static async Task EmbedWithAutoChunking()
+    {
+        ContextualEmbeddingRequest request = new ContextualEmbeddingRequest(ContextualEmbeddingModel.Voyage.Gen4.Context4,
+        [
+            "This is the SEC filing on Leafy Inc.'s Q2 2024 performance.\nThe company's revenue increased by 15% compared to the previous quarter.",
+            "This is the SEC filing on Elephant Ltd.'s Q2 2024 performance.\nThe company's revenue decreased by 2% compared to the previous quarter."
+        ])
+        {
+            InputType = ContextualEmbeddingInputType.Document,
+            EnableAutoChunking = true,
+            ChunkSize = 512,
+            ChunkOverlap = 0
+        };
+        
+        ContextualEmbeddingResult? result = await Program.ConnectMulti().ContextualEmbeddings.CreateContextualEmbedding(request);
+        
+        Assert.That(result, Is.NotNull);
+        Assert.That(result.Data, Is.NotNull);
+        Assert.That(result.Data.Count, Is.EqualTo(2));
+        Assert.That(result.Data[0].Data[0].ContextualEmbeddingVector, Is.InstanceOf<ContextualEmbeddingValueFloat>());
+
+        if (result?.Data is not null)
+        {
+            foreach (ContextualEmbeddingData data in result.Data)
+            {
+                Console.WriteLine($"- Document Index: {data.Index}, Chunks: {data.Data.Count}");
+                foreach (ContextualEmbedding embedding in data.Data)
+                {
+                    if (embedding.ContextualEmbeddingVector is ContextualEmbeddingValueFloat floatVec)
+                    {
+                        Console.WriteLine($"  - Embedding Index: {embedding.Index}, Type: Float, Length: {floatVec.Values.Length}");
+                        if (embedding.Text is not null)
+                        {
+                            Console.WriteLine($"    Chunk: {embedding.Text[..Math.Min(80, embedding.Text.Length)]}");
+                        }
+                    }
+                }
+                Console.WriteLine(new string('-', 20));
+            }
+        }
+    }
+
+    [TornadoTest]
     public static async Task EmbedWithParams()
     {
         ContextualEmbeddingRequest request = new ContextualEmbeddingRequest(ContextualEmbeddingModel.Voyage.Gen3.Context3,

@@ -11,8 +11,8 @@ def check_python_version():
     """Check Python version."""
     print("Checking Python version...")
     version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 9):
-        print(f"❌ Python 3.9+ required, found {version.major}.{version.minor}")
+    if version.major < 3 or (version.major == 3 and version.minor < 10):
+        print(f"❌ Python 3.10+ required, found {version.major}.{version.minor}")
         return False
     print(f"✅ Python {version.major}.{version.minor}.{version.micro}")
     return True
@@ -173,7 +173,7 @@ def main():
         print("❌ Some checks failed. Please fix the issues above.")
         print("\nCommon fixes:")
         print("  - Install dependencies: pip install -r requirements.txt")
-        print("  - Ensure Python 3.9+ is installed")
+        print("  - Ensure Python 3.10+ is installed")
         print("  - Check file permissions")
     print("=" * 60)
     

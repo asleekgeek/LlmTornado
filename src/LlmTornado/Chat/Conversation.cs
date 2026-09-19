@@ -1175,7 +1175,7 @@ public class Conversation
         ChatResult? res;
         CapabilityEndpoints capabilityEndpoint = req.GetCapabilityEndpoint();
 
-        if (capabilityEndpoint is CapabilityEndpoints.Responses && req.ResponseRequestParameters is not null)
+        if (capabilityEndpoint is CapabilityEndpoints.Responses)
         {
             // avoid double-serializing, use provider resolved without regards to available API keys
             IEndpointProvider provider = endpoint.Api.GetProvider(req.Model ?? ChatModel.OpenAi.Gpt35.Turbo);

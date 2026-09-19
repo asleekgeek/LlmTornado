@@ -11,7 +11,7 @@ public class RerankDemo : DemoBase
     [TornadoTest]
     public static async Task RerankDocuments()
     {
-        RerankRequest request = new RerankRequest(RerankModel.Voyage.Gen25.Rerank25, "Sample query",
+        RerankRequest request = new RerankRequest(RerankModel.Voyage.Gen3.Rerank3, "Sample query",
         [
             "Sample document 1",
             "Sample document 2"

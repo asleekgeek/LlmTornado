@@ -1,8 +1,10 @@
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
+using LlmTornado.Chat.Vendors.Alibaba;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Google;
 using LlmTornado.Chat.Vendors.Mistral;
+using LlmTornado.Chat.Vendors.MiniMax;
 using LlmTornado.Chat.Vendors.Zai;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
@@ -47,7 +49,50 @@ public partial class ChatDemo : DemoBase
     [TornadoTest]
     public static async Task ZaiGlm()
     {
-        await BasicChat(ChatModel.Zai.Glm.Glm46);
+        await BasicChat(ChatModel.Zai.Glm.Glm53);
+    }
+
+    [TornadoTest]
+    public static async Task MiniMaxM3()
+    {
+        await BasicChat(ChatModel.MiniMax.M3.M3);
+    }
+
+    [TornadoTest]
+    public static async Task MiniMaxM3ThinkingDisabled()
+    {
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.MiniMax.M3.M3,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Say hello in one sentence.")
+            ],
+            ReasoningBudget = 0,
+            VendorExtensions = new ChatRequestVendorExtensions(new ChatRequestVendorMiniMaxExtensions
+            {
+                ReasoningSplit = true
+            })
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        Console.WriteLine(response);
+    }
+
+    [TornadoTest]
+    public static async Task ZaiGlm53Reasoning()
+    {
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Zai.Glm.Glm53,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "What is 17 * 23? Show the arithmetic.")
+            ],
+            ReasoningEffort = ChatReasoningEfforts.Low,
+            MaxTokens = 1024
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        Console.WriteLine(response);
     }
     
     [TornadoTest]
@@ -122,6 +167,25 @@ public partial class ChatDemo : DemoBase
         ChatRichResponse response = await chat.GetResponseRich();
 
         Console.WriteLine("Magistral Small (reasoning prompt mode):");
+        Console.WriteLine(response);
+    }
+
+    [TornadoTest]
+    public static async Task MistralSmall4ReasoningEffort()
+    {
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Mistral.Free.MistralSmall4,
+            ReasoningEffort = ChatReasoningEfforts.High,
+            Messages =
+            [
+                new ChatMessage(ChatMessageRoles.User, "Solve step-by-step: John is one of 4 children. The first sister is 4 years old. Next year, the second sister will be twice as old as the first sister. The third sister is two years older than the second sister. The third sister is half the age of her older brother. How old is John?")
+            ]
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+
+        Console.WriteLine("Mistral Small 4 (reasoning_effort=high):");
         Console.WriteLine(response);
     }
 
@@ -417,7 +481,37 @@ public partial class ChatDemo : DemoBase
     [TornadoTest]
     public static async Task QwenMax()
     {
-        await BasicChat(ChatModel.Alibaba.Flagship.Qwen3Max);
+        await BasicChat(ChatModel.Alibaba.Flagship.Qwen38Max);
+    }
+
+    [TornadoTest]
+    public static async Task Qwen38MaxThinking()
+    {
+        Conversation chat = Program.Connect().Chat.CreateConversation(new ChatRequest
+        {
+            Model = ChatModel.Alibaba.Flagship.Qwen38Max,
+            ReasoningEffort = ChatReasoningEfforts.High,
+            Messages = [
+                new ChatMessage(ChatMessageRoles.User, "Solve step-by-step: If a train travels 120 miles in 2 hours, and another train travels 180 miles in 3 hours, which train is faster?")
+            ]
+        });
+
+        ChatRichResponse response = await chat.GetResponseRich();
+        Console.WriteLine("Qwen3.8-Max thinking:");
+        Console.WriteLine(response);
+        Console.WriteLine($"Usage: {response.Usage?.TotalTokens} tokens");
+    }
+
+    [TornadoTest]
+    public static async Task Qwen38Flash()
+    {
+        await BasicChat(ChatModel.Alibaba.CostOptimized.Qwen38Flash);
+    }
+
+    [TornadoTest]
+    public static async Task Qwen37Plus()
+    {
+        await BasicChat(ChatModel.Alibaba.Flagship.Qwen37Plus);
     }
     
     [TornadoTest]

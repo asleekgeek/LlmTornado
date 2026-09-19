@@ -17,7 +17,7 @@ public class EmbeddingModelVoyageGen35 : BaseVendorModelProvider
     /// <summary>
     /// Optimized for general-purpose and multilingual retrieval quality.
     /// </summary>
-    public static readonly EmbeddingModel ModelDefault = new EmbeddingModel("voyage-3.5", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1042, 512, 256 ]);
+    public static readonly EmbeddingModel ModelDefault = new EmbeddingModel("voyage-3.5", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelDefault"/>
@@ -27,7 +27,7 @@ public class EmbeddingModelVoyageGen35 : BaseVendorModelProvider
     /// <summary>
     /// Optimized for latency and cost.
     /// </summary>
-    public static readonly EmbeddingModel ModelLite = new EmbeddingModel("voyage-3.5-lite", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1042, 512, 256 ]);
+    public static readonly EmbeddingModel ModelLite = new EmbeddingModel("voyage-3.5-lite", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelLite"/>

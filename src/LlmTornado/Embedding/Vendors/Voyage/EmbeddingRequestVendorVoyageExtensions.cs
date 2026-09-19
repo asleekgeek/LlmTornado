@@ -16,6 +16,11 @@ public class EmbeddingRequestVendorVoyageExtensions
     /// Whether to truncate the input texts to fit within the context length. Defaults to true.
     /// </summary>
     public bool? Truncation { get; set; }
+
+    /// <summary>
+    /// Format in which the embeddings are encoded. Defaults to a numeric array. Other option: base64.
+    /// </summary>
+    public EmbeddingVendorVoyageEncodingFormats? EncodingFormat { get; set; }
 }
 
 /// <summary>
@@ -47,6 +52,17 @@ public enum EmbeddingOutputDtypes
     /// List<byte/>
     /// </summary>
     Ubinary
+}
+
+/// <summary>
+/// Format in which Voyage embeddings are encoded.
+/// </summary>
+public enum EmbeddingVendorVoyageEncodingFormats
+{
+    /// <summary>
+    /// The embeddings are represented as a Base64-encoded NumPy array.
+    /// </summary>
+    Base64
 }
 
 /// <summary>

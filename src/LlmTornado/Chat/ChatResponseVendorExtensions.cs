@@ -1,6 +1,8 @@
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Cohere;
 using LlmTornado.Chat.Vendors.Google;
+using LlmTornado.Chat.Vendors.Groq;
+using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Chat.Vendors.XAi;
 using LlmTornado.Chat.Vendors.Zai;
 
@@ -35,6 +37,16 @@ public class ChatResponseVendorExtensions
     ///     ZAI extensions.
     /// </summary>
     public ChatResponseVendorZaiExtensions? Zai { get; set; }
+
+    /// <summary>
+    ///     Perplexity extensions.
+    /// </summary>
+    public ChatResponseVendorPerplexityExtensions? Perplexity { get; set; }
+
+    /// <summary>
+    ///     Groq extensions.
+    /// </summary>
+    public ChatResponseVendorGroqExtensions? Groq { get; set; }
 
     /// <summary>
     ///     Empty extensions.

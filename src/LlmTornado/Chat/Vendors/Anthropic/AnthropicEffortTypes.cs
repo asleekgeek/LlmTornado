@@ -9,7 +9,7 @@ namespace LlmTornado.Chat.Vendors.Anthropic;
 /// <summary>
 /// Anthropic <c>output_config.effort</c> levels. Pair with
 /// <see cref="AnthropicThinkingTypes.Adaptive"/> (<c>thinking.type = "adaptive"</c>) on supported models.
-/// GA on Claude Opus 4.6+, Sonnet 4.6, Opus 4.7/4.8; beta on Opus 4.5.
+/// GA on Claude Opus 4.6+, Sonnet 4.6, Opus 4.7/4.8, and Claude 5; beta on Opus 4.5.
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
 public enum AnthropicEffortLevels

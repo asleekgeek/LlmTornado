@@ -382,7 +382,7 @@ public sealed class WeatherTools
 The following is done by the client:
 ```cs
 // your clientTransport, for example StdioClientTransport
-await using IMcpClient mcpClient = await McpClientFactory.CreateAsync(clientTransport);
+await using McpClient mcpClient = await McpClient.CreateAsync(clientTransport);
 
 // 1. fetch tools
 List<Tool> tools = await mcpClient.ListTornadoToolsAsync();

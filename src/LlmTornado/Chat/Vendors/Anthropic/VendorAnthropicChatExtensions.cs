@@ -5,6 +5,7 @@ using LlmTornado.Code;
 using LlmTornado.Vendor.Anthropic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace LlmTornado.Chat.Vendors.Anthropic;
 
@@ -105,7 +106,61 @@ public enum AnthropicThinkingDisplay
     /// Thinking blocks are returned with an empty <c>thinking</c> field while preserving the <c>signature</c> for multi-turn continuity.
     /// </summary>
     [EnumMember(Value = "omitted")]
-    Omitted
+    Omitted,
+
+    /// <summary>
+    /// Reasoning text is omitted (same as <see cref="Omitted"/>) and short progress updates between tool calls
+    /// are returned as text. Requires the <c>thinking-display-updates-2026-08-18</c> beta header (added automatically).
+    /// Supported on Claude Fable 5, Fable 5.1, and Mythos 5.1.
+    /// </summary>
+    [EnumMember(Value = "updates")]
+    Updates
+}
+
+/// <summary>
+/// How the API treats replayed thinking blocks whose prefix (system, tools, or earlier messages) changed.
+/// Requires the <c>thinking-binding-controls-2026-08-01</c> beta header (added automatically).
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum AnthropicThinkingPrefixMismatchBehavior
+{
+    /// <summary>
+    /// Reject the request with HTTP 400 when a thinking block's history changed.
+    /// </summary>
+    [EnumMember(Value = "reject")]
+    Reject,
+
+    /// <summary>
+    /// Drop the mismatched thinking block and continue. Dropped blocks are reported in <c>input_transformations</c>.
+    /// </summary>
+    [EnumMember(Value = "drop")]
+    Drop
+}
+
+/// <summary>
+/// Controls thinking-block binding when replaying signatures across turns.
+/// </summary>
+public class AnthropicThinkingBlockBinding
+{
+    /// <summary>
+    /// Whether to reject or drop thinking blocks whose prefix changed.
+    /// </summary>
+    [JsonProperty("prefix_mismatch_behavior")]
+    public AnthropicThinkingPrefixMismatchBehavior? PrefixMismatchBehavior { get; set; }
+}
+
+/// <summary>
+/// When a mid-conversation system message should stop rendering.
+/// Requires the <c>mid-conversation-system-clear-at-2026-08-21</c> beta header (added automatically).
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum AnthropicSystemClearAt
+{
+    /// <summary>
+    /// Render for the current turn only, then keep the message in history at no token cost.
+    /// </summary>
+    [EnumMember(Value = "next_user_message")]
+    NextUserMessage
 }
 
 /// <summary>
@@ -141,8 +196,14 @@ public class AnthropicThinkingSettings
     /// <summary>
     /// Controls whether thinking content is returned in responses.
     /// Use <see cref="AnthropicThinkingDisplay.Omitted"/> to preserve signatures without streaming thinking text.
+    /// Use <see cref="AnthropicThinkingDisplay.Updates"/> for progress updates between tool calls (beta).
     /// </summary>
     public AnthropicThinkingDisplay? Display { get; set; }
+
+    /// <summary>
+    /// Thinking-block binding controls (beta). Requires <c>thinking-binding-controls-2026-08-01</c>.
+    /// </summary>
+    public AnthropicThinkingBlockBinding? BlockBinding { get; set; }
 
     /// <summary>
     /// Resolves the effective thinking mode from explicit <see cref="Type"/> or legacy flags.
@@ -592,7 +653,7 @@ public class ChatRequestVendorAnthropicExtensions
     /// <summary>
     /// Effort level for <c>output_config.effort</c>. Use with
     /// <see cref="AnthropicThinkingSettings.CreateAdaptive"/> or <see cref="ChatRequest.ReasoningBudget"/> = -1 on
-    /// Claude Opus 4.6+, Sonnet 4.6, Opus 4.7, and Opus 4.8. Takes precedence over
+    /// Claude Opus 4.6+, Sonnet 4.6, Opus 4.7/4.8, and Claude 5. Takes precedence over
     /// <see cref="ChatRequest.ReasoningEffort"/> when both are set. No beta header on GA models.
     /// </summary>
     public AnthropicEffortLevels? Effort { get; set; }
@@ -659,6 +720,85 @@ public class ChatRequestVendorAnthropicExtensions
     /// Requires the <c>advisor-tool-2026-03-01</c> beta header (added automatically).
     /// </summary>
     public AnthropicAdvisorToolRequest? AdvisorTool { get; set; }
+
+    /// <summary>
+    /// Server-side fallback when the primary model refuses a request (beta).
+    /// Use <see cref="AnthropicFallbacks.Default"/> or <see cref="AnthropicFallbacks.FromModels"/>.
+    /// Requires the <c>server-side-fallback-2026-07-01</c> beta header (added automatically).
+    /// </summary>
+    public AnthropicFallbacks? Fallbacks { get; set; }
+
+    /// <summary>
+    /// When true, adds the <c>mid-conversation-tool-changes-2026-07-01</c> beta header so tools can
+    /// be added or removed between turns without invalidating the prompt cache.
+    /// </summary>
+    public bool EnableMidConversationToolChanges { get; set; }
+}
+
+/// <summary>
+/// Anthropic <c>fallbacks</c> parameter (beta). Serializes to the string <c>"default"</c> or a model ID list.
+/// </summary>
+[JsonConverter(typeof(AnthropicFallbacksJsonConverter))]
+public class AnthropicFallbacks
+{
+    /// <summary>
+    /// Apply Anthropic's recommended fallback models by refusal category.
+    /// </summary>
+    public static AnthropicFallbacks Default { get; } = new AnthropicFallbacks { UseDefault = true };
+
+    /// <summary>
+    /// When true, the API value is <c>"default"</c>.
+    /// </summary>
+    public bool UseDefault { get; init; }
+
+    /// <summary>
+    /// Explicit fallback model IDs (up to three). Ignored when <see cref="UseDefault"/> is true.
+    /// </summary>
+    public List<string>? Models { get; init; }
+
+    /// <summary>
+    /// Creates an explicit fallback model list.
+    /// </summary>
+    public static AnthropicFallbacks FromModels(params string[] models) => new AnthropicFallbacks
+    {
+        Models = models is { Length: > 0 } ? [..models] : []
+    };
+}
+
+internal sealed class AnthropicFallbacksJsonConverter : JsonConverter<AnthropicFallbacks>
+{
+    public override void WriteJson(JsonWriter writer, AnthropicFallbacks? value, JsonSerializer serializer)
+    {
+        if (value is null)
+        {
+            writer.WriteNull();
+            return;
+        }
+
+        if (value.UseDefault)
+        {
+            writer.WriteValue("default");
+            return;
+        }
+
+        serializer.Serialize(writer, value.Models ?? []);
+    }
+
+    public override AnthropicFallbacks? ReadJson(JsonReader reader, Type objectType, AnthropicFallbacks? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        JToken token = JToken.Load(reader);
+        if (token.Type == JTokenType.String && string.Equals(token.Value<string>(), "default", StringComparison.OrdinalIgnoreCase))
+        {
+            return AnthropicFallbacks.Default;
+        }
+
+        if (token.Type == JTokenType.Array)
+        {
+            return new AnthropicFallbacks { Models = token.ToObject<List<string>>(serializer) };
+        }
+
+        return null;
+    }
 }
 
 /// <summary>

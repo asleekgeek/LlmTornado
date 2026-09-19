@@ -15,7 +15,8 @@ public class ChatModelGroqGoogle : IVendorModelClassProvider
     /// </summary>
     public static readonly ChatModel ModelGemma29B = new ChatModel("groq-gemma2-9b-it", LLmProviders.Groq, 8_192)
     {
-        ApiName = "gemma2-9b-it"
+        ApiName = "gemma2-9b-it",
+        EndpointCapabilities = ChatModelGroq.ChatOnly
     };
     
     /// <summary>

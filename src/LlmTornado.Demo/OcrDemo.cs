@@ -1,3 +1,4 @@
+using System.Linq;
 using LlmTornado.Code;
 using LlmTornado.Common;
 using LlmTornado.Ocr;
@@ -12,7 +13,7 @@ public class OcrDemo : DemoBase
     public static async Task OcrDocumentUrl()
     {
         OcrResult? result = await Program.ConnectMulti().Ocr.Process(new OcrRequest(
-            OcrModel.Mistral.Ocr3,
+            OcrModel.Mistral.Ocr41,
             OcrDocumentInput.FromDocumentUrl("https://arxiv.org/pdf/2201.04234"))
         {
             IncludeImageBase64 = false,
@@ -130,5 +131,54 @@ public class OcrDemo : DemoBase
                 Console.WriteLine(page.Markdown);
             }
         }
+    }
+
+    [TornadoTest]
+    public static async Task OcrWithBlocksAndConfidence()
+    {
+        OcrResult? result = await Program.ConnectMulti().Ocr.Process(new OcrRequest(
+            OcrModel.Mistral.Ocr41,
+            OcrDocumentInput.FromDocumentUrl("https://arxiv.org/pdf/2201.04234"))
+        {
+            IncludeBlocks = true,
+            ConfidenceScoresGranularity = OcrConfidenceScoresGranularity.Block,
+            PagesRange = "0-1"
+        });
+
+        Console.WriteLine($"Pages: {result?.Pages?.Count ?? 0}");
+        Console.WriteLine($"Model: {result?.Model}");
+
+        if (result?.Pages is { Count: > 0 })
+        {
+            OcrPageObject page = result.Pages[0];
+            Console.WriteLine($"Page confidence avg: {page.ConfidenceScores?.AveragePageConfidenceScore}");
+            Console.WriteLine($"Blocks: {page.Blocks?.Count ?? 0}");
+
+            if (page.Blocks is { Count: > 0 })
+            {
+                foreach (OcrBlock block in page.Blocks.Take(8))
+                {
+                    string preview = block.Content ?? string.Empty;
+                    if (preview.Length > 80)
+                    {
+                        preview = preview[..80];
+                    }
+
+                    Console.WriteLine($"  [{block.Type}] {preview}");
+                }
+            }
+        }
+    }
+
+    [TornadoTest]
+    public static async Task OcrZaiGlm()
+    {
+        OcrResult? result = await Program.ConnectMulti().Ocr.Process(new OcrRequest(
+            OcrModel.Zai.GlmOcr,
+            OcrDocumentInput.FromImageUrl("https://cdn.bigmodel.cn/static/logo/introduction.png")));
+
+        Console.WriteLine($"Pages: {result?.Pages?.Count ?? 0}");
+        Console.WriteLine($"Model: {result?.Model}");
+        Console.WriteLine(result?.DocumentAnnotation ?? result?.Pages?.FirstOrDefault()?.Markdown);
     }
 }

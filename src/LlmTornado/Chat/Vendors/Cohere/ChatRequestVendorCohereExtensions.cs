@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LlmTornado.Chat.Vendors.Cohere;
 
@@ -45,6 +47,13 @@ public class ChatRequestVendorCohereExtensions
     public ChatVendorCohereExtensionSafetyMode? SafetyMode { get; set; }
     
     /// <summary>
+    ///     Thinking configuration for Command A Reasoning and Command A+. When set, overrides
+    ///     <see cref="ChatRequest.ReasoningEffort"/> and <see cref="ChatRequest.ReasoningBudget"/>.
+    /// </summary>
+    [JsonProperty("thinking")]
+    public ChatRequestVendorCohereThinking? Thinking { get; set; }
+    
+    /// <summary>
     ///     Empty Cohere extensions.
     /// </summary>
     public ChatRequestVendorCohereExtensions()
@@ -60,4 +69,41 @@ public class ChatRequestVendorCohereExtensions
     {
         Connectors = connectors;
     }
+}
+
+/// <summary>
+/// Controls Cohere hybrid reasoning (thinking) for Command A Reasoning and Command A+.
+/// </summary>
+public class ChatRequestVendorCohereThinking
+{
+    /// <summary>
+    /// Enable or disable thinking. Reasoning models default to enabled when this is omitted.
+    /// </summary>
+    [JsonProperty("type")]
+    public ChatVendorCohereThinkingType? Type { get; set; }
+    
+    /// <summary>
+    /// Upper limit on thinking tokens. Leave at least 1K tokens for the final response.
+    /// </summary>
+    [JsonProperty("token_budget")]
+    public int? TokenBudget { get; set; }
+}
+
+/// <summary>
+/// Thinking types for Cohere reasoning models.
+/// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ChatVendorCohereThinkingType
+{
+    /// <summary>
+    /// Enable thinking. This is the default for reasoning models.
+    /// </summary>
+    [EnumMember(Value = "enabled")]
+    Enabled,
+    
+    /// <summary>
+    /// Disable thinking; the model behaves like a standard LLM.
+    /// </summary>
+    [EnumMember(Value = "disabled")]
+    Disabled
 }

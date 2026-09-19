@@ -26,7 +26,7 @@ public class EmbeddingModelMistralPremier : BaseVendorModelProvider
     /// <summary>
     /// Our state-of-the-art semantic for extracting representation of text extracts
     /// </summary>
-    public static readonly EmbeddingModel ModelMistralEmbed = new EmbeddingModel("mistral-embed", LLmProviders.Voyage, 32_000, 1_024);
+    public static readonly EmbeddingModel ModelMistralEmbed = new EmbeddingModel("mistral-embed", LLmProviders.Mistral, 32_000, 1_024);
 
     /// <summary>
     /// <inheritdoc cref="ModelMistralEmbed"/>

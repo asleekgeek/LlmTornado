@@ -22,6 +22,11 @@ public class ChatModelCohere: BaseVendorModelProvider
     /// Aya models.
     /// </summary>
     public readonly ChatModelCohereAya Aya = new ChatModelCohereAya();
+    
+    /// <summary>
+    /// North purpose-built models.
+    /// </summary>
+    public readonly ChatModelCohereNorth North = new ChatModelCohereNorth();
 
     /// <summary>
     /// All known chat models from Cohere.
@@ -57,7 +62,18 @@ public class ChatModelCohere: BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelCohereCommand.ModelsAll, ..ChatModelCohereAya.ModelsAll]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelCohereCommand.ModelsAll, ..ChatModelCohereAya.ModelsAll, ..ChatModelCohereNorth.ModelsAll]);
+    
+    /// <summary>
+    /// Models that support Cohere's hybrid thinking / reasoning parameter.
+    /// </summary>
+    public static HashSet<IModel> ReasoningModels => LazyReasoningModels.Value;
+
+    private static readonly Lazy<HashSet<IModel>> LazyReasoningModels = new Lazy<HashSet<IModel>>(() =>
+    [
+        ChatModelCohereCommand.ModelAPlus2605,
+        ChatModelCohereCommand.ModelAReasoning2508
+    ]);
     
     internal ChatModelCohere()
     {

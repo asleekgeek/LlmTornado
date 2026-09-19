@@ -360,6 +360,21 @@ public class ImagesDemo : DemoBase
 
         await DisplayImage(generatedImg);
     }
+
+    [TornadoTest]
+    [Flaky("expensive")]
+    public static async Task GenerateZaiGlmImage()
+    {
+        ImageGenerationResult? generatedImg = await Program.ConnectMulti().ImageGenerations.CreateImage(new ImageGenerationRequest
+        {
+            Prompt = "A cute little kitten sitting on a sunny windowsill, with the background of blue sky and white clouds.",
+            Model = ImageModel.Zai.Glm.Image,
+            Quality = TornadoImageQualities.Standard,
+            Size = TornadoImageSizes.Size1280x1280
+        });
+
+        await DisplayImage(generatedImg);
+    }
     
     public static async Task SaveImages(string imageName, ImageGenerationResult generatedImg)
     {

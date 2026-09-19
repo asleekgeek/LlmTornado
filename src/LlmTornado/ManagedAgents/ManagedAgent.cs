@@ -29,7 +29,7 @@ public class ManagedAgent : ApiResultBase
     public string? DisplayName { get; set; }
 
     /// <summary>
-    /// Base managed agent (e.g. <see cref="GoogleManagedAgentIds.AntigravityPreview052026"/>).
+    /// Base managed agent (e.g. <see cref="GoogleManagedAgentIds.AntigravityPreview092026"/>).
     /// </summary>
     [JsonProperty("base_agent", NullValueHandling = NullValueHandling.Ignore)]
     public string? BaseAgent { get; set; }

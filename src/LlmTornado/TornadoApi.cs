@@ -617,6 +617,12 @@ public class TornadoApi
     public RealtimeEndpoint Realtime => realtime.Value;
 
     /// <summary>
+    ///     Live voice APIs: Gemini Live (<see cref="Live.LiveEndpoint.ConnectAsync"/>) and
+    ///     OpenAI GPT-Live (<see cref="Live.LiveEndpoint.OpenAi"/>).
+    /// </summary>
+    public LiveEndpoint Live => live.Value;
+
+    /// <summary>
     ///     OpenAI Codex integration for ChatGPT subscription authentication, models, and text turns.
     /// </summary>
     public CodexEndpoint Codex => codex.Value;

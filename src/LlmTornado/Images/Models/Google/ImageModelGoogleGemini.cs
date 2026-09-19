@@ -23,12 +23,24 @@ public class ImageModelGoogleGemini : IVendorModelClassProvider
     /// <summary>
     /// Preview variant of Gemini 3.1 Flash Image.
     /// </summary>
+    [Obsolete("Shut down June 25, 2026. Use ModelGemini31FlashImage instead.")]
     public static readonly ImageModel ModelGemini31FlashImagePreview = new ImageModel("gemini-3.1-flash-image-preview", LLmProviders.Google);
 
     /// <summary>
     /// <inheritdoc cref="ModelGemini31FlashImagePreview"/>
     /// </summary>
+    [Obsolete("Shut down June 25, 2026. Use Gemini31FlashImage instead.")]
     public readonly ImageModel Gemini31FlashImagePreview = ModelGemini31FlashImagePreview;
+
+    /// <summary>
+    /// Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image). Ultra-low latency, cost-effective image generation and editing.
+    /// </summary>
+    public static readonly ImageModel ModelGemini31FlashLiteImage = new ImageModel("gemini-3.1-flash-lite-image", LLmProviders.Google);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini31FlashLiteImage"/>
+    /// </summary>
+    public readonly ImageModel Gemini31FlashLiteImage = ModelGemini31FlashLiteImage;
 
     /// <summary>
     /// Models that support video-to-image generation.
@@ -55,6 +67,7 @@ public class ImageModelGoogleGemini : IVendorModelClassProvider
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() =>
     [
         ModelGemini31FlashImage,
+        ModelGemini31FlashLiteImage,
         ModelGemini31FlashImagePreview
     ]);
 

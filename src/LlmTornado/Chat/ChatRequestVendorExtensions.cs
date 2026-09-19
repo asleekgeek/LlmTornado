@@ -1,6 +1,9 @@
+using LlmTornado.Chat.Vendors.Alibaba;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Chat.Vendors.Cohere;
 using LlmTornado.Chat.Vendors.Google;
+using LlmTornado.Chat.Vendors.Groq;
+using LlmTornado.Chat.Vendors.MiniMax;
 using LlmTornado.Chat.Vendors.Mistral;
 using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Chat.Vendors.XAi;
@@ -47,6 +50,21 @@ public class ChatRequestVendorExtensions
     ///     ZAI extensions.
     /// </summary>
     public ChatRequestVendorZaiExtensions? Zai { get; set; }
+    
+    /// <summary>
+    ///     MiniMax extensions.
+    /// </summary>
+    public ChatRequestVendorMiniMaxExtensions? MiniMax { get; set; }
+    
+    /// <summary>
+    ///     Alibaba Cloud Model Studio (DashScope) extensions.
+    /// </summary>
+    public ChatRequestVendorAlibabaExtensions? Alibaba { get; set; }
+    
+    /// <summary>
+    ///     Groq extensions.
+    /// </summary>
+    public ChatRequestVendorGroqExtensions? Groq { get; set; }
 
     /// <summary>
     ///     Empty extensions.
@@ -117,5 +135,32 @@ public class ChatRequestVendorExtensions
     public ChatRequestVendorExtensions(ChatRequestVendorZaiExtensions zaiExtensions)
     {
         Zai = zaiExtensions;
+    }
+    
+    /// <summary>
+    ///     Alibaba Cloud Model Studio (DashScope) extensions.
+    /// </summary>
+    /// <param name="alibabaExtensions"></param>
+    public ChatRequestVendorExtensions(ChatRequestVendorAlibabaExtensions alibabaExtensions)
+    {
+        Alibaba = alibabaExtensions;
+    }
+    
+    /// <summary>
+    ///     MiniMax extensions.
+    /// </summary>
+    /// <param name="miniMaxExtensions"></param>
+    public ChatRequestVendorExtensions(ChatRequestVendorMiniMaxExtensions miniMaxExtensions)
+    {
+        MiniMax = miniMaxExtensions;
+    }
+    
+    /// <summary>
+    ///     Groq extensions.
+    /// </summary>
+    /// <param name="groqExtensions"></param>
+    public ChatRequestVendorExtensions(ChatRequestVendorGroqExtensions groqExtensions)
+    {
+        Groq = groqExtensions;
     }
 }

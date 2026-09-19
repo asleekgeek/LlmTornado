@@ -43,12 +43,12 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     public readonly ChatModel GeminiProLatest = ModelGeminiProLatest;
     
     /// <summary>
-    /// Alias pointing to gemini-3.5-flash. Gemini 3.5 Flash is our most intelligent Flash model for sustained frontier performance in agentic and coding tasks.
+    /// Alias pointing to gemini-3.8-flash. Gemini 3.8 Flash is our most intelligent Flash model for long-horizon software engineering, autonomous agents, and enterprise workflows.
     /// </summary>
     public static readonly ChatModel ModelGeminiFlashLatest = new ChatModel("gemini-flash-latest", LLmProviders.Google, 1_048_576) 
     {
         ReasoningTokensMin = 0,
-        ReasoningTokensMax = 24_576,
+        ReasoningTokensMax = 65_536,
         ReasoningTokensSpecialValues = [ -1 ]
     };
     
@@ -73,12 +73,12 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     public readonly ChatModel Gemini25Flash = ModelGemini25Flash;
     
     /// <summary>
-    /// Alias pointing to gemini-3.1-flash-lite. Low-latency, cost-efficient model for high-volume agentic workflows and lightweight tasks.
+    /// Alias pointing to gemini-3.5-flash-lite. Fastest, most cost-effective 3.5 Flash-Lite model for high-throughput execution.
     /// </summary>
     public static readonly ChatModel ModelGeminiFlashLiteLatest = new ChatModel("gemini-flash-lite-latest", LLmProviders.Google, 1_048_576) 
     {
         ReasoningTokensMin = 0,
-        ReasoningTokensMax = 24_576,
+        ReasoningTokensMax = 65_536,
         ReasoningTokensSpecialValues = [ -1 ]
     };
     
@@ -103,13 +103,68 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     public readonly ChatModel Gemini25FlashLite = ModelGemini25FlashLite;
 
     /// <summary>
-    /// Gemini 3.5 Flash is our most intelligent Flash model, delivering sustained frontier performance optimized for agentic execution, coding, and long-horizon tasks at scale.
+    /// Gemini 3.8 Flash is our most intelligent Flash model, engineered for long-horizon software engineering, autonomous agents, and complex enterprise workflows.
+    /// Input: Text, Image, Video, Audio, and PDF. Output: Text. Context: 1M in / 64k out. Thinking: low/medium (default)/high. <c>minimal</c> is not supported.
+    /// Computer Use (Preview) is supported. Default model behind <c>gemini-flash-latest</c>.
+    /// </summary>
+    public static readonly ChatModel ModelGemini38Flash = new ChatModel("gemini-3.8-flash", LLmProviders.Google, 1_048_576)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        ReasoningTokensSpecialValues = [ -1 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini38Flash"/>
+    /// </summary>
+    public readonly ChatModel Gemini38Flash = ModelGemini38Flash;
+
+    /// <summary>
+    /// Gemini 3.7 Flash is the previous-generation Flash model for complex coding, agentic workflows, and reliable multi-step execution.
+    /// Input: Text, Image, Video, Audio, and PDF. Output: Text. Context: 1M in / 64k out. Thinking: low/medium (default)/high. <c>minimal</c> is not supported.
+    /// Computer Use (Preview) and agentic video understanding are supported.
+    /// </summary>
+    public static readonly ChatModel ModelGemini37Flash = new ChatModel("gemini-3.7-flash", LLmProviders.Google, 1_048_576)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        ReasoningTokensSpecialValues = [ -1 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini37Flash"/>
+    /// </summary>
+    public readonly ChatModel Gemini37Flash = ModelGemini37Flash;
+
+    /// <summary>
+    /// Gemini 3.6 Flash balances speed and multimodal capabilities across general agentic and everyday tasks, with improved token efficiency versus 3.5 Flash.
+    /// Input: Text, Image, Video, Audio, and PDF. Output: Text. Context: 1M in / 64k out. Thinking: low/medium (default)/high. <c>minimal</c> is not supported.
+    /// Computer Use (Preview) and agentic video understanding are supported.
+    /// </summary>
+    public static readonly ChatModel ModelGemini36Flash = new ChatModel("gemini-3.6-flash", LLmProviders.Google, 1_048_576)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        ReasoningTokensSpecialValues = [ -1 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini36Flash"/>
+    /// </summary>
+    public readonly ChatModel Gemini36Flash = ModelGemini36Flash;
+
+    /// <summary>
+    /// Gemini 3.5 Flash is a legacy Flash model providing baseline speed and foundational performance for routine, high-throughput workloads.
     /// Input: Text, Image, Video, Audio, and PDF. Output: Text. Context: 1M in / 64k out. Default thinking level: medium.
+    /// Computer Use (Preview) is supported (browser, mobile, desktop).
     /// </summary>
     public static readonly ChatModel ModelGemini35Flash = new ChatModel("gemini-3.5-flash", LLmProviders.Google, 1_048_576)
     {
         ReasoningTokensMin = 0,
-        ReasoningTokensMax = 24_576,
+        ReasoningTokensMax = 65_536,
         ReasoningTokensSpecialValues = [ -1 ],
         GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
     };
@@ -118,6 +173,25 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     /// <inheritdoc cref="ModelGemini35Flash"/>
     /// </summary>
     public readonly ChatModel Gemini35Flash = ModelGemini35Flash;
+
+    /// <summary>
+    /// Gemini 3.5 Flash-Lite is the fastest, most cost-effective 3.5 model for high-throughput execution and subagent tasks.
+    /// Input: Text, Image, Video, Audio, and PDF. Output: Text. Context: 1M in / 64k out.
+    /// Thinking: minimal (default)/low/medium/high. Computer Use (Preview) and agentic video understanding are supported.
+    /// Default model behind <c>gemini-flash-lite-latest</c>.
+    /// </summary>
+    public static readonly ChatModel ModelGemini35FlashLite = new ChatModel("gemini-3.5-flash-lite", LLmProviders.Google, 1_048_576)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        ReasoningTokensSpecialValues = [ -1 ],
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini35FlashLite"/>
+    /// </summary>
+    public readonly ChatModel Gemini35FlashLite = ModelGemini35FlashLite;
 
     /// <summary>
     /// Gemini 3.1 Flash-Lite is a low-latency, cost-efficient multimodal model for high-volume agentic workflows and lightweight tasks.
@@ -319,6 +393,65 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
     /// <inheritdoc cref="ModelGemini31FlashImage"/>
     /// </summary>
     public readonly ChatModel Gemini31FlashImage = ModelGemini31FlashImage;
+
+    /// <summary>
+    /// Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image) is the efficiency specialist for ultra-low latency, cost-effective image generation and editing.
+    /// Input: Text and Image. Output: Image and Text.
+    /// </summary>
+    public static readonly ChatModel ModelGemini31FlashLiteImage = new ChatModel("gemini-3.1-flash-lite-image", LLmProviders.Google, 131_072)
+    {
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini31FlashLiteImage"/>
+    /// </summary>
+    public readonly ChatModel Gemini31FlashLiteImage = ModelGemini31FlashLiteImage;
+
+    /// <summary>
+    /// Gemini 3.8 Live is the default Live API model for low-latency voice agents and real-time dialogue without reasoning delays.
+    /// Features interleaved reasoning, default asynchronous function calling, visual context, and 97+ languages. Live API only.
+    /// </summary>
+    public static readonly ChatModel ModelGemini38Live = new ChatModel("gemini-3.8-live", LLmProviders.Google, 131_072)
+    {
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini38Live"/>
+    /// </summary>
+    public readonly ChatModel Gemini38Live = ModelGemini38Live;
+
+    /// <summary>
+    /// Gemini 3.8 Live Extended Thinking is a high-reasoning Live API audio-to-audio model for background reasoning during live interactions.
+    /// Supports configurable thinking while continuing to stream audio. Live API only.
+    /// </summary>
+    public static readonly ChatModel ModelGemini38LiveExtendedThinking = new ChatModel("gemini-3.8-live-extended-thinking", LLmProviders.Google, 131_072)
+    {
+        ReasoningTokensMin = 0,
+        ReasoningTokensMax = 65_536,
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini38LiveExtendedThinking"/>
+    /// </summary>
+    public readonly ChatModel Gemini38LiveExtendedThinking = ModelGemini38LiveExtendedThinking;
+
+    /// <summary>
+    /// Gemini 3.5 Transcribe is a dedicated speech-to-text model with utterance-based language detection (85+ languages),
+    /// speaker diarization, word-level timestamps, Smart transcription, and custom vocabulary biasing (up to 1,000 terms).
+    /// Unary generateContent: audio up to 1 hour (30 minutes with diarization or timestamps).
+    /// </summary>
+    public static readonly ChatModel ModelGemini35Transcribe = new ChatModel("gemini-3.5-transcribe", LLmProviders.Google, 131_072)
+    {
+        GoogleLifecycle = new GoogleModelLifecycleInfo { Stage = GoogleModelStage.Stable }
+    };
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGemini35Transcribe"/>
+    /// </summary>
+    public readonly ChatModel Gemini35Transcribe = ModelGemini35Transcribe;
     
     /// <summary>
     /// All known Gemini models from Google.
@@ -329,8 +462,10 @@ public class ChatModelGoogleGemini : IVendorModelClassProvider
         ModelGemini15ProLatest, 
         ModelGemini15Pro, ModelGemini15Pro001, ModelGemini15Pro002, ModelGemini15Flash8B, ModelGemini15Flash8BLatest, ModelGemini2Flash001,
         ModelGemini2FlashLatest, ModelGemini2FlashLite001, ModelGemini2FlashLiteLatest, ModelGemini25Pro, ModelGemini25Flash, 
-        ModelGemini25FlashLite, ModelGemini31FlashLite, ModelGemini35Flash, ModelGeminiFlashLiteLatest, ModelGeminiFlashLatest, ModelGeminiProLatest, ModelGemini25FlashImage,
-        ModelGemini3ProImage, ModelGemini31FlashImage
+        ModelGemini25FlashLite, ModelGemini31FlashLite, ModelGemini35FlashLite, ModelGemini35Flash, ModelGemini36Flash, ModelGemini37Flash, ModelGemini38Flash,
+        ModelGeminiFlashLiteLatest, ModelGeminiFlashLatest, ModelGeminiProLatest, ModelGemini25FlashImage,
+        ModelGemini3ProImage, ModelGemini31FlashImage, ModelGemini31FlashLiteImage,
+        ModelGemini38Live, ModelGemini38LiveExtendedThinking, ModelGemini35Transcribe
     ]);
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using LlmTornado.Common;
 using LlmTornado.Vendor.Anthropic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -123,6 +124,48 @@ public enum VendorAnthropicChatRequestBuiltInToolTypes
     /// </summary>
     [EnumMember(Value = "advisor_20260301")]
     Advisor20260301,
+
+    /// <summary>
+    /// Code execution tool with REPL state persistence. Minimum version for programmatic tool calling.
+    /// Available on Claude Fable 5, Mythos 5, Opus 4.5+, and Sonnet 4.5+. No beta header required.
+    /// </summary>
+    [EnumMember(Value = "code_execution_20260120")]
+    CodeExecution20260120,
+
+    /// <summary>
+    /// Code execution tool that discloses the 90-second per-cell time limit in the tool description.
+    /// No beta header required.
+    /// </summary>
+    [EnumMember(Value = "code_execution_20260521")]
+    CodeExecution20260521,
+
+    /// <summary>
+    /// Web search tool with <c>response_inclusion</c> to drop consumed result blocks from the response.
+    /// No beta header required.
+    /// </summary>
+    [EnumMember(Value = "web_search_20260318")]
+    WebSearch20260318,
+
+    /// <summary>
+    /// Web fetch tool with <c>response_inclusion</c> to drop consumed result blocks from the response.
+    /// No beta header required.
+    /// </summary>
+    [EnumMember(Value = "web_fetch_20260318")]
+    WebFetch20260318,
+
+    /// <summary>
+    /// Stable computer-use toolset (GA). No <c>name</c> field; declares 17 member tools such as
+    /// <c>screenshot</c>, <c>left_click</c>, <c>type</c>, and <c>zoom</c>. No beta header required.
+    /// </summary>
+    [EnumMember(Value = "computer_toolset_20260801")]
+    ComputerToolset20260801,
+
+    /// <summary>
+    /// Browser-use toolset (GA). No <c>name</c> field; drives a host-provided browser viewport.
+    /// No beta header required.
+    /// </summary>
+    [EnumMember(Value = "browser_toolset_20260801")]
+    BrowserToolset20260801,
 }
 
 /// <summary>
@@ -562,4 +605,200 @@ public class VendorAnthropicChatRequestBuiltInToolAdvisor20260301 : IVendorAnthr
     /// </summary>
     [JsonProperty("caching")]
     public AnthropicCacheSettings? Caching { get; set; }
+}
+
+/// <summary>
+/// Per-member configuration for Anthropic client toolsets (computer / browser).
+/// </summary>
+public class AnthropicToolsetMemberConfig
+{
+    /// <summary>
+    /// Whether this member tool is enabled. Omitted members keep their defaults.
+    /// </summary>
+    [JsonProperty("enabled")]
+    public bool? Enabled { get; set; }
+
+    /// <summary>
+    /// When true, the member is loaded only via tool search.
+    /// </summary>
+    [JsonProperty("defer_loading")]
+    public bool? DeferLoading { get; set; }
+}
+
+/// <summary>
+/// Code execution tool with REPL state persistence (<c>code_execution_20260120</c>).
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolCodeExecution20260120 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.CodeExecution20260120;
+
+    /// <inheritdoc />
+    [JsonProperty("name")]
+    public string Name => "code_execution";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+}
+
+/// <summary>
+/// Code execution tool that discloses the 90-second per-cell limit (<c>code_execution_20260521</c>).
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolCodeExecution20260521 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.CodeExecution20260521;
+
+    /// <inheritdoc />
+    [JsonProperty("name")]
+    public string Name => "code_execution";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+}
+
+/// <summary>
+/// Web search tool with <c>response_inclusion</c> (<c>web_search_20260318</c>).
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolWebSearch20260318 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.WebSearch20260318;
+
+    /// <inheritdoc />
+    [JsonProperty("name")]
+    public string Name => "web_search";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+
+    /// <summary>
+    /// Maximum number of searches Claude may perform per request.
+    /// </summary>
+    public int? MaxUses { get; set; }
+
+    /// <summary>
+    /// If set, only results from these domains are included.
+    /// </summary>
+    public List<string>? AllowedDomains { get; set; }
+
+    /// <summary>
+    /// If set, results from these domains are excluded.
+    /// </summary>
+    public List<string>? BlockedDomains { get; set; }
+
+    /// <summary>
+    /// Optional user location used to localise search results.
+    /// </summary>
+    public VendorAnthropicToolFunctionUserLocation? UserLocation { get; set; }
+
+    /// <summary>
+    /// Controls whether consumed search result blocks are included in the API response
+    /// (for example <c>all</c> vs dropping consumed blocks).
+    /// </summary>
+    public string? ResponseInclusion { get; set; }
+}
+
+/// <summary>
+/// Web fetch tool with <c>response_inclusion</c> (<c>web_fetch_20260318</c>).
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolWebFetch20260318 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.WebFetch20260318;
+
+    /// <inheritdoc />
+    [JsonProperty("name")]
+    public string Name => "web_fetch";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+
+    /// <summary>
+    /// Maximum number of fetches Claude may perform per request.
+    /// </summary>
+    public int? MaxUses { get; set; }
+
+    /// <summary>
+    /// If set, only these domains may be fetched.
+    /// </summary>
+    public List<string>? AllowedDomains { get; set; }
+
+    /// <summary>
+    /// If set, these domains will never be fetched.
+    /// </summary>
+    public List<string>? BlockedDomains { get; set; }
+
+    /// <summary>
+    /// When enabled, Claude cites specific passages from fetched documents.
+    /// </summary>
+    public bool? CitationsEnabled { get; set; }
+
+    /// <summary>
+    /// Maximum number of content tokens to include from fetched pages.
+    /// </summary>
+    public int? MaxContentTokens { get; set; }
+
+    /// <summary>
+    /// Controls whether consumed fetch result blocks are included in the API response.
+    /// </summary>
+    public string? ResponseInclusion { get; set; }
+}
+
+/// <summary>
+/// Stable computer-use toolset. Serializes as <c>{"type":"computer_toolset_20260801"}</c> with no <c>name</c>.
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolComputerToolset20260801 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.ComputerToolset20260801;
+
+    /// <inheritdoc />
+    [JsonIgnore]
+    public string Name => "computer";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+
+    /// <summary>
+    /// Per-member configuration keyed by member name (for example <c>zoom</c>, <c>screenshot</c>).
+    /// </summary>
+    public Dictionary<string, AnthropicToolsetMemberConfig>? Configs { get; set; }
+
+    /// <summary>
+    /// Allowed callers. Only <c>direct</c> is accepted for this toolset.
+    /// </summary>
+    public List<ToolAllowedCallers>? AllowedCallers { get; set; }
+}
+
+/// <summary>
+/// Browser-use toolset. Serializes as <c>{"type":"browser_toolset_20260801"}</c> with no <c>name</c>.
+/// </summary>
+public class VendorAnthropicChatRequestBuiltInToolBrowserToolset20260801 : IVendorAnthropicChatRequestBuiltInTool
+{
+    /// <inheritdoc />
+    public VendorAnthropicChatRequestBuiltInToolTypes Type => VendorAnthropicChatRequestBuiltInToolTypes.BrowserToolset20260801;
+
+    /// <inheritdoc />
+    [JsonIgnore]
+    public string Name => "browser";
+
+    /// <inheritdoc />
+    [JsonProperty("cache_control")]
+    public AnthropicCacheSettings? Cache { get; set; }
+
+    /// <summary>
+    /// Per-member configuration keyed by member name (for example <c>javascript_exec</c>, <c>file_upload</c>).
+    /// </summary>
+    public Dictionary<string, AnthropicToolsetMemberConfig>? Configs { get; set; }
+
+    /// <summary>
+    /// Allowed callers. Only <c>direct</c> is accepted for this toolset.
+    /// </summary>
+    public List<ToolAllowedCallers>? AllowedCallers { get; set; }
 }

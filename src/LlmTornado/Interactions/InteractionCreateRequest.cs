@@ -25,7 +25,7 @@ public class InteractionCreateRequest
     public string? Model { get; set; }
 
     /// <summary>
-    /// Managed agent ID (e.g. <see cref="GoogleManagedAgentIds.AntigravityPreview052026"/>).
+    /// Managed agent ID (e.g. <see cref="GoogleManagedAgentIds.AntigravityPreview092026"/>).
     /// Required if <see cref="Model"/> is not set.
     /// </summary>
     [JsonProperty("agent", NullValueHandling = NullValueHandling.Ignore)]
@@ -128,7 +128,7 @@ public class InteractionCreateRequest
     {
         return new InteractionCreateRequest
         {
-            Agent = GoogleManagedAgentIds.AntigravityPreview052026,
+            Agent = GoogleManagedAgentIds.AntigravityPreview092026,
             Input = InteractionInput.FromText(input),
             Environment = environment ?? InteractionEnvironmentReference.Remote,
             Store = true

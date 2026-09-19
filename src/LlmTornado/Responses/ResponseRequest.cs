@@ -106,6 +106,19 @@ public class ResponseRequest
     public ChatModel? Model { get; set; }
     
     /// <summary>
+    /// Perplexity Agent API preset (fast, low, medium, high, xhigh, wide-research).
+    /// When set, Perplexity uses the preset instead of a raw model id.
+    /// </summary>
+    [JsonProperty("preset")]
+    public string? Preset { get; set; }
+    
+    /// <summary>
+    /// Perplexity Agent API fallback model chain. Tried in order when the primary model is unavailable.
+    /// </summary>
+    [JsonProperty("models")]
+    public List<string>? Models { get; set; }
+    
+    /// <summary>
     /// Whether to allow the model to run tool calls in parallel. Defaults to true if null.
     /// </summary>
     [JsonProperty("parallel_tool_calls")]

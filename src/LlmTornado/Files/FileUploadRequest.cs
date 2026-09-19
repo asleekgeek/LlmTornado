@@ -152,6 +152,19 @@ public class FileUploadRequest
                 _ => "voice_clone"
             };
         }
+
+        if (provider is LLmProviders.MoonshotAi)
+        {
+            return purpose switch
+            {
+                FilePurpose.FileExtract => "file-extract",
+                FilePurpose.Image => "image",
+                FilePurpose.Vision => "image",
+                FilePurpose.Video => "video",
+                FilePurpose.Batch => "batch",
+                _ => "file-extract"
+            };
+        }
         
         // general fallback
         return purpose switch
@@ -163,6 +176,9 @@ public class FileUploadRequest
             FilePurpose.Vision => "vision",
             FilePurpose.UserData => "user_data",
             FilePurpose.Evals => "evals",
+            FilePurpose.FileExtract => "file-extract",
+            FilePurpose.Image => "image",
+            FilePurpose.Video => "video",
             _ => "user_data"
         };
     }

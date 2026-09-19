@@ -38,6 +38,60 @@ public class ChatRequestVendorMistralExtensions
     /// Important: the conversation has to end with a user message for the prefix to be applied (at the time of sending the request).
     /// </summary>
     public string? Prefix { get; set; }
+    
+    /// <summary>
+    /// Custom guardrails evaluated on the chat completion request. Violations return HTTP 403.
+    /// Added March 2026; use <see cref="MistralGuardrail.ModerationLlmV2"/> (v1 is deprecated).
+    /// </summary>
+    public List<MistralGuardrail>? Guardrails { get; set; }
+}
+
+/// <summary>
+/// A single guardrail configuration for Mistral chat completions.
+/// </summary>
+public class MistralGuardrail
+{
+    /// <summary>
+    /// When true, the request is blocked if the moderation API itself fails.
+    /// </summary>
+    [JsonProperty("block_on_error")]
+    public bool? BlockOnError { get; set; }
+    
+    /// <summary>
+    /// Optional override for the moderation model (defaults to <c>mistral-moderation-2603</c>).
+    /// </summary>
+    [JsonProperty("model_name")]
+    public string? ModelName { get; set; }
+    
+    /// <summary>
+    /// Current moderation guardrail backed by Mistral Moderation 2.
+    /// </summary>
+    [JsonProperty("moderation_llm_v2")]
+    public MistralModerationLlm? ModerationLlmV2 { get; set; }
+}
+
+/// <summary>
+/// Thresholds and action for a Mistral LLM moderation guardrail.
+/// </summary>
+public class MistralModerationLlm
+{
+    /// <summary>
+    /// Category name to score threshold (0–1). Categories typically include sexual, hate, violence, selfharm, and others.
+    /// </summary>
+    [JsonProperty("custom_category_thresholds")]
+    public Dictionary<string, double>? CustomCategoryThresholds { get; set; }
+    
+    /// <summary>
+    /// When true, only categories listed in <see cref="CustomCategoryThresholds"/> are evaluated.
+    /// </summary>
+    [JsonProperty("ignore_other_categories")]
+    public bool? IgnoreOtherCategories { get; set; }
+    
+    /// <summary>
+    /// Action on violation. Currently <c>block</c>.
+    /// </summary>
+    [JsonProperty("action")]
+    public string? Action { get; set; }
 }
 
 /// <summary>

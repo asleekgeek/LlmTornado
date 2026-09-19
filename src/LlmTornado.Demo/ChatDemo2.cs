@@ -1364,7 +1364,7 @@ public partial class ChatDemo : DemoBase
     [TornadoTest]
     public static async Task MoonshotKimi()
     {
-        await BasicChat(ChatModel.MoonshotAi.Models.KimiK2TurboPreview);
+        await BasicChat(ChatModel.MoonshotAi.Models.KimiK3);
     }
     
     [TornadoTest]
@@ -1401,6 +1401,12 @@ public partial class ChatDemo : DemoBase
     public static async Task MistralMedium3()
     {
         await CzechChat(ChatModel.Mistral.Premier.Medium3);
+    }
+    
+    [TornadoTest]
+    public static async Task MistralMedium35()
+    {
+        await CzechChat(ChatModel.Mistral.Premier.MistralMedium35);
     }
     
     [TornadoTest]

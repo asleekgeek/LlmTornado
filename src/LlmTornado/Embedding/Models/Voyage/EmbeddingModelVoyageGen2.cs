@@ -17,7 +17,7 @@ public class EmbeddingModelVoyageGen2 : BaseVendorModelProvider
     /// <summary>
     /// Voyage AI's most powerful generalist embedding model.
     /// </summary>
-    public static readonly EmbeddingModel ModelLarge = new EmbeddingModel("voyage-large-2", LLmProviders.Voyage, 4_096, 1_536);
+    public static readonly EmbeddingModel ModelLarge = new EmbeddingModel("voyage-large-2", LLmProviders.Voyage, 16_000, 1_536);
 
     /// <summary>
     /// <inheritdoc cref="ModelLarge"/>
@@ -27,7 +27,7 @@ public class EmbeddingModelVoyageGen2 : BaseVendorModelProvider
     /// <summary>
     /// Optimized for code retrieval (17% better than alternatives), and also SoTA on general-purpose corpora.
     /// </summary>
-    public static readonly EmbeddingModel ModelCode = new EmbeddingModel("voyage-code-2", LLmProviders.Voyage, 4_096, 1_536);
+    public static readonly EmbeddingModel ModelCode = new EmbeddingModel("voyage-code-2", LLmProviders.Voyage, 16_000, 1_536);
 
     /// <summary>
     /// <inheritdoc cref="ModelCode"/>
@@ -37,22 +37,62 @@ public class EmbeddingModelVoyageGen2 : BaseVendorModelProvider
     /// <summary>
     /// Base generalist embedding model optimized for both latency and quality.
     /// </summary>
-    public static readonly EmbeddingModel ModelDefault = new EmbeddingModel("voyage-2", LLmProviders.Voyage, 4_096, 1_024);
+    public static readonly EmbeddingModel ModelDefault = new EmbeddingModel("voyage-2", LLmProviders.Voyage, 4_000, 1_024);
 
     /// <summary>
-    /// <inheritdoc cref="ModelCode"/>
+    /// <inheritdoc cref="ModelDefault"/>
     /// </summary>
     public readonly EmbeddingModel Default = ModelDefault;
     
     /// <summary>
-    /// 	Instruction-tuned for classification, clustering, and sentence textual similarity tasks, which are the only recommended use cases for this model.
+    /// Instruction-tuned for classification, clustering, and sentence textual similarity tasks, which are the only recommended use cases for this model.
     /// </summary>
-    public static readonly EmbeddingModel ModelLiteInstruct = new EmbeddingModel("voyage-lite-02-instruct", LLmProviders.Voyage, 4_096, 1_024);
+    public static readonly EmbeddingModel ModelLiteInstruct = new EmbeddingModel("voyage-lite-02-instruct", LLmProviders.Voyage, 4_000, 1_024);
 
     /// <summary>
     /// <inheritdoc cref="ModelLiteInstruct"/>
     /// </summary>
     public readonly EmbeddingModel LiteInstruct = ModelLiteInstruct;
+    
+    /// <summary>
+    /// Instruction-tuned general-purpose embedding model optimized for clustering, classification, and retrieval.
+    /// </summary>
+    public static readonly EmbeddingModel ModelLargeInstruct = new EmbeddingModel("voyage-large-2-instruct", LLmProviders.Voyage, 16_000, 1_024);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelLargeInstruct"/>
+    /// </summary>
+    public readonly EmbeddingModel LargeInstruct = ModelLargeInstruct;
+    
+    /// <summary>
+    /// Optimized for finance retrieval and RAG.
+    /// </summary>
+    public static readonly EmbeddingModel ModelFinance = new EmbeddingModel("voyage-finance-2", LLmProviders.Voyage, 32_000, 1_024);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelFinance"/>
+    /// </summary>
+    public readonly EmbeddingModel Finance = ModelFinance;
+    
+    /// <summary>
+    /// Optimized for legal retrieval and RAG.
+    /// </summary>
+    public static readonly EmbeddingModel ModelLaw = new EmbeddingModel("voyage-law-2", LLmProviders.Voyage, 16_000, 1_024);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelLaw"/>
+    /// </summary>
+    public readonly EmbeddingModel Law = ModelLaw;
+    
+    /// <summary>
+    /// Optimized for multilingual retrieval and RAG.
+    /// </summary>
+    public static readonly EmbeddingModel ModelMultilingual = new EmbeddingModel("voyage-multilingual-2", LLmProviders.Voyage, 32_000, 1_024);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelMultilingual"/>
+    /// </summary>
+    public readonly EmbeddingModel Multilingual = ModelMultilingual;
     
     /// <summary>
     /// All known embedding models from Voyage 2.
@@ -82,7 +122,7 @@ public class EmbeddingModelVoyageGen2 : BaseVendorModelProvider
     });
     
     /// <summary>
-    /// All known Voyage 2 models from Anthropic.
+    /// All known Voyage 2 models.
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
@@ -90,7 +130,11 @@ public class EmbeddingModelVoyageGen2 : BaseVendorModelProvider
         ModelLarge,
         ModelCode,
         ModelDefault,
-        ModelLiteInstruct
+        ModelLiteInstruct,
+        ModelLargeInstruct,
+        ModelFinance,
+        ModelLaw,
+        ModelMultilingual
     ]);
     
     internal EmbeddingModelVoyageGen2()

@@ -43,7 +43,7 @@ internal class VendorZaiChatRequestData : ChatRequest
     public string? UserId { get; set; }
     
     /// <summary>
-    /// Whether to enable streaming response for Function Calls (GLM-4.6 only).
+    /// Whether to enable streaming response for Function Calls (GLM-4.6+; recommended for GLM-5.3-Flash).
     /// </summary>
     [JsonProperty("tool_stream")]
     public bool? ToolStream { get; set; }
@@ -60,17 +60,29 @@ internal class VendorZaiChatRequestData : ChatRequest
         UserId = request.User;
         User = null; // ZAI uses user_id, not user
         
-        // Map reasoning from ReasoningEffort and ReasoningBudget to ZAI's thinking parameter
-        if (ShouldEnableReasoning(request))
+        bool forcedThinking = IsForcedThinkingModel(request.Model?.Name);
+
+        // Map reasoning from ReasoningEffort and ReasoningBudget to ZAI's thinking parameter.
+        // GLM-5.3 / 5.3-Flash / 5.3-FlashX always reason and reject thinking.type = disabled.
+        if (forcedThinking || ShouldEnableReasoning(request))
         {
             Thinking = new ChatRequestVendorZaiThinking
             {
                 Type = ChatRequestVendorZaiThinkingType.Enabled
             };
         }
-        
-        // Clear OpenAI-specific reasoning fields that don't apply to ZAI
-        ReasoningEffort = null;
+        else if (request.ReasoningEffort == Code.ChatReasoningEfforts.None)
+        {
+            Thinking = new ChatRequestVendorZaiThinking
+            {
+                Type = ChatRequestVendorZaiThinkingType.Disabled
+            };
+        }
+
+        // GLM-5.2+ accept reasoning_effort: low | high | max. Older models reject unknown values.
+        ReasoningEffort = SupportsReasoningEffort(request.Model?.Name)
+            ? MapReasoningEffort(request.ReasoningEffort, forcedThinking)
+            : null;
         ReasoningBudget = null;
         
         // Convert tools to ZAI-specific format
@@ -161,6 +173,41 @@ internal class VendorZaiChatRequestData : ChatRequest
         }
         
         return false;
+    }
+
+    internal static bool IsForcedThinkingModel(string? modelName)
+    {
+        return modelName is "glm-5.3" or "glm-5.3-flash" or "glm-5.3-flashx";
+    }
+
+    internal static bool SupportsReasoningEffort(string? modelName)
+    {
+        return modelName is "glm-5.2" or "glm-5.3" or "glm-5.3-flash" or "glm-5.3-flashx";
+    }
+
+    /// <summary>
+    /// Maps harmonized reasoning effort onto Z.AI's accepted values: low, high, max.
+    /// </summary>
+    internal static ChatReasoningEfforts? MapReasoningEffort(ChatReasoningEfforts? effort, bool forcedThinking)
+    {
+        if (effort is null || effort == Code.ChatReasoningEfforts.Default)
+        {
+            return null;
+        }
+
+        if (effort == Code.ChatReasoningEfforts.None)
+        {
+            // GLM-5.3 series cannot disable thinking; low is the documented migration path.
+            return forcedThinking ? Code.ChatReasoningEfforts.Low : null;
+        }
+
+        return effort switch
+        {
+            Code.ChatReasoningEfforts.Minimal or Code.ChatReasoningEfforts.Low => Code.ChatReasoningEfforts.Low,
+            Code.ChatReasoningEfforts.Medium or Code.ChatReasoningEfforts.High => Code.ChatReasoningEfforts.High,
+            Code.ChatReasoningEfforts.XHigh or Code.ChatReasoningEfforts.Max => Code.ChatReasoningEfforts.Max,
+            _ => Code.ChatReasoningEfforts.Low
+        };
     }
 }
 

@@ -442,6 +442,11 @@ public class Model : ModelBase
     public static Model TextModeration007 => new Model("text-moderation-007");
 
     /// <summary>
+    ///     Latest omni moderation model. Automatically upgraded over time.
+    /// </summary>
+    public static Model OmniModerationLatest => new Model("omni-moderation-latest");
+
+    /// <summary>
     ///     Whisper model. This model generates transcript from audio.
     /// </summary>
     public static Model Whisper_1 => new Model("whisper-1");

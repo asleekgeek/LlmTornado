@@ -17,6 +17,11 @@ public class EmbeddingModelVoyageContextual : BaseVendorModelProvider
     /// Voyage Contextual Gen 3 models.
     /// </summary>
     public readonly EmbeddingModelVoyageContextualGen3 Gen3 = new EmbeddingModelVoyageContextualGen3();
+
+    /// <summary>
+    /// Voyage Contextual Gen 4 models.
+    /// </summary>
+    public readonly EmbeddingModelVoyageContextualGen4 Gen4 = new EmbeddingModelVoyageContextualGen4();
     
     /// <summary>
     /// All known embedding models from Voyage.
@@ -51,7 +56,8 @@ public class EmbeddingModelVoyageContextual : BaseVendorModelProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ..EmbeddingModelVoyageContextualGen3.ModelsAll
+        ..EmbeddingModelVoyageContextualGen3.ModelsAll,
+        ..EmbeddingModelVoyageContextualGen4.ModelsAll
     ]);
     
     internal EmbeddingModelVoyageContextual()

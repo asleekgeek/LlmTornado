@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LlmTornado.Code;
 using Newtonsoft.Json;
 
@@ -11,11 +12,17 @@ internal class VendorXAiImageEditRequest
     [JsonProperty("model")]
     public string? Model { get; set; }
     
+    /// <summary>
+    /// One image object or an array of up to 5 source images.
+    /// </summary>
     [JsonProperty("image")]
-    public VendorXAiImageInput? Image { get; set; }
+    public object? Image { get; set; }
     
     [JsonProperty("mask")]
     public VendorXAiImageInput? Mask { get; set; }
+    
+    [JsonProperty("aspect_ratio")]
+    public string? AspectRatio { get; set; }
     
     [JsonProperty("prompt")]
     public string? Prompt { get; set; }
@@ -56,7 +63,6 @@ internal class VendorXAiImageEditRequest
             };
         }
         
-        // Map quality (reserved for future use, currently no-op)
         if (request.Quality.HasValue)
         {
             Quality = request.Quality.Value switch
@@ -64,33 +70,36 @@ internal class VendorXAiImageEditRequest
                 TornadoImageQualities.Low => "low",
                 TornadoImageQualities.Medium => "medium",
                 TornadoImageQualities.High or TornadoImageQualities.Hd => "high",
+                TornadoImageQualities.Auto => "auto",
                 _ => null
             };
         }
         
-        // Map image input - xAI expects a URL (can be data URI with base64)
-        if (request.Image?.Base64 is not null)
+        string? imageDetail = request.VendorExtensions?.XAi?.ImageDetail switch
         {
-            string imageUrl = request.Image.Base64;
-            
-            // Ensure it has the data URI prefix if it's raw base64
-            if (!imageUrl.StartsWith("data:"))
+            ImageDetail.Auto => "auto",
+            ImageDetail.High => "high",
+            ImageDetail.Low => "low",
+            _ => null
+        };
+        
+        if (request.Images is { Count: > 0 })
+        {
+            List<VendorXAiImageInput> images = [];
+            foreach (TornadoInputFile file in request.Images)
             {
-                string mimeType = request.Image.MimeType ?? "image/png";
-                imageUrl = $"data:{mimeType};base64,{imageUrl}";
-            }
-            
-            Image = new VendorXAiImageInput
-            {
-                Url = imageUrl,
-                Detail = request.VendorExtensions?.XAi?.ImageDetail switch
+                VendorXAiImageInput? input = CreateImageInput(file, imageDetail);
+                if (input is not null)
                 {
-                    ImageDetail.Auto => "auto",
-                    ImageDetail.High => "high",
-                    ImageDetail.Low => "low",
-                    _ => null
+                    images.Add(input);
                 }
-            };
+            }
+
+            Image = images.Count == 1 ? images[0] : images;
+        }
+        else
+        {
+            Image = CreateImageInput(request.Image, imageDetail);
         }
         
         // Map mask input
@@ -118,7 +127,6 @@ internal class VendorXAiImageEditRequest
             };
         }
         
-        // Map resolution from xAI extension
         if (request.VendorExtensions?.XAi?.Resolution is not null)
         {
             Resolution = request.VendorExtensions.XAi.Resolution.Value switch
@@ -128,6 +136,51 @@ internal class VendorXAiImageEditRequest
                 _ => null
             };
         }
+
+        if (request.VendorExtensions?.XAi?.AspectRatio is not null)
+        {
+            AspectRatio = request.VendorExtensions.XAi.AspectRatio.Value switch
+            {
+                ImageAspectRatio.Square => "1:1",
+                ImageAspectRatio.Portrait3x4 => "3:4",
+                ImageAspectRatio.Landscape4x3 => "4:3",
+                ImageAspectRatio.Portrait9x16 => "9:16",
+                ImageAspectRatio.Landscape16x9 => "16:9",
+                ImageAspectRatio.Portrait2x3 => "2:3",
+                ImageAspectRatio.Landscape3x2 => "3:2",
+                ImageAspectRatio.Portrait9x19_5 => "9:19.5",
+                ImageAspectRatio.Landscape19_5x9 => "19.5:9",
+                ImageAspectRatio.Portrait9x20 => "9:20",
+                ImageAspectRatio.Landscape20x9 => "20:9",
+                ImageAspectRatio.Portrait1x2 => "1:2",
+                ImageAspectRatio.Landscape2x1 => "2:1",
+                ImageAspectRatio.Landscape21x9 => "21:9",
+                ImageAspectRatio.Landscape5x2 => "5:2",
+                ImageAspectRatio.Auto => "auto",
+                _ => null
+            };
+        }
+    }
+
+    private static VendorXAiImageInput? CreateImageInput(TornadoInputFile? file, string? detail)
+    {
+        if (file?.Base64 is null)
+        {
+            return null;
+        }
+
+        string imageUrl = file.Base64;
+        if (!imageUrl.StartsWith("data:"))
+        {
+            string mimeType = file.MimeType ?? "image/png";
+            imageUrl = $"data:{mimeType};base64,{imageUrl}";
+        }
+
+        return new VendorXAiImageInput
+        {
+            Url = imageUrl,
+            Detail = detail
+        };
     }
 }
 

@@ -93,7 +93,7 @@ public class ChatRequestVendorGoogleExtensions
     public ChatRequestVendorGoogleCodeExecution? CodeExecution { get; set; }
 
     /// <summary>
-    /// Computer Use environment configuration for browser automation.
+    /// Computer Use environment configuration for browser, mobile, and desktop automation.
     /// </summary>
     [JsonIgnore]
     public ChatRequestVendorGoogleComputerUse? ComputerUse { get; set; }
@@ -159,7 +159,7 @@ public class ChatRequestVendorGoogleCodeExecution
 }
 
 /// <summary>
-/// Computer Use configuration for browser automation.
+/// Computer Use configuration for browser, mobile, and desktop automation.
 /// </summary>
 public class ChatRequestVendorGoogleComputerUse
 {
@@ -176,11 +176,26 @@ public class ChatRequestVendorGoogleComputerUse
     public List<ChatRequestVendorGoogleComputerUsePredefinedFunctions>? ExcludedPredefinedFunctions { get; set; }
 
     /// <summary>
+    /// When true, Gemini 3.5 Flash and later scan screenshots for hidden adversarial instructions and block execution when detected.
+    /// Opt-in; default is false.
+    /// </summary>
+    [JsonProperty("enablePromptInjectionDetection")]
+    public bool? EnablePromptInjectionDetection { get; set; }
+
+    /// <summary>
     /// Creates a Computer Use configuration for browser automation.
     /// </summary>
     public ChatRequestVendorGoogleComputerUse()
     {
 
+    }
+
+    /// <summary>
+    /// Creates a Computer Use configuration for the given environment.
+    /// </summary>
+    public ChatRequestVendorGoogleComputerUse(ChatRequestVendorGoogleComputerUseEnvironment environment)
+    {
+        Environment = environment;
     }
 
     /// <summary>
@@ -196,6 +211,22 @@ public class ChatRequestVendorGoogleComputerUse
     /// A public instance of the Computer Use tool for browser automation.
     /// </summary>
     public static readonly ChatRequestVendorGoogleComputerUse Browser = new ChatRequestVendorGoogleComputerUse();
+
+    /// <summary>
+    /// A public instance of the Computer Use tool for mobile (Android) automation. Gemini 3.x only.
+    /// </summary>
+    public static readonly ChatRequestVendorGoogleComputerUse Mobile = new ChatRequestVendorGoogleComputerUse
+    {
+        Environment = ChatRequestVendorGoogleComputerUseEnvironment.Mobile
+    };
+
+    /// <summary>
+    /// A public instance of the Computer Use tool for desktop automation. Gemini 3.x only.
+    /// </summary>
+    public static readonly ChatRequestVendorGoogleComputerUse Desktop = new ChatRequestVendorGoogleComputerUse
+    {
+        Environment = ChatRequestVendorGoogleComputerUseEnvironment.Desktop
+    };
 }
 
 /// <summary>
@@ -208,7 +239,19 @@ public enum ChatRequestVendorGoogleComputerUseEnvironment
     /// Browser environment for web automation.
     /// </summary>
     [EnumMember(Value = "ENVIRONMENT_BROWSER")]
-    Browser
+    Browser,
+
+    /// <summary>
+    /// Mobile (Android) environment. Gemini 3.x Computer Use.
+    /// </summary>
+    [EnumMember(Value = "ENVIRONMENT_MOBILE")]
+    Mobile,
+
+    /// <summary>
+    /// Desktop environment. Gemini 3.x Computer Use.
+    /// </summary>
+    [EnumMember(Value = "ENVIRONMENT_DESKTOP")]
+    Desktop
 }
 
 /// <summary>

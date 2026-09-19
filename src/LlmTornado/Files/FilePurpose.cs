@@ -75,5 +75,23 @@ public enum FilePurpose
     ///     Text file for asynchronous long-text-to-speech synthesis. MiniMax only.
     /// </summary>
     [EnumMember(Value = "t2a_async_input")]
-    TextToAudioAsyncInput
+    TextToAudioAsyncInput,
+    
+    /// <summary>
+    ///     Extract text content from documents (PDF, DOC, TXT, ...). Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "file-extract")]
+    FileExtract,
+    
+    /// <summary>
+    ///     Image upload for native vision understanding. Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "image")]
+    Image,
+    
+    /// <summary>
+    ///     Video upload for native video understanding. Moonshot AI.
+    /// </summary>
+    [EnumMember(Value = "video")]
+    Video
 }

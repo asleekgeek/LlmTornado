@@ -11,9 +11,129 @@ namespace LlmTornado.Chat.Models.Alibaba;
 public class ChatModelAlibabaOlder : IVendorModelClassProvider
 {
     /// <summary>
+    /// Qwen-Long - Ultra-long context model with a 10M token window
+    /// </summary>
+    public static readonly ChatModel ModelQwenLong = new ChatModel("qwen-long", LLmProviders.Alibaba, 10_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenLong"/>
+    /// </summary>
+    public readonly ChatModel QwenLong = ModelQwenLong;
+
+    /// <summary>
+    /// Qwen-Long-Latest - Dynamically updated 10M-context model
+    /// </summary>
+    public static readonly ChatModel ModelQwenLongLatest = new ChatModel("qwen-long-latest", LLmProviders.Alibaba, 10_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenLongLatest"/>
+    /// </summary>
+    public readonly ChatModel QwenLongLatest = ModelQwenLongLatest;
+
+    /// <summary>
+    /// Qwen-Long-2025-01-25 - Snapshot from January 25, 2025
+    /// </summary>
+    public static readonly ChatModel ModelQwenLong20250125 = new ChatModel("qwen-long-2025-01-25", LLmProviders.Alibaba, 10_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenLong20250125"/>
+    /// </summary>
+    public readonly ChatModel QwenLong20250125 = ModelQwenLong20250125;
+
+    /// <summary>
+    /// Qwen-Plus-Character - Role-playing model, 32k context
+    /// </summary>
+    public static readonly ChatModel ModelQwenPlusCharacter = new ChatModel("qwen-plus-character", LLmProviders.Alibaba, 32_768);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwenPlusCharacter"/>
+    /// </summary>
+    public readonly ChatModel QwenPlusCharacter = ModelQwenPlusCharacter;
+
+    /// <summary>
+    /// Wan3.0-Video - All-in-one video generation (text/image/reference-to-video)
+    /// </summary>
+    public static readonly ChatModel ModelWan30Video = new ChatModel("wan3.0-video", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan30Video"/>
+    /// </summary>
+    public readonly ChatModel Wan30Video = ModelWan30Video;
+
+    /// <summary>
+    /// Wan3.0-Video-Prime - Faster Wan 3.0 variant
+    /// </summary>
+    public static readonly ChatModel ModelWan30VideoPrime = new ChatModel("wan3.0-video-prime", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan30VideoPrime"/>
+    /// </summary>
+    public readonly ChatModel Wan30VideoPrime = ModelWan30VideoPrime;
+
+    /// <summary>
+    /// Wan2.7-T2V - Text-to-video with custom aspect ratios
+    /// </summary>
+    public static readonly ChatModel ModelWan27T2V = new ChatModel("wan2.7-t2v", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27T2V"/>
+    /// </summary>
+    public readonly ChatModel Wan27T2V = ModelWan27T2V;
+
+    /// <summary>
+    /// Wan2.7-I2V - Image-to-video and video continuation
+    /// </summary>
+    public static readonly ChatModel ModelWan27I2V = new ChatModel("wan2.7-i2v", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27I2V"/>
+    /// </summary>
+    public readonly ChatModel Wan27I2V = ModelWan27I2V;
+
+    /// <summary>
+    /// Wan2.7-R2V - Reference-to-video with subject and voice customization
+    /// </summary>
+    public static readonly ChatModel ModelWan27R2V = new ChatModel("wan2.7-r2v", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27R2V"/>
+    /// </summary>
+    public readonly ChatModel Wan27R2V = ModelWan27R2V;
+
+    /// <summary>
+    /// Wan2.7-VideoEdit - Instruction-based video editing
+    /// </summary>
+    public static readonly ChatModel ModelWan27VideoEdit = new ChatModel("wan2.7-videoedit", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27VideoEdit"/>
+    /// </summary>
+    public readonly ChatModel Wan27VideoEdit = ModelWan27VideoEdit;
+
+    /// <summary>
+    /// Wan2.7-Image-Pro - 4K text-to-image, editing, and multi-image reference
+    /// </summary>
+    public static readonly ChatModel ModelWan27ImagePro = new ChatModel("wan2.7-image-pro", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27ImagePro"/>
+    /// </summary>
+    public readonly ChatModel Wan27ImagePro = ModelWan27ImagePro;
+
+    /// <summary>
+    /// Wan2.7-Image - Text-to-image, editing, and multi-image reference
+    /// </summary>
+    public static readonly ChatModel ModelWan27Image = new ChatModel("wan2.7-image", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelWan27Image"/>
+    /// </summary>
+    public readonly ChatModel Wan27Image = ModelWan27Image;
+
+    /// <summary>
     /// Qwen-Max - Supports hundreds of billions parameters, rolling updates
     /// </summary>
-    public static readonly ChatModel ModelQwenMax = new ChatModel("qwen-max", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwenMax = new ChatModel("qwen-max", LLmProviders.Alibaba, 128_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwenMax"/>
@@ -23,7 +143,7 @@ public class ChatModelAlibabaOlder : IVendorModelClassProvider
     /// <summary>
     /// Qwen-Omni-Turbo - Brand-new multimodal understanding and generation large model
     /// </summary>
-    public static readonly ChatModel ModelQwenOmniTurbo = new ChatModel("qwen-omni-turbo", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwenOmniTurbo = new ChatModel("qwen-omni-turbo", LLmProviders.Alibaba, 32_768);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwenOmniTurbo"/>
@@ -276,7 +396,9 @@ public class ChatModelAlibabaOlder : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelQwenMax, ModelQwenOmniTurbo, ModelQwenOmniTurboRealtime, ModelQwenOmniTurboLatest, ModelQwenOmniTurboRealtimeLatest,
+        ModelQwenLong, ModelQwenLongLatest, ModelQwenLong20250125, ModelQwenPlusCharacter,
+        ModelWan30Video, ModelWan30VideoPrime, ModelWan27T2V, ModelWan27I2V, ModelWan27R2V, ModelWan27VideoEdit,
+        ModelWan27ImagePro, ModelWan27Image, ModelQwenMax, ModelQwenOmniTurbo, ModelQwenOmniTurboRealtime, ModelQwenOmniTurboLatest, ModelQwenOmniTurboRealtimeLatest,
         ModelQwenOmniTurbo20250326, ModelQwenOmniTurboRealtime20250508, ModelQwenMaxLatest, ModelQwenMax20250125,
         ModelWan2_1T2ITurbo, ModelWan2_1T2IPlus, ModelWan2_1T2VPlus, ModelWan2_1T2VTurbo, ModelWan2_1I2VPlus, ModelWan2_1I2VTurbo,
         ModelQwenTurbo, ModelQwenQwqPlus, ModelQwenTurboLatest, ModelQwenTurbo20250428, ModelQwen2_57BInstruct1M, ModelQwen2_514BInstruct1M,

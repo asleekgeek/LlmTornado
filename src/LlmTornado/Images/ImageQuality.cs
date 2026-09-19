@@ -42,6 +42,18 @@ public enum TornadoImageQualities
     High,
     
     /// <summary>
+    /// Extra-high quality. Supported by GPT Image 2.5 Sunburst and Flare.
+    /// </summary>
+    [EnumMember(Value = "xhigh")]
+    XHigh,
+    
+    /// <summary>
+    /// Maximum quality. Supported by GPT Image 2.5 Sunburst and Flare.
+    /// </summary>
+    [EnumMember(Value = "max")]
+    Max,
+    
+    /// <summary>
     /// auto (default value) will automatically select the best quality for the given model.
     /// </summary>
     [EnumMember(Value = "auto")]

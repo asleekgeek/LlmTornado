@@ -1,3 +1,4 @@
+using System;
 using LlmTornado.Chat.Vendors.Anthropic;
 using LlmTornado.Files;
 using Newtonsoft.Json;
@@ -68,6 +69,30 @@ public class ChatMessagePartFileLinkData
     public TornadoFile? File { get; set; }
 
     /// <summary>
+    /// Gemini video processing mode. <see cref="ChatVideoProcessingMode.Agentic"/> is supported on Gemini 3.6 / 3.7 / 3.8 Flash and 3.5 Flash-Lite.
+    /// </summary>
+    [JsonIgnore]
+    public ChatVideoProcessingMode? VideoProcessing { get; set; }
+
+    /// <summary>
+    /// Optional start offset when clipping a video. Only used with <see cref="ChatVideoProcessingMode.Static"/>.
+    /// </summary>
+    [JsonIgnore]
+    public TimeSpan? VideoStartOffset { get; set; }
+
+    /// <summary>
+    /// Optional end offset when clipping a video. Only used with <see cref="ChatVideoProcessingMode.Static"/>.
+    /// </summary>
+    [JsonIgnore]
+    public TimeSpan? VideoEndOffset { get; set; }
+
+    /// <summary>
+    /// Optional frame-rate sampling when reading a video. Range: (0.0, 24.0]. Only used with <see cref="ChatVideoProcessingMode.Static"/>.
+    /// </summary>
+    [JsonIgnore]
+    public double? VideoFps { get; set; }
+
+    /// <summary>
     /// Creates a new file link data, which can be used for constructing a message part.<br/>
     /// Supported URIs for Gemini: Files API upload URIs, registered GCS objects (<c>gs://</c> via register),
     /// public HTTPS URLs, and pre-signed URLs (S3 presigned, Azure SAS, etc.) up to 100 MB per request.
@@ -94,6 +119,23 @@ public class ChatMessagePartFileLinkData
         State = file.State;
         File = file;
     }
+}
+
+/// <summary>
+/// How Gemini reads video inputs.
+/// </summary>
+public enum ChatVideoProcessingMode
+{
+    /// <summary>
+    /// Extract frames at a fixed rate (default 1 FPS). Required for custom <c>fps</c> / clip offsets.
+    /// </summary>
+    Static,
+
+    /// <summary>
+    /// The model dynamically navigates the timeline, loading transcripts, frames, or audio on demand.
+    /// Supported on Gemini 3.6 / 3.7 / 3.8 Flash and 3.5 Flash-Lite.
+    /// </summary>
+    Agentic
 }
 
 /// <summary>

@@ -22,7 +22,8 @@ public class ChatRequestVendorZaiExtensions
     public string? RequestId { get; set; }
     
     /// <summary>
-    /// Whether to enable streaming response for Function Calls (GLM-4.6 only).
+    /// Whether to enable streaming response for Function Calls.
+    /// Supported since GLM-4.6; recommended for GLM-5.3-Flash streaming tool use.
     /// </summary>
     public bool? ToolStream { get; set; }
     

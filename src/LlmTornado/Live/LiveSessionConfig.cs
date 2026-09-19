@@ -12,7 +12,7 @@ namespace LlmTornado.Live;
 public class LiveSessionConfig
 {
     /// <summary>
-    /// Model to use. Defaults to <see cref="ChatModelGoogleGeminiPreview.ModelGemini31FlashLivePreview"/>.
+    /// Model to use. Defaults to <see cref="ChatModelGoogleGemini.ModelGemini38Live"/>.
     /// </summary>
     public ChatModel? Model { get; set; }
 
@@ -28,13 +28,16 @@ public class LiveSessionConfig
 
     /// <summary>
     /// Tools available to the model during the session.
-    /// Async (non-blocking) function calling is not supported on Gemini 3.1 Flash Live.
+    /// Gemini 3.8 Live supports asynchronous (non-blocking) function calling by default.
+    /// Async function calling is not supported on Gemini 3.1 Flash Live.
     /// </summary>
     public List<Tool>? Tools { get; set; }
 
     /// <summary>
-    /// Thinking depth for Gemini 3.x Live models. Default is <see cref="LiveThinkingLevel.Minimal"/>.
-    /// Do not set <see cref="ThinkingBudget"/> on Gemini 3.1 models.
+    /// Thinking depth for Gemini 3.x Live models. Default is <see cref="LiveThinkingLevel.Minimal"/>
+    /// on 3.1 Live. Prefer <see cref="ChatModelGoogleGemini.ModelGemini38LiveExtendedThinking"/> when
+    /// you need background reasoning during a live session.
+    /// Do not set <see cref="ThinkingBudget"/> on Gemini 3.1+ Live models.
     /// </summary>
     public LiveThinkingLevel? ThinkingLevel { get; set; }
 

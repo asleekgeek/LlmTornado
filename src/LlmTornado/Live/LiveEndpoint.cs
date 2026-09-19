@@ -3,27 +3,36 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using LlmTornado.Code;
+using LlmTornado.Live.OpenAi;
 using LlmTornado.Live.Vendors.Google;
 
 namespace LlmTornado.Live;
 
 /// <summary>
-/// Gemini Live API endpoint for real-time voice and multimodal dialogue over WebSockets.
+/// Live voice endpoints: Gemini Live (Google) and GPT-Live (OpenAI).
 /// </summary>
 public class LiveEndpoint
 {
+    private readonly Lazy<OpenAiLiveEndpoint> openAi;
+
     /// <summary>
     /// Creates the Live endpoint.
     /// </summary>
     public LiveEndpoint(TornadoApi api)
     {
         Api = api;
+        openAi = new Lazy<OpenAiLiveEndpoint>(() => new OpenAiLiveEndpoint(api), LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     /// <summary>
     /// Parent API instance.
     /// </summary>
     public TornadoApi Api { get; }
+
+    /// <summary>
+    /// OpenAI GPT-Live: WebSocket, WebRTC, SIP, sideband, fork, and recordings.
+    /// </summary>
+    public OpenAiLiveEndpoint OpenAi => openAi.Value;
 
     /// <summary>
     /// Opens a Live API WebSocket session using the configured Google API key or an ephemeral access token.

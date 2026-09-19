@@ -125,6 +125,8 @@ public class ImageEditEndpoint : EndpointBase
                 TornadoImageQualities.Hd => "hd",
                 TornadoImageQualities.Auto => "auto",
                 TornadoImageQualities.High => "high",
+                TornadoImageQualities.XHigh => "xhigh",
+                TornadoImageQualities.Max => "max",
                 TornadoImageQualities.Low => "low",
                 TornadoImageQualities.Medium => "medium",
                 TornadoImageQualities.Standard => "standard",

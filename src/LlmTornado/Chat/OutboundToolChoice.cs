@@ -455,6 +455,7 @@ public class OutboundToolChoice
             HostedToolTypes.WebSearchPreview => "web_search_preview",
             HostedToolTypes.ComputerUsePreview => "computer_use_preview",
             HostedToolTypes.CodeInterpreter => "code_interpreter",
+            HostedToolTypes.BrowserSearch => "browser_search",
             HostedToolTypes.ImageGeneration => "image_generation",
             HostedToolTypes.LocalShell => "local_shell",
             HostedToolTypes.ApplyPatch => "apply_patch",
@@ -473,6 +474,7 @@ public class OutboundToolChoice
             case "web_search_preview": value = HostedToolTypes.WebSearchPreview; return true;
             case "computer_use_preview": value = HostedToolTypes.ComputerUsePreview; return true;
             case "code_interpreter": value = HostedToolTypes.CodeInterpreter; return true;
+            case "browser_search": value = HostedToolTypes.BrowserSearch; return true;
             case "image_generation": value = HostedToolTypes.ImageGeneration; return true;
             case "local_shell": value = HostedToolTypes.LocalShell; return true;
             case "apply_patch": value = HostedToolTypes.ApplyPatch; return true;
@@ -547,6 +549,7 @@ public class AllowedToolReference
             HostedToolTypes.WebSearchPreview => "web_search_preview",
             HostedToolTypes.ComputerUsePreview => "computer_use_preview",
             HostedToolTypes.CodeInterpreter => "code_interpreter",
+            HostedToolTypes.BrowserSearch => "browser_search",
             HostedToolTypes.ImageGeneration => "image_generation",
             HostedToolTypes.LocalShell => "local_shell",
             HostedToolTypes.ApplyPatch => "apply_patch",
@@ -576,7 +579,7 @@ public class AllowedToolReference
 }
 
 /// <summary>
-/// The type of hosted tool the model should use. Available only with Responses API (not Chat).
+/// The type of hosted tool the model should use. Used with the Responses API, and with Groq chat completions for <see cref="BrowserSearch"/> and <see cref="CodeInterpreter"/>.
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
 public enum HostedToolTypes
@@ -616,6 +619,12 @@ public enum HostedToolTypes
     /// </summary>
     [EnumMember(Value = "code_interpreter")] 
     CodeInterpreter,
+
+    /// <summary>
+    /// Groq GPT-OSS hosted browser search tool (chat completions <c>tools</c> array).
+    /// </summary>
+    [EnumMember(Value = "browser_search")]
+    BrowserSearch,
     
     /// <summary>
     /// Generate or edit images using GPT Image.

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LlmTornado.Chat.Vendors.Anthropic;
+using LlmTornado.Chat.Vendors.Groq;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using LlmTornado.Responses;
@@ -153,7 +155,7 @@ public class ChatMessage
     public Guid Id { get; internal set; }
 
     /// <summary>
-    ///		Reasoning content, used by xAI (Grok 3+), DeepSeek, and Z.ai (GLM-4.5+).
+    ///		Reasoning content, used by xAI (Grok 3+), DeepSeek, Z.ai (GLM-4.5+), and Moonshot AI (Kimi K2.5+ / K3).
     /// </summary>
     [JsonProperty("reasoning_content")]
     public string? ReasoningContent { get; set; }
@@ -171,6 +173,12 @@ public class ChatMessage
     /// </summary>
     [JsonProperty("tool_calls")]
     public List<ToolCall>? ToolCalls { get; set; }
+
+    /// <summary>
+    ///     Server-side tools executed by Groq Compound systems (web search, code execution, visit website, Wolfram Alpha).
+    /// </summary>
+    [JsonProperty("executed_tools")]
+    public List<ChatGroqExecutedTool>? ExecutedTools { get; set; }
 
     /// <summary>
     ///     Optional field tool call id.
@@ -225,6 +233,12 @@ public class ChatMessage
     internal bool? Prefix { get; set; }
     
     /// <summary>
+    /// Moonshot Partial Mode: when true on the last assistant message, the model continues from the supplied text prefix.
+    /// </summary>
+    [JsonIgnore]
+    public bool? Partial { get; set; }
+    
+    /// <summary>
     ///  Vendor extensions to the message.
     /// </summary>
     [JsonIgnore]
@@ -254,6 +268,19 @@ public class ChatMessageVendorExtensionsAnthropic : IChatMessageVendorExtensions
 	/// Signature used for COT integrity verification.
 	/// </summary>
 	public string? Signature { get; set; }
+
+	/// <summary>
+	/// Per-message effort for later turns (beta). Serializes as <c>output_config.effort</c> on a mid-conversation
+	/// <c>role: "system"</c> message. Requires the <c>mid-conversation-output-config-2026-07-01</c> header.
+	/// </summary>
+	public AnthropicEffortLevels? Effort { get; set; }
+
+	/// <summary>
+	/// Turn-scoped system message (beta). When set to <see cref="AnthropicSystemClearAt.NextUserMessage"/>,
+	/// the instruction renders for the current turn only. Requires
+	/// <c>mid-conversation-system-clear-at-2026-08-21</c>.
+	/// </summary>
+	public AnthropicSystemClearAt? ClearAt { get; set; }
 }
 
 /// <summary>

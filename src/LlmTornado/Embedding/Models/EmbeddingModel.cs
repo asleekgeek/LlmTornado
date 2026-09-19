@@ -9,6 +9,7 @@ using LlmTornado.Embedding.Models.Cohere;
 using LlmTornado.Embedding.Models.Google;
 using LlmTornado.Embedding.Models.Mistral;
 using LlmTornado.Embedding.Models.OpenAi;
+using LlmTornado.Embedding.Models.Perplexity;
 using LlmTornado.Embedding.Models.Upstage;
 using LlmTornado.Embedding.Models.Voyage;
 using LlmTornado.Models;
@@ -49,6 +50,11 @@ public class EmbeddingModel : ModelEmbeddingBase
     /// Models from Upstage.
     /// </summary>
     public static readonly EmbeddingModelUpstage Upstage = new EmbeddingModelUpstage();
+    
+    /// <summary>
+    /// Models from Perplexity.
+    /// </summary>
+    public static readonly EmbeddingModelPerplexity Perplexity = new EmbeddingModelPerplexity();
 
     /// <summary>
     /// All known models keyed by name.
@@ -80,7 +86,7 @@ public class EmbeddingModel : ModelEmbeddingBase
     public static List<BaseVendorModelProvider> AllProviders => LazyAllProviders.Value;
 
     private static readonly Lazy<List<BaseVendorModelProvider>> LazyAllProviders = new Lazy<List<BaseVendorModelProvider>>(() => [
-        OpenAi, Voyage, Cohere, Google, Mistral, Upstage
+        OpenAi, Voyage, Cohere, Google, Mistral, Upstage, Perplexity
     ]);
     
     /// <summary>

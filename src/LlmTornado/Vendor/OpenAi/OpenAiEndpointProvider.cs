@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Vendors.Cohere;
+using LlmTornado.Chat.Vendors.Groq;
 using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Audio;
 using LlmTornado.Audio.Vendors.MiniMax;
@@ -101,11 +102,13 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
             CapabilityEndpoints.Videos => "videos",
             CapabilityEndpoints.RealtimeTranslations => "realtime/translations",
             // conditionally supported
-            CapabilityEndpoints.ContextualEmbeddings when provider is LLmProviders.Voyage => "contextualizedembeddings",
+            CapabilityEndpoints.ContextualEmbeddings when provider is LLmProviders.Voyage or LLmProviders.Perplexity => "contextualizedembeddings",
             CapabilityEndpoints.MultimodalEmbeddings when provider is LLmProviders.Voyage => "multimodalembeddings",
             CapabilityEndpoints.Rerank when provider is LLmProviders.Voyage => "rerank",
             CapabilityEndpoints.Ocr when provider is LLmProviders.Mistral => "ocr",
+            CapabilityEndpoints.Ocr when provider is LLmProviders.Zai => "layout_parsing",
             CapabilityEndpoints.Realtime => "realtime",
+            CapabilityEndpoints.Live => "live/sessions",
             _ => throw new Exception($"{provider} doesn't support endpoint {endpoint}")
         };
     }
@@ -160,6 +163,17 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
         else
         {
             //req.Headers.Add("OpenAI-Beta", "");
+        }
+
+        if (Provider is LLmProviders.Groq && sourceObject is ChatRequest groqRequest &&
+            !string.IsNullOrWhiteSpace(groqRequest.VendorExtensions?.Groq?.ModelVersion))
+        {
+            req.Headers.TryAddWithoutValidation("Groq-Model-Version", groqRequest.VendorExtensions.Groq.ModelVersion);
+        }
+
+        if (Provider is LLmProviders.XAi && sourceObject is ChatRequest { PromptCacheKey: { Length: > 0 } convId })
+        {
+            req.Headers.TryAddWithoutValidation("x-grok-conv-id", convId);
         }
         
         return req;
@@ -254,6 +268,11 @@ public class OpenAiEndpointProvider : BaseEndpointProvider, IEndpointProvider, I
         if (typeof(T) == typeof(ChatResult))
         {
             return (T?)(object?)Chat.Vendors.Zai.ChatResultVendorZai.Deserialize(jsonData);
+        }
+
+        if (typeof(T) == typeof(Ocr.OcrResult))
+        {
+            return (T?)(object?)Ocr.Vendors.Zai.VendorZaiOcrResult.Deserialize(jsonData);
         }
         
         return JsonConvert.DeserializeObject<T>(jsonData);

@@ -376,6 +376,25 @@ internal class VendorGoogleChatRequestMessagePart
                         FileUri = part.FileLinkData.FileUri,
                         MimeType = part.FileLinkData.MimeType
                     };
+
+                    if (part.FileLinkData.VideoProcessing is not null ||
+                        part.FileLinkData.VideoStartOffset is not null ||
+                        part.FileLinkData.VideoEndOffset is not null ||
+                        part.FileLinkData.VideoFps is not null)
+                    {
+                        VideoMetadata = new VendorGoogleChatRequest.VendorGoogleChatRequestMetadataVideo
+                        {
+                            Processing = part.FileLinkData.VideoProcessing switch
+                            {
+                                ChatVideoProcessingMode.Agentic => "agentic",
+                                ChatVideoProcessingMode.Static => "static",
+                                _ => null
+                            },
+                            StartOffset = part.FileLinkData.VideoStartOffset,
+                            EndOffset = part.FileLinkData.VideoEndOffset,
+                            Fps = part.FileLinkData.VideoFps
+                        };
+                    }
                 }
                 
                 break;
@@ -802,9 +821,17 @@ internal class VendorGoogleChatRequest
 
         /// <summary>
         /// Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].
+        /// Only used with static video processing.
         /// </summary>
         [JsonProperty("fps")]
         public double? Fps { get; set; }
+
+        /// <summary>
+        /// Optional. Video processing mode. Use <c>agentic</c> on Gemini 3.6 / 3.7 / 3.8 Flash and 3.5 Flash-Lite
+        /// so the model navigates the timeline on demand instead of sampling a static 1 FPS stream.
+        /// </summary>
+        [JsonProperty("processing")]
+        public string? Processing { get; set; }
     }
 
     internal class VendorGoogleChatRequestDurationConverter : JsonConverter<TimeSpan?>
@@ -974,7 +1001,7 @@ internal class VendorGoogleChatRequest
                 {
                     string? thoughtSignature = call.ThoughtSignature;
 
-                    if (thoughtSignature is null && request?.Model is not null && (ChatModelGoogle.Gemini3Models.Contains(request.Model) || ChatModelGoogle.Gemini35Models.Contains(request.Model)) && (request.VendorExtensions?.Google?.AutoInjectThoughtSignature ?? true))
+                    if (thoughtSignature is null && request?.Model is not null && ChatModelGoogle.IsGemini3Family(request.Model) && (request.VendorExtensions?.Google?.AutoInjectThoughtSignature ?? true))
                     {
                         thoughtSignature = "context_engineering_is_the_way_to_go";
                     }
@@ -1616,7 +1643,20 @@ internal class VendorGoogleChatRequest
             int? clamped = request.Model.ClampReasoningTokens(request.ReasoningBudget);
             string? thinkingLevel = null;
 
-            if (ChatModelGoogle.Gemini35Models.Contains(request.Model))
+            if (ChatModelGoogle.Gemini36PlusFlashModels.Contains(request.Model))
+            {
+                // Gemini 3.6 / 3.7 / 3.8 Flash: low, medium (default), high. minimal is rejected by the API.
+                thinkingLevel = request.ReasoningEffort switch
+                {
+                    ChatReasoningEfforts.Minimal => "low",
+                    ChatReasoningEfforts.Low => "low",
+                    ChatReasoningEfforts.Medium => "medium",
+                    ChatReasoningEfforts.High or ChatReasoningEfforts.XHigh => "high",
+                    ChatReasoningEfforts.Default => "medium",
+                    _ => null
+                };
+            }
+            else if (ChatModelGoogle.Gemini35Models.Contains(request.Model))
             {
                 // Gemini 3.5 Flash supports: minimal, low, medium, high (default: medium)
                 thinkingLevel = request.ReasoningEffort switch
@@ -1629,9 +1669,9 @@ internal class VendorGoogleChatRequest
                     _ => null
                 };
             }
-            else if (ChatModelGoogle.Gemini31FlashLiteModels.Contains(request.Model))
+            else if (ChatModelGoogle.Gemini35FlashLiteModels.Contains(request.Model) || ChatModelGoogle.Gemini31FlashLiteModels.Contains(request.Model))
             {
-                // Gemini 3.1 Flash-Lite supports: minimal, low, medium, high
+                // Gemini 3.5 / 3.1 Flash-Lite supports: minimal (default), low, medium, high
                 thinkingLevel = request.ReasoningEffort switch
                 {
                     ChatReasoningEfforts.Minimal => "minimal",
@@ -1991,10 +2031,7 @@ internal class VendorGoogleChatRequest
             return;
         }
 
-        bool isGemini3Family = request.Model is not null && (
-            ChatModelGoogle.Gemini3Models.Contains(request.Model) ||
-            ChatModelGoogle.Gemini31Models.Contains(request.Model) ||
-            ChatModelGoogle.Gemini35Models.Contains(request.Model));
+        bool isGemini3Family = ChatModelGoogle.IsGemini3Family(request.Model);
 
         bool hasBuiltInTools = HasBuiltInGoogleTools(google);
         bool hasCustomTools = HasCustomFunctionTools(vendorRequest.Tools);

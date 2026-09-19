@@ -85,7 +85,15 @@ public class ChatModelGoogle : BaseVendorModelProvider
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreview,
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools,
         ChatModelGoogleGemini.ModelGemini35Flash,
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
+        ChatModelGoogleGemini.ModelGemini36Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGeminiFlashLatest,
+        ChatModelGoogleGemini.ModelGeminiFlashLiteLatest,
+        ChatModelGoogleGemini.ModelGemini38LiveExtendedThinking,
         ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe16Preview,
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe2Preview,
         ChatModelGoogleGemma.Model426BA4BIt,
         ChatModelGoogleGemma.Model431BIt
     ];
@@ -107,6 +115,7 @@ public class ChatModelGoogle : BaseVendorModelProvider
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreview,
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools,
         ChatModelGoogleGemini.ModelGemini31FlashImage,
+        ChatModelGoogleGemini.ModelGemini31FlashLiteImage,
         ChatModelGoogleGeminiPreview.ModelGemini31FlashImagePreview
     ];
     
@@ -139,14 +148,26 @@ public class ChatModelGoogle : BaseVendorModelProvider
         ChatModelGoogleGemini.ModelGemini31FlashLite,
         ChatModelGoogleGeminiPreview.ModelGemini31FlashLitePreview,
         ChatModelGoogleGemini.ModelGemini31FlashImage,
+        ChatModelGoogleGemini.ModelGemini31FlashLiteImage,
         ChatModelGoogleGeminiPreview.ModelGemini31FlashImagePreview
     ];
 
     /// <summary>
-    /// Gemini 3.5 Flash models (GA). Supports minimal/low/medium (default)/high thinking levels. Computer Use is not supported.
+    /// Gemini 3.5 Flash models (GA). Supports minimal/low/medium (default)/high thinking levels. Computer Use (Preview) is supported.
     /// </summary>
     public static readonly HashSet<IModel> Gemini35Models = [
         ChatModelGoogleGemini.ModelGemini35Flash
+    ];
+
+    /// <summary>
+    /// Gemini 3.6 / 3.7 / 3.8 Flash models (GA) and the <c>gemini-flash-latest</c> alias.
+    /// Thinking: low/medium (default)/high. <c>minimal</c> is not supported and is clamped to low.
+    /// </summary>
+    public static readonly HashSet<IModel> Gemini36PlusFlashModels = [
+        ChatModelGoogleGemini.ModelGemini36Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGeminiFlashLatest
     ];
 
     /// <summary>
@@ -158,10 +179,36 @@ public class ChatModelGoogle : BaseVendorModelProvider
     ];
 
     /// <summary>
+    /// Gemini 3.5 Flash-Lite models (GA) and the <c>gemini-flash-lite-latest</c> alias.
+    /// Thinking: minimal (default)/low/medium/high.
+    /// </summary>
+    public static readonly HashSet<IModel> Gemini35FlashLiteModels = [
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
+        ChatModelGoogleGemini.ModelGeminiFlashLiteLatest
+    ];
+
+    /// <summary>
+    /// Models that support agentic video understanding (<c>processing: agentic</c>).
+    /// The model dynamically navigates video timelines instead of sampling a static 1 FPS stream.
+    /// </summary>
+    public static readonly HashSet<IModel> AgenticVideoModels = [
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini36Flash,
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
+        ChatModelGoogleGemini.ModelGeminiFlashLatest,
+        ChatModelGoogleGemini.ModelGeminiFlashLiteLatest
+    ];
+
+    /// <summary>
     /// Models that support Grounding with Google Maps.
     /// </summary>
     public static readonly HashSet<IModel> GoogleMapsGroundingModels = [
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini36Flash,
         ChatModelGoogleGemini.ModelGemini35Flash,
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreview,
         ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools,
         ChatModelGoogleGemini.ModelGemini31FlashLite,
@@ -189,21 +236,61 @@ public class ChatModelGoogle : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ComputerUseModels => LazyComputerUseModels.Value;
 
-    private static readonly Lazy<List<IModel>> LazyComputerUseModels = new Lazy<List<IModel>>(() => [ChatModelGoogleGeminiPreview.ModelGemini25ComputerUsePreview102025, ChatModelGoogleGeminiPreview.ModelGemini3FlashPreview, ChatModelGoogleGeminiPreview.ModelGemini31ProPreview, ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools]);
+    private static readonly Lazy<List<IModel>> LazyComputerUseModels = new Lazy<List<IModel>>(() => [
+        ChatModelGoogleGeminiPreview.ModelGemini25ComputerUsePreview102025,
+        ChatModelGoogleGeminiPreview.ModelGemini3FlashPreview,
+        ChatModelGoogleGeminiPreview.ModelGemini31ProPreview,
+        ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools,
+        ChatModelGoogleGemini.ModelGemini35Flash,
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
+        ChatModelGoogleGemini.ModelGemini36Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGeminiFlashLatest,
+        ChatModelGoogleGemini.ModelGeminiFlashLiteLatest
+    ]);
 
     /// <summary>
     /// Gemini Robotics-ER capable models from Google.
     /// </summary>
     public static List<IModel> RoboticsModels => LazyRoboticsModels.Value;
 
-    private static readonly Lazy<List<IModel>> LazyRoboticsModels = new Lazy<List<IModel>>(() => [ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe16Preview]);
+    private static readonly Lazy<List<IModel>> LazyRoboticsModels = new Lazy<List<IModel>>(() => [
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe2Preview,
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe2StreamingPreview,
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe16Preview
+    ]);
     
     /// <summary>
     /// Models capable of reasoning.
     /// </summary>
     public static List<IModel>? ReasoningModelsList => LazyReasoningModels.Value;
 
-    private static readonly Lazy<List<IModel>> LazyReasoningModels = new Lazy<List<IModel>>(() => [ChatModelGoogleGeminiPreview.ModelGemini25FlashPreview0417, ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0325, ChatModelGoogleGeminiPreview.ModelGemini25FlashPreview0520, ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0506, ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0605, ChatModelGoogleGemini.ModelGemini25Pro, ChatModelGoogleGemini.ModelGemini25Flash, ChatModelGoogleGeminiPreview.ModelGemini25FlashLitePreview0617, ChatModelGoogleGemini.ModelGemini31FlashLite, ChatModelGoogleGeminiPreview.ModelGemini31FlashLitePreview, ChatModelGoogleGemini.ModelGemini35Flash, ChatModelGoogleGeminiPreview.ModelGemini31ProPreview, ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools, ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe16Preview, ChatModelGoogleGemma.Model426BA4BIt, ChatModelGoogleGemma.Model431BIt]);
+    private static readonly Lazy<List<IModel>> LazyReasoningModels = new Lazy<List<IModel>>(() => [
+        ChatModelGoogleGeminiPreview.ModelGemini25FlashPreview0417,
+        ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0325,
+        ChatModelGoogleGeminiPreview.ModelGemini25FlashPreview0520,
+        ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0506,
+        ChatModelGoogleGeminiPreview.ModelGemini25ProPreview0605,
+        ChatModelGoogleGemini.ModelGemini25Pro,
+        ChatModelGoogleGemini.ModelGemini25Flash,
+        ChatModelGoogleGeminiPreview.ModelGemini25FlashLitePreview0617,
+        ChatModelGoogleGemini.ModelGemini31FlashLite,
+        ChatModelGoogleGeminiPreview.ModelGemini31FlashLitePreview,
+        ChatModelGoogleGemini.ModelGemini35Flash,
+        ChatModelGoogleGemini.ModelGemini35FlashLite,
+        ChatModelGoogleGemini.ModelGemini36Flash,
+        ChatModelGoogleGemini.ModelGemini37Flash,
+        ChatModelGoogleGemini.ModelGemini38Flash,
+        ChatModelGoogleGemini.ModelGeminiFlashLatest,
+        ChatModelGoogleGemini.ModelGeminiFlashLiteLatest,
+        ChatModelGoogleGeminiPreview.ModelGemini31ProPreview,
+        ChatModelGoogleGeminiPreview.ModelGemini31ProPreviewCustomtools,
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe16Preview,
+        ChatModelGoogleGeminiPreview.ModelGeminiRoboticsRe2Preview,
+        ChatModelGoogleGemma.Model426BA4BIt,
+        ChatModelGoogleGemma.Model431BIt
+    ]);
 
     /// <summary>
     /// Models capable of generating images.
@@ -218,6 +305,7 @@ public class ChatModelGoogle : BaseVendorModelProvider
         ChatModelGoogleGemini.ModelGemini3ProImage,
         ChatModelGoogleGeminiPreview.ModelGemini3ProImagePreview,
         ChatModelGoogleGemini.ModelGemini31FlashImage,
+        ChatModelGoogleGemini.ModelGemini31FlashLiteImage,
         ChatModelGoogleGeminiPreview.ModelGemini31FlashImagePreview
     ]);
 
@@ -227,6 +315,19 @@ public class ChatModelGoogle : BaseVendorModelProvider
     public static List<IModel> ModelsWithDisabledDeveloperMessageList => LazyModelsWithDisabledDeveloperMessage.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsWithDisabledDeveloperMessage = new Lazy<List<IModel>>(() => [ChatModelGoogleGemma.Model3Ne4B, ChatModelGoogleGemma.ModelV327B]);
+    
+    /// <summary>
+    /// Returns whether the model is in the Gemini 3.x family (thought signatures, combined built-in + custom tools).
+    /// </summary>
+    public static bool IsGemini3Family(IModel? model)
+    {
+        return model is not null && (
+            Gemini3Models.Contains(model) ||
+            Gemini31Models.Contains(model) ||
+            Gemini35Models.Contains(model) ||
+            Gemini35FlashLiteModels.Contains(model) ||
+            Gemini36PlusFlashModels.Contains(model));
+    }
     
     internal ChatModelGoogle()
     {

@@ -11,6 +11,28 @@ namespace LlmTornado.Chat.Models.MiniMax;
 public class ChatModelMiniMaxM2 : IVendorModelClassProvider
 {
     /// <summary>
+    /// Beginning the journey of recursive self-improvement. Output speed approximately 60 tps.
+    /// Released March 18, 2026.
+    /// </summary>
+    public static readonly ChatModel ModelM27 = new ChatModel("MiniMax-M2.7", LLmProviders.MiniMax, 204_800);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelM27"/>
+    /// </summary>
+    public readonly ChatModel M27 = ModelM27;
+    
+    /// <summary>
+    /// Same performance as M2.7, faster and more agile. Output speed approximately 100 tps.
+    /// Released March 18, 2026.
+    /// </summary>
+    public static readonly ChatModel ModelM27Highspeed = new ChatModel("MiniMax-M2.7-highspeed", LLmProviders.MiniMax, 204_800);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelM27Highspeed"/>
+    /// </summary>
+    public readonly ChatModel M27Highspeed = ModelM27Highspeed;
+    
+    /// <summary>
     /// Peak performance, ultimate value, masters complex tasks. Output speed approximately 60 tps.
     /// </summary>
     public static readonly ChatModel ModelM25 = new ChatModel("MiniMax-M2.5", LLmProviders.MiniMax, 204_800);
@@ -65,7 +87,7 @@ public class ChatModelMiniMaxM2 : IVendorModelClassProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelM25, ModelM25Highspeed, ModelM21, ModelM21Highspeed, ModelM2]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelM27, ModelM27Highspeed, ModelM25, ModelM25Highspeed, ModelM21, ModelM21Highspeed, ModelM2]);
 
     /// <summary>
     /// <inheritdoc cref="ModelsAll"/>

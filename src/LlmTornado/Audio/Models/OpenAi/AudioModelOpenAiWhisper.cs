@@ -18,7 +18,9 @@ public class AudioModelOpenAiWhisper : IVendorModelClassProvider
 
     /// <summary>
     /// <inheritdoc cref="ModelV2"/>
+    /// Deprecated: shutting down February 26, 2027. Migrate to <c>gpt-transcribe</c> or <c>gpt-live-transcribe</c>.
     /// </summary>
+    [Obsolete("whisper-1 shuts down on February 26, 2027. Use AudioModel.OpenAi.Gpt.Transcribe or LiveTranscribe.")]
     public readonly AudioModel V2 = ModelV2;
 
     /// <summary>

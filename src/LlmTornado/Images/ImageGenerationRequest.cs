@@ -10,6 +10,7 @@ using LlmTornado.Images.Models.Google;
 using LlmTornado.Images.Vendors.Google;
 using LlmTornado.Images.Vendors.MiniMax;
 using LlmTornado.Images.Vendors.XAi;
+using LlmTornado.Images.Vendors.Zai;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Images;
@@ -282,7 +283,8 @@ public class ImageGenerationRequest
 
 			return JsonConvert.SerializeObject(new VendorGoogleImageRequest(x, y), EndpointBase.NullSettings);
 		}},
-		{ LLmProviders.MiniMax, (x, y) => JsonConvert.SerializeObject(new VendorMiniMaxImageRequest(x, y), EndpointBase.NullSettings) }
+		{ LLmProviders.MiniMax, (x, y) => JsonConvert.SerializeObject(new VendorMiniMaxImageRequest(x, y), EndpointBase.NullSettings) },
+		{ LLmProviders.Zai, (x, y) => JsonConvert.SerializeObject(new VendorZaiImageRequest(x, y), EndpointBase.NullSettings) }
 	}.ToFrozenDictionary();
 }
 

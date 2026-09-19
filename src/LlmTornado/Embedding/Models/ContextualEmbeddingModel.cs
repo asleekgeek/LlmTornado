@@ -5,6 +5,7 @@ using System.Text;
 using LlmTornado.Chat.Models;
 using LlmTornado.Code;
 using LlmTornado.Code.Models;
+using LlmTornado.Embedding.Models.Perplexity;
 using LlmTornado.Embedding.Models.Voyage;
 using LlmTornado.Models;
 
@@ -19,6 +20,11 @@ public class ContextualEmbeddingModel : ModelEmbeddingBase
     /// Models from Voyage.
     /// </summary>
     public static readonly EmbeddingModelVoyageContextual Voyage = new EmbeddingModelVoyageContextual();
+    
+    /// <summary>
+    /// Models from Perplexity.
+    /// </summary>
+    public static readonly EmbeddingModelPerplexityContextual Perplexity = new EmbeddingModelPerplexityContextual();
     
     /// <summary>
     /// All known models keyed by name.
@@ -37,7 +43,8 @@ public class ContextualEmbeddingModel : ModelEmbeddingBase
     
     private static readonly Lazy<List<IModel>> AllModelsLazy = new Lazy<List<IModel>>(() =>
     [
-        ..Voyage.AllModels
+        ..Voyage.AllModels,
+        ..Perplexity.AllModels
     ]);
     
     /// <summary>

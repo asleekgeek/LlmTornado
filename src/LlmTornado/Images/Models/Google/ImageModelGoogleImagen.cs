@@ -13,31 +13,37 @@ public class ImageModelGoogleImagen : IVendorModelClassProvider
     /// <summary>
     /// imagen-4.0-fast-generate-001
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public static readonly ImageModel ModelV4FastGenerate001 = new ImageModel("imagen-4.0-fast-generate-001", LLmProviders.Google);
 
     /// <summary>
     /// <inheritdoc cref="ModelV4FastGenerate001"/>
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public readonly ImageModel V4FastGenerate001 = ModelV4FastGenerate001;
     
     /// <summary>
     /// imagen-4.0-ultra-generate-001
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public static readonly ImageModel ModelV4UltraGenerate001 = new ImageModel("imagen-4.0-ultra-generate-001", LLmProviders.Google);
 
     /// <summary>
     /// <inheritdoc cref="ModelV4UltraGenerate001"/>
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public readonly ImageModel V4UltraGenerate001 = ModelV4UltraGenerate001;
     
     /// <summary>
     /// imagen-4.0-generate-001
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public static readonly ImageModel ModelV4Generate001 = new ImageModel("imagen-4.0-generate-001", LLmProviders.Google);
 
     /// <summary>
     /// <inheritdoc cref="ModelV4Generate001"/>
     /// </summary>
+    [Obsolete("Shut down August 17, 2026. Use Gemini native image models (Nano Banana) instead.")]
     public readonly ImageModel V4Generate001 = ModelV4Generate001;
     
     /// <summary>

@@ -11,9 +11,10 @@ namespace LlmTornado.Chat.Models;
 public class ChatModelOpenAiGpt55 : IVendorModelClassProvider
 {
     /// <summary>
-    /// GPT-5.5 is OpenAI's newest frontier model for complex professional work.
+    /// GPT-5.5 is a frontier model for complex professional work (April 23, 2026).
     /// Supports reasoning.effort: none, low, medium (default), high, and xhigh.
     /// 1.05M context window. Extended prompt caching only (no in-memory caching).
+    /// Supports computer use, tool search, and server-side compaction.
     /// </summary>
     public static readonly ChatModel ModelV55 = new ChatModel("gpt-5.5", LLmProviders.OpenAi, 1_050_000, [ "gpt-5.5-2026-04-23" ])
     {

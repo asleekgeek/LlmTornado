@@ -6,10 +6,59 @@ using LlmTornado.Code.Models;
 namespace LlmTornado.Chat.Models;
 
 /// <summary>
-/// OpenAI Realtime API models (GA, May 2026).
+/// OpenAI Realtime and Live API models (GA May 2026; Realtime 2.1 July 2026; GPT-Live 1 September 2026).
 /// </summary>
 public class ChatModelOpenAiRealtime : IVendorModelClassProvider
 {
+    /// <summary>
+    /// GPT Realtime 2.1 — updated realtime reasoning model with improved alphanumeric
+    /// recognition, silence and noise handling, and interruption behavior.
+    /// Released July 6, 2026. 128k context, 32k max output.
+    /// </summary>
+    public static readonly ChatModel ModelRealtime21 = new ChatModel("gpt-realtime-2.1", LLmProviders.OpenAi, 128_000)
+    {
+        EndpointCapabilities = [ChatModelEndpointCapabilities.Realtime]
+    };
+
+    /// <inheritdoc cref="ModelRealtime21"/>
+    public readonly ChatModel Realtime21 = ModelRealtime21;
+
+    /// <summary>
+    /// GPT Realtime 2.1 Mini — faster, lower-cost distilled reasoning model for realtime voice.
+    /// Released July 6, 2026. 128k context, 32k max output.
+    /// </summary>
+    public static readonly ChatModel ModelRealtime21Mini = new ChatModel("gpt-realtime-2.1-mini", LLmProviders.OpenAi, 128_000)
+    {
+        EndpointCapabilities = [ChatModelEndpointCapabilities.Realtime]
+    };
+
+    /// <inheritdoc cref="ModelRealtime21Mini"/>
+    public readonly ChatModel Realtime21Mini = ModelRealtime21Mini;
+
+    /// <summary>
+    /// GPT-Live 1 — full-duplex voice conversations over <c>/v1/live/sessions</c>.
+    /// Generally available September 10, 2026. Can delegate reasoning and tools to a backend model.
+    /// </summary>
+    public static readonly ChatModel ModelLive1 = new ChatModel("gpt-live-1", LLmProviders.OpenAi, 128_000)
+    {
+        EndpointCapabilities = [ChatModelEndpointCapabilities.Live]
+    };
+
+    /// <inheritdoc cref="ModelLive1"/>
+    public readonly ChatModel Live1 = ModelLive1;
+
+    /// <summary>
+    /// GPT Live Transcribe — low-latency streaming speech-to-text for realtime transcription.
+    /// Released July 30, 2026.
+    /// </summary>
+    public static readonly ChatModel ModelLiveTranscribe = new ChatModel("gpt-live-transcribe", LLmProviders.OpenAi, 128_000)
+    {
+        EndpointCapabilities = [ChatModelEndpointCapabilities.Realtime]
+    };
+
+    /// <inheritdoc cref="ModelLiveTranscribe"/>
+    public readonly ChatModel LiveTranscribe = ModelLiveTranscribe;
+
     /// <summary>
     /// GPT Realtime 2 — speech-to-speech with configurable reasoning effort.
     /// 128k context, 32k max output. Recommended default for production voice agents.
@@ -84,6 +133,7 @@ public class ChatModelOpenAiRealtime : IVendorModelClassProvider
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() =>
     [
+        ModelRealtime21, ModelRealtime21Mini, ModelLive1, ModelLiveTranscribe,
         ModelRealtime2, ModelRealtime, ModelRealtime15, ModelRealtimeMini,
         ModelRealtimeTranslate, ModelRealtimeWhisper
     ]);

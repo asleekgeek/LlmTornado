@@ -6,7 +6,13 @@ namespace LlmTornado.Interactions;
 public static class GoogleManagedAgentIds
 {
     /// <summary>
-    /// General-purpose Antigravity managed agent (Gemini 3.5 Flash harness).
+    /// General-purpose Antigravity managed agent (Gemini 3.8 Flash harness).
+    /// Replaces <see cref="AntigravityPreview052026"/>.
+    /// </summary>
+    public const string AntigravityPreview092026 = "antigravity-preview-09-2026";
+
+    /// <summary>
+    /// Legacy Antigravity managed agent (Gemini 3.5 Flash harness). Shuts down October 5, 2026.
     /// </summary>
     public const string AntigravityPreview052026 = "antigravity-preview-05-2026";
 

@@ -11,22 +11,27 @@ namespace LlmTornado.Chat.Models;
 public class ChatModelAnthropicClaude4 : IVendorModelClassProvider
 {
     /// <summary>
-    /// Latest snapshot of Sonnet 4
+    /// Latest snapshot of Sonnet 4. Retired June 15, 2026 on the Claude API.
     /// </summary>
+    [Obsolete("Retired June 15, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Sonnet instead.")]
     public static readonly ChatModel ModelSonnet250514 = new ChatModel("claude-sonnet-4-20250514", LLmProviders.Anthropic, 200_000);
 
+    /// <summary>
+    /// <inheritdoc cref="ModelSonnet250514"/>
+    /// </summary>
+    [Obsolete("Retired June 15, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Sonnet instead.")]
     public readonly ChatModel Sonnet250514 = ModelSonnet250514;
-
-
     
     /// <summary>
-    /// Latest snapshot of Opus 4
+    /// Latest snapshot of Opus 4. Retired June 15, 2026 on the Claude API.
     /// </summary>
+    [Obsolete("Retired June 15, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Opus instead.")]
     public static readonly ChatModel ModelOpus250514 = new ChatModel("claude-opus-4-20250514", LLmProviders.Anthropic, 200_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelOpus250514"/>
     /// </summary>
+    [Obsolete("Retired June 15, 2026 on the Claude API. Use ChatModel.Anthropic.Claude5.Opus instead.")]
     public readonly ChatModel Opus250514 = ModelOpus250514;
     
     /// <summary>

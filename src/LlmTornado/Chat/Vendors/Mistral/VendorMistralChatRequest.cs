@@ -50,10 +50,15 @@ internal class VendorMistralChatRequest
         [JsonProperty("tools", NullValueHandling = NullValueHandling.Ignore)]
         public new List<VendorMistralTool>? Tools { get; set; }
 
+        [JsonProperty("guardrails", NullValueHandling = NullValueHandling.Ignore)]
+        public List<MistralGuardrail>? Guardrails { get; set; }
+
         public VendorMistralChatRequestData(ChatRequest request) : base(request)
         {
             // Mistral's strict API rejects properties it doesn't support
             Verbosity = null;
+            ReasoningFormat = null;
+            ReasoningEffort = MapReasoningEffort(request.ReasoningEffort);
 
             if (request.Tools is { Count: > 0 })
             {
@@ -158,6 +163,24 @@ internal class VendorMistralChatRequest
                     request.Messages?.Add(TempMessage);
                 }
             }
+
+            if (extensions.Guardrails is { Count: > 0 })
+            {
+                ExtendedRequest.Guardrails = extensions.Guardrails;
+            }
         }
+    }
+
+    /// <summary>
+    /// Medium 3.5 and Small 4 accept only <c>none</c> and <c>high</c>. Other library levels are folded into those two.
+    /// </summary>
+    internal static ChatReasoningEfforts? MapReasoningEffort(ChatReasoningEfforts? effort)
+    {
+        return effort switch
+        {
+            null => null,
+            ChatReasoningEfforts.None or ChatReasoningEfforts.Minimal or ChatReasoningEfforts.Low => ChatReasoningEfforts.None,
+            _ => ChatReasoningEfforts.High
+        };
     }
 }

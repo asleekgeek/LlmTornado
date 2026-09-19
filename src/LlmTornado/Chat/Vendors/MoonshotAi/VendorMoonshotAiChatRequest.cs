@@ -1,4 +1,5 @@
 using System;
+using LlmTornado.Chat.Models.MoonshotAi;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using Newtonsoft.Json;
@@ -7,7 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace LlmTornado.Chat.Vendors.MoonshotAi;
 
 /// <summary>
-/// https://platform.moonshot.ai/docs/api/chat
+/// https://platform.kimi.ai/docs/api/chat
 /// </summary>
 internal class VendorMoonshotAiChatRequest
 {
@@ -26,43 +27,87 @@ internal class VendorMoonshotAiChatRequest
     public VendorMoonshotAiChatRequest(ChatRequest request, IEndpointProvider provider)
     {
         SourceRequest = request;
-        
-        // Kimi API does not support tool_choice=required
-        if (request.ToolChoice == OutboundToolChoice.Required)
+
+        string? modelName = request.Model?.Name;
+        bool isK3 = ChatModelMoonshotAiModels.IsK3(modelName);
+        bool isK27 = ChatModelMoonshotAiModels.IsK27(modelName);
+        bool isK26 = ChatModelMoonshotAiModels.IsK26(modelName);
+        bool isK25 = ChatModelMoonshotAiModels.IsK25(modelName);
+        bool usesFixedSampling = ChatModelMoonshotAiModels.UsesFixedSampling(modelName);
+
+        ChatReasoningEfforts? originalEffort = request.ReasoningEffort;
+        int? originalBudget = request.ReasoningBudget;
+        bool thinkingDisabled = originalBudget == 0 || originalEffort is ChatReasoningEfforts.None;
+
+        // tool_choice=required is only accepted by K3
+        if (!isK3 && request.ToolChoice == OutboundToolChoice.Required)
         {
             request.ToolChoice = OutboundToolChoice.Auto;
         }
-        
-        bool isK25Model = request.Model?.Name?.Contains("k2.5", StringComparison.OrdinalIgnoreCase) == true;
-        
-        if (isK25Model)
+
+        if (usesFixedSampling)
         {
-            // K2.5 has fixed parameters - clear them to avoid API errors
+            // K2.5+ reject any non-default sampling values
             request.Temperature = null;
             request.TopP = null;
             request.NumChoicesPerMessage = null;
             request.PresencePenalty = null;
             request.FrequencyPenalty = null;
-            
-            // Use extended request to add thinking parameter
+        }
+        else if (request.Temperature is not null)
+        {
+            request.Temperature = Math.Clamp(request.Temperature.Value, 0, 1);
+        }
+
+        if (isK3)
+        {
+            request.ReasoningEffort = MapK3ReasoningEffort(originalEffort);
+            ExtendedRequest = new VendorMoonshotAiChatRequestData(request);
+            return;
+        }
+
+        // K2.x does not accept top-level reasoning_effort
+        request.ReasoningEffort = null;
+
+        if (isK27)
+        {
+            // Always-on thinking; omit the thinking object (keep=all is implied)
+            NativeRequest = request;
+            return;
+        }
+
+        if (isK26 || isK25)
+        {
+            VendorMoonshotAiThinking thinking = new VendorMoonshotAiThinking
+            {
+                Type = thinkingDisabled ? "disabled" : "enabled"
+            };
+
+            if (isK26 && !thinkingDisabled)
+            {
+                thinking.Keep = "all";
+            }
+
             ExtendedRequest = new VendorMoonshotAiChatRequestData(request)
             {
-                Thinking = new VendorMoonshotAiThinking
-                {
-                    Type = request.ReasoningBudget == 0 ? "disabled" : "enabled"
-                }
+                Thinking = thinking
             };
+            return;
         }
-        else
+
+        NativeRequest = request;
+    }
+
+    internal static ChatReasoningEfforts? MapK3ReasoningEffort(ChatReasoningEfforts? effort)
+    {
+        return effort switch
         {
-            // Temperature clamping [0, 1] for non-K2.5 models
-            if (request.Temperature is not null)
-            {
-                request.Temperature = Math.Clamp(request.Temperature.Value, 0, 1);
-            }
-            
-            NativeRequest = request;
-        }
+            null or ChatReasoningEfforts.Default => null,
+            ChatReasoningEfforts.None or ChatReasoningEfforts.Minimal or ChatReasoningEfforts.Low => ChatReasoningEfforts.Low,
+            ChatReasoningEfforts.Medium or ChatReasoningEfforts.High => ChatReasoningEfforts.High,
+            ChatReasoningEfforts.XHigh or ChatReasoningEfforts.Max => ChatReasoningEfforts.Max,
+            _ => ChatReasoningEfforts.Low
+        };
     }
 }
 
@@ -72,7 +117,7 @@ internal class VendorMoonshotAiChatRequest
 internal class VendorMoonshotAiChatRequestData : ChatRequest
 {
     /// <summary>
-    /// Controls thinking mode for kimi-k2.5 model.
+    /// Controls thinking mode for Kimi K2.x models that accept the <c>thinking</c> parameter.
     /// </summary>
     [JsonProperty("thinking")]
     public VendorMoonshotAiThinking? Thinking { get; set; }
@@ -83,7 +128,7 @@ internal class VendorMoonshotAiChatRequestData : ChatRequest
 }
 
 /// <summary>
-/// Thinking parameter for Kimi K2.5 model.
+/// Thinking parameter for Kimi K2.5 / K2.6 models.
 /// </summary>
 internal class VendorMoonshotAiThinking
 {
@@ -92,4 +137,10 @@ internal class VendorMoonshotAiThinking
     /// </summary>
     [JsonProperty("type")]
     public string Type { get; set; } = "enabled";
+
+    /// <summary>
+    /// When set to "all", K2.6 preserves reasoning content across turns (Preserved Thinking).
+    /// </summary>
+    [JsonProperty("keep")]
+    public string? Keep { get; set; }
 }

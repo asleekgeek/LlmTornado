@@ -18,67 +18,51 @@ internal static class GptImageModelHelper
 	}
 
 	/// <summary>
-	/// Returns true for gpt-image-2 and dated snapshots (e.g. gpt-image-2-2026-04-21).
+	/// Returns true for gpt-image-2 and dated snapshots (e.g. gpt-image-2-2026-04-21),
+	/// but not GPT Image 2.5 models.
 	/// </summary>
 	public static bool IsGptImage2Model(ImageModel? model)
 	{
 		string? name = model?.GetApiName;
-		return name is not null && name.StartsWith("gpt-image-2", StringComparison.OrdinalIgnoreCase);
+		return name is not null && (
+			name.Equals("gpt-image-2", StringComparison.OrdinalIgnoreCase) ||
+			name.StartsWith("gpt-image-2-", StringComparison.OrdinalIgnoreCase));
 	}
 
 	/// <summary>
-	/// Applies gpt-image-2 rules: no response_format, no transparent background.
+	/// Applies gpt-image rules: no response_format.
+	/// Transparent backgrounds are supported for gpt-image-2 (preview as of August 20, 2026) and GPT Image 2.5.
 	/// </summary>
 	public static ImageGenerationRequest SanitizeGenerationRequest(ImageGenerationRequest request)
 	{
-		bool stripResponseFormat = IsGptImageModel(request.Model) && request.ResponseFormat is not null;
-		bool stripTransparent = IsGptImage2Model(request.Model) && request.Background == ImageBackgroundTypes.Transparent;
-
-		if (!stripResponseFormat && !stripTransparent)
+		if (!IsGptImageModel(request.Model) || request.ResponseFormat is null)
 		{
 			return request;
 		}
 
-		ImageGenerationRequest clone = new ImageGenerationRequest(request);
-
-		if (stripResponseFormat)
+		ImageGenerationRequest clone = new ImageGenerationRequest(request)
 		{
-			clone.ResponseFormat = null;
-		}
-
-		if (stripTransparent)
-		{
-			clone.Background = null;
-		}
+			ResponseFormat = null
+		};
 
 		return clone;
 	}
 
 	/// <summary>
 	/// Applies gpt-image-2 rules: input_fidelity must be omitted (high fidelity is automatic).
-	/// Transparent backgrounds are not supported.
+	/// Transparent backgrounds are supported as of August 20, 2026.
 	/// </summary>
 	public static ImageEditRequest SanitizeEditRequest(ImageEditRequest request)
 	{
-		bool stripInputFidelity = IsGptImage2Model(request.Model) && request.InputFidelity is not null;
-		bool stripTransparent = IsGptImage2Model(request.Model) && request.Background == TornadoImageBackgrounds.Transparent;
-
-		if (!stripInputFidelity && !stripTransparent)
+		if (!IsGptImage2Model(request.Model) || request.InputFidelity is null)
 		{
 			return request;
 		}
 
-		ImageEditRequest clone = new ImageEditRequest(request);
-
-		if (stripInputFidelity)
+		ImageEditRequest clone = new ImageEditRequest(request)
 		{
-			clone.InputFidelity = null;
-		}
-
-		if (stripTransparent)
-		{
-			clone.Background = null;
-		}
+			InputFidelity = null
+		};
 
 		return clone;
 	}

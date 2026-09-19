@@ -21,23 +21,25 @@ public class AudioModelOpenAiGpt4 : IVendorModelClassProvider
     public readonly AudioModel Gpt4OMiniTts = Model4OMiniTts;
     
     /// <summary>
-    /// gpt-4o-transcribe
+    /// gpt-4o-transcribe. Deprecated: shutting down February 26, 2027. Migrate to gpt-transcribe.
     /// </summary>
     public static readonly AudioModel Model4OTranscribe = new AudioModel("gpt-4o-transcribe", LLmProviders.OpenAi, 16_385);
 
     /// <summary>
     /// <inheritdoc cref="Model4OTranscribe"/>
     /// </summary>
+    [Obsolete("gpt-4o-transcribe shuts down on February 26, 2027. Use AudioModel.OpenAi.Gpt.Transcribe.")]
     public readonly AudioModel Gpt4OTranscribe = Model4OTranscribe;
     
     /// <summary>
-    /// gpt-4o-mini-transcribe
+    /// gpt-4o-mini-transcribe. Deprecated: shutting down February 26, 2027. Migrate to gpt-transcribe.
     /// </summary>
     public static readonly AudioModel Model4OMiniTranscribe = new AudioModel("gpt-4o-mini-transcribe", LLmProviders.OpenAi, 16_385);
 
     /// <summary>
     /// <inheritdoc cref="Model4OMiniTranscribe"/>
     /// </summary>
+    [Obsolete("gpt-4o-mini-transcribe shuts down on February 26, 2027. Use AudioModel.OpenAi.Gpt.Transcribe.")]
     public readonly AudioModel Gpt4OMiniTranscribe = Model4OMiniTranscribe;
     
     /// <summary>
@@ -91,13 +93,14 @@ public class AudioModelOpenAiGpt4 : IVendorModelClassProvider
     public readonly AudioModel Gpt4OMiniTts20251215 = ModelGpt4OMiniTts20251215;
     
     /// <summary>
-    /// gpt-4o-transcribe-diarize
+    /// gpt-4o-transcribe-diarize. Deprecated: shutting down February 26, 2027. Migrate to gpt-transcribe.
     /// </summary>
     public static readonly AudioModel ModelGpt4OTranscribeDiarize = new AudioModel("gpt-4o-transcribe-diarize", LLmProviders.OpenAi, 16_385);
     
     /// <summary>
     /// <inheritdoc cref="ModelGpt4OTranscribeDiarize"/>
     /// </summary>
+    [Obsolete("gpt-4o-transcribe-diarize shuts down on February 26, 2027. Use AudioModel.OpenAi.Gpt.Transcribe.")]
     public readonly AudioModel Gpt4OTranscribeDiarize = ModelGpt4OTranscribeDiarize;
 
     /// <summary>

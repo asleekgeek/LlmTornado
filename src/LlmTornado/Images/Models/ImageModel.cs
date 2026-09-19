@@ -9,6 +9,7 @@ using LlmTornado.Images.Models.Google;
 using LlmTornado.Images.Models.OpenAi;
 using LlmTornado.Images.Models.MiniMax;
 using LlmTornado.Images.Models.XAi;
+using LlmTornado.Images.Models.Zai;
 using LlmTornado.Models;
 
 namespace LlmTornado.Images.Models;
@@ -42,6 +43,11 @@ public class ImageModel : ModelBase
     /// Models from MiniMax.
     /// </summary>
     public static readonly ImageModelMiniMax MiniMax = new ImageModelMiniMax();
+
+    /// <summary>
+    /// Models from Z.AI.
+    /// </summary>
+    public static readonly ImageModelZai Zai = new ImageModelZai();
      
     /// <summary>
     /// All known models keyed by name.
@@ -68,7 +74,7 @@ public class ImageModel : ModelBase
     public static List<BaseVendorModelProvider> AllProviders => LazyAllProviders.Value;
     
     private static readonly Lazy<List<BaseVendorModelProvider>> LazyAllProviders = new Lazy<List<BaseVendorModelProvider>>(() => [
-        OpenAi, Google, XAi, DeepInfra, MiniMax
+        OpenAi, Google, XAi, DeepInfra, MiniMax, Zai
     ]);
     
     /// <summary>

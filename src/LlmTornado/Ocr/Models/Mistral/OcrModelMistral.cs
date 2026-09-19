@@ -14,10 +14,37 @@ public class OcrModelMistral : BaseVendorModelProvider
     public override LLmProviders Provider => LLmProviders.Mistral;
 
     /// <summary>
-    /// OCR 3 (mistral-ocr-2512) - Released December 2024.
+    /// OCR 4.1 (mistral-ocr-4-1) — generally available August 2026.
+    /// Adds paragraph-level blocks, structural labels, and page / block / word confidence scores.
+    /// </summary>
+    public static readonly OcrModel ModelOcr41 = new OcrModel("mistral-ocr-4-1", LLmProviders.Mistral, ["mistral-ocr-latest", "mistral-ocr-4"]);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelOcr41"/>
+    /// </summary>
+    public readonly OcrModel Ocr41 = ModelOcr41;
+
+    /// <summary>
+    /// OCR 4.0 (mistral-ocr-4-0) — released June 2026.
+    /// Native paragraph-level bounding boxes and structural block labels.
+    /// </summary>
+    public static readonly OcrModel ModelOcr40 = new OcrModel("mistral-ocr-4-0", LLmProviders.Mistral);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelOcr40"/>
+    /// </summary>
+    public readonly OcrModel Ocr40 = ModelOcr40;
+
+    /// <summary>
+    /// <inheritdoc cref="ModelOcr40"/>
+    /// </summary>
+    public readonly OcrModel Ocr4 = ModelOcr40;
+
+    /// <summary>
+    /// OCR 3 (mistral-ocr-2512) — released December 2025.
     /// Features: table_format (markdown/html), extract_header, extract_footer, hyperlinks output.
     /// </summary>
-    public static readonly OcrModel ModelOcr2512 = new OcrModel("mistral-ocr-2512", LLmProviders.Mistral, ["mistral-ocr-latest"]);
+    public static readonly OcrModel ModelOcr2512 = new OcrModel("mistral-ocr-2512", LLmProviders.Mistral);
 
     /// <summary>
     /// <inheritdoc cref="ModelOcr2512"/>
@@ -30,7 +57,7 @@ public class OcrModelMistral : BaseVendorModelProvider
     public readonly OcrModel Ocr3 = ModelOcr2512;
 
     /// <summary>
-    /// Latest OCR model (alias for mistral-ocr-2512).
+    /// Latest OCR model. Currently OCR 4.1.
     /// </summary>
     public static readonly OcrModel ModelOcrLatest = new OcrModel("mistral-ocr-latest", LLmProviders.Mistral);
 
@@ -71,7 +98,7 @@ public class OcrModelMistral : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelOcr2512, ModelOcrLatest]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [ModelOcr41, ModelOcr40, ModelOcr2512, ModelOcrLatest]);
 
     internal OcrModelMistral()
     {

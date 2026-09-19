@@ -83,6 +83,36 @@ public class SpeechVoice
     public static SpeechVoice TroyOrpheus => new SpeechVoice("troy");
     
     /// <summary>
+    ///     Requests the Abdullah voice from Orpheus Arabic Saudi (Groq). Default Arabic voice.
+    /// </summary>
+    public static SpeechVoice AbdullahOrpheus => new SpeechVoice("abdullah");
+    
+    /// <summary>
+    ///     Requests the Fahad voice from Orpheus Arabic Saudi (Groq).
+    /// </summary>
+    public static SpeechVoice FahadOrpheus => new SpeechVoice("fahad");
+    
+    /// <summary>
+    ///     Requests the Sultan voice from Orpheus Arabic Saudi (Groq).
+    /// </summary>
+    public static SpeechVoice SultanOrpheus => new SpeechVoice("sultan");
+    
+    /// <summary>
+    ///     Requests the Lulwa voice from Orpheus Arabic Saudi (Groq).
+    /// </summary>
+    public static SpeechVoice LulwaOrpheus => new SpeechVoice("lulwa");
+    
+    /// <summary>
+    ///     Requests the Noura voice from Orpheus Arabic Saudi (Groq).
+    /// </summary>
+    public static SpeechVoice NouraOrpheus => new SpeechVoice("noura");
+    
+    /// <summary>
+    ///     Requests the Aisha voice from Orpheus Arabic Saudi (Groq).
+    /// </summary>
+    public static SpeechVoice AishaOrpheus => new SpeechVoice("aisha");
+    
+    /// <summary>
     ///     Creates a custom voice with the specified name.
     /// </summary>
     /// <param name="voiceName">The name of the voice.</param>

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading;
 using LlmTornado.Chat.Models;
+using LlmTornado.Chat.Models.Perplexity;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using LlmTornado.Common;
@@ -17,12 +18,14 @@ using LlmTornado.Chat.Vendors.Mistral;
 using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.Chat.Vendors.XAi;
 using LlmTornado.Chat.Vendors.Zai;
+using LlmTornado.Chat.Vendors.MiniMax;
 using LlmTornado.Chat.Vendors.MoonshotAi;
 using LlmTornado.Code.Models;
 using LlmTornado.Images;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using LlmTornado.Chat.Vendors.Google;
+using LlmTornado.Chat.Vendors.Groq;
 using LlmTornado.Responses;
 
 namespace LlmTornado.Chat;
@@ -113,6 +116,7 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		ResponseRequestParameters = basedOn.ResponseRequestParameters;
 		UseResponseEndpoint = basedOn.UseResponseEndpoint;
 		ReasoningFormat = basedOn.ReasoningFormat;
+		IncludeReasoning = basedOn.IncludeReasoning;
 		Verbosity = basedOn.Verbosity;
 		SafetyIdentifier = basedOn.SafetyIdentifier;
 		PromptCacheKey = basedOn.PromptCacheKey;
@@ -190,7 +194,7 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 	public Action<JObject, ChatRequest>? OnSerialize { get; set; }
 	
 	/// <summary>
-	/// If set, the request may be promoted from <see cref="CapabilityEndpoints.Chat"/> to <see cref="CapabilityEndpoints.Responses"/>, this is currently supported only by OpenAI.<br/>
+	/// If set, the request may be promoted from <see cref="CapabilityEndpoints.Chat"/> to <see cref="CapabilityEndpoints.Responses"/>. Currently supported by OpenAI and Groq.<br/>
 	/// </summary>
 	[JsonIgnore]
 	public ResponseRequest? ResponseRequestParameters { get; set; }
@@ -210,23 +214,34 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
     public int? NumChoicesPerMessage { get; set; }
 	
 	/// <summary>
-	///     Balance option between response time and cost/latency. Supported by O1, O1 Mini, Grok 3 series, Sonar Deep Research, Qwen, and Anthropic (maps to <c>output_config.effort</c>).
+	///     Balance option between response time and cost/latency. Supported by O1, O1 Mini, Grok 3+, Sonar Deep Research, Qwen, Anthropic (maps to <c>output_config.effort</c>), Kimi K3 (low / high / max), and Mistral Small 4 / Medium 3.5 (<c>none</c> / <c>high</c>).<br/>
+	///     xAI: Grok 4.3 accepts none / low (default) / medium / high / xhigh; Grok 4.6 accepts low / medium / high (default) / xhigh.
+	///     For Alibaba/DashScope, this maps to <c>enable_thinking</c> (and <see cref="ReasoningBudget"/> maps to <c>thinking_budget</c>).
 	///     For Anthropic-specific control, prefer <see cref="ChatRequestVendorAnthropicExtensions.Effort"/>.
 	/// </summary>
 	[JsonProperty("reasoning_effort")]
 	public ChatReasoningEfforts? ReasoningEffort { get; set; }
 	
 	/// <summary>
-	///     Format of the reasoning. Currently supported only by Grok/Qwen.
+	///     Format of the reasoning. Supported by Groq (and some Grok/Qwen hosts). Mutually exclusive with <see cref="IncludeReasoning"/> on Groq.
 	/// </summary>
 	[JsonProperty("reasoning_format")]
 	public ChatReasoningFormats? ReasoningFormat { get; set; }
 	
 	/// <summary>
-	///		Sets a token limit on reasoning. 0 disables reasoning. Currently supported by Google (natively "thinkingBudget") and Anthropic (natively "budget_tokens").<br/>
-	///		Note: Some providers (Google) don't guarantee this limit is honored without under/over-flowing.<br/>
-	///		Google: 2.5 pro: 128-32768; 2.5 flash: 0-24576; 2.5 flash lite: 512-24576; dynamic thinking for any model: -1;<br/>
-	///		Anthropic: 0 disables; 1024+ manual budget (deprecated on Opus/Sonnet 4.6+); -1 adaptive thinking (recommended on Opus 4.6+, Sonnet 4.6, required on Opus 4.7+)
+	///     When true (default on Groq reasoning models), include reasoning in a dedicated <c>message.reasoning</c> field.
+	///     When false, exclude reasoning from the response. Supported by Groq. Mutually exclusive with <see cref="ReasoningFormat"/>.
+	/// </summary>
+	[JsonProperty("include_reasoning")]
+	public bool? IncludeReasoning { get; set; }
+	
+	/// <summary>
+		///		Sets a token limit on reasoning. 0 disables reasoning. Currently supported by Google (natively "thinkingBudget"), Anthropic (natively "budget_tokens"), Cohere (natively "thinking.token_budget"), and MiniMax-M3 (natively "thinking.type").<br/>
+		///		Note: Some providers (Google) don't guarantee this limit is honored without under/over-flowing.<br/>
+		///		Google: 2.5 pro: 128-32768; 2.5 flash: 0-24576; 2.5 flash lite: 512-24576; dynamic thinking for any model: -1;<br/>
+		///		Anthropic: 0 disables; 1024+ manual budget (deprecated on Opus/Sonnet 4.6+); -1 adaptive thinking (recommended on Opus 4.6+, Sonnet 4.6, required on Opus 4.7+)<br/>
+		///		Cohere: 0 or <see cref="ChatReasoningEfforts.None"/> disables thinking on Command A Reasoning / Command A+; a positive budget caps thinking tokens (leave at least 1K for the response).<br/>
+		///		MiniMax-M3: 0 disables thinking; -1 or any other value enables adaptive thinking. M2.x models always think.
 	/// </summary>
 	[JsonIgnore]
 	public int? ReasoningBudget { get; set; }
@@ -247,6 +262,8 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 	///     Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the OpenAI scale tier service.
 	///     For Anthropic, controls Priority Tier usage with values <see cref="ChatRequestServiceTiers.Auto"/> (default) and <see cref="ChatRequestServiceTiers.StandardOnly"/>.
 	///     For Google Gemini, use <see cref="ChatRequestServiceTiers.Flex"/> (50% cost discount, best-effort latency) or <see cref="ChatRequestServiceTiers.Priority"/> (lower latency, premium pricing).
+	///     For MiniMax, <see cref="ChatRequestServiceTiers.Priority"/> maps to MiniMax <c>priority</c> admission (1.5x price).
+	///     For xAI, <see cref="ChatRequestServiceTiers.Priority"/> requests higher scheduling priority on Chat Completions and Responses.
 	/// </summary>
 	[JsonProperty("service_tier")]
 	public ChatRequestServiceTiers? ServiceTier { get; set; }
@@ -283,6 +300,7 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 	
 	/// <summary>
 	/// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces the user field.
+	/// On xAI, this is sent as <c>prompt_cache_key</c> on the Responses API and as the <c>x-grok-conv-id</c> header on Chat Completions so a conversation stays on the same cache-warm server.
 	/// </summary>
 	[JsonProperty("prompt_cache_key")]
 	public string? PromptCacheKey { get; set; }
@@ -561,6 +579,44 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		return sourceObject.ToString(settings?.Formatting ?? Formatting.None);
 	}
 
+	private static void ApplyMiniMaxChatExtensions(JObject payload, ChatRequest request)
+	{
+		ChatRequestVendorMiniMaxExtensions? ext = request.VendorExtensions?.MiniMax;
+		
+		ChatRequestVendorMiniMaxThinkingTypes? thinkingType = ext?.Thinking?.Type;
+		if (thinkingType is null)
+		{
+			if (request.ReasoningBudget is 0 || request.ReasoningEffort is ChatReasoningEfforts.None)
+			{
+				thinkingType = ChatRequestVendorMiniMaxThinkingTypes.Disabled;
+			}
+			else if (request.ReasoningBudget is -1)
+			{
+				thinkingType = ChatRequestVendorMiniMaxThinkingTypes.Adaptive;
+			}
+		}
+
+		if (thinkingType is not null)
+		{
+			payload["thinking"] = new JObject
+			{
+				["type"] = thinkingType is ChatRequestVendorMiniMaxThinkingTypes.Disabled ? "disabled" : "adaptive"
+			};
+		}
+
+		// Separate thinking into reasoning_content so multi-turn tool calls keep the reasoning chain.
+		payload["reasoning_split"] = ext?.ReasoningSplit ?? true;
+
+		if (ext?.ServiceTier is ChatRequestVendorMiniMaxServiceTier.Priority || request.ServiceTier is ChatRequestServiceTiers.Priority)
+		{
+			payload["service_tier"] = "priority";
+		}
+		else if (ext?.ServiceTier is ChatRequestVendorMiniMaxServiceTier.Standard)
+		{
+			payload["service_tier"] = "standard";
+		}
+	}
+
 	private static readonly Dictionary<LLmProviders, Func<ChatRequest, IEndpointProvider, CapabilityEndpoints, JsonSerializerSettings?, string>> serializeMap = new Dictionary<LLmProviders, Func<ChatRequest, IEndpointProvider, CapabilityEndpoints, JsonSerializerSettings?, string>>((int)LLmProviders.Length)
 	{
 		{
@@ -624,7 +680,9 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 			{
 				// fields unsupported by groq
 				x.LogitBias = null;
-				return PreparePayload(x, x, y, z, GetSerializer(EndpointBase.NullSettings, a));
+				VendorGroqChatRequest request = new VendorGroqChatRequest(x, y);
+				JsonSerializerSettings serializer = GetSerializer(EndpointBase.NullSettings, a);
+				return PreparePayload(request.Serialize(serializer), x, y, z, serializer);
 			}
 		},
 		{
@@ -638,8 +696,15 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		{
 			LLmProviders.Perplexity, (x, y, z, a) =>
 			{
-				VendorPerplexityChatRequest request = new VendorPerplexityChatRequest(x, y);
 				JsonSerializerSettings serializer = GetSerializer(EndpointBase.NullSettings, a);
+
+				if (z is CapabilityEndpoints.Responses)
+				{
+					ResponseRequest responseRequest = ResponseHelpers.ToResponseRequest(y, x.ResponseRequestParameters, x);
+					return PreparePayload(responseRequest, x, y, z, serializer);
+				}
+
+				VendorPerplexityChatRequest request = new VendorPerplexityChatRequest(x, y);
 				return PreparePayload(request.Serialize(serializer), x, y, z, serializer);
 			}
 		},
@@ -716,7 +781,12 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 				x.LogitBias = null;
 				x.FrequencyPenalty = null;
 				x.PresencePenalty = null;
-				return PreparePayload(x, x, y, z, GetSerializer(EndpointBase.NullSettings, a));
+				x.NumChoicesPerMessage = 1;
+				
+				JsonSerializerSettings serializer = GetSerializer(EndpointBase.NullSettings, a);
+				JObject payload = JObject.FromObject(x, JsonSerializer.CreateDefault(serializer));
+				ApplyMiniMaxChatExtensions(payload, x);
+				return PreparePayload(payload, x, y, z, serializer);
 			}
 		},
 		{
@@ -742,8 +812,45 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 			return CapabilityEndpoints.Responses;
 		}
 		
-		// if we are explicitly told to not use responses, or the model is from an unsupported provider
-		if (req.UseResponseEndpoint is false || req.Model?.Provider is not LLmProviders.OpenAi)
+		// if we are explicitly told to not use responses
+		if (req.UseResponseEndpoint is false)
+		{
+			return CapabilityEndpoints.Chat;
+		}
+
+		if (req.Model?.Provider is LLmProviders.Perplexity)
+		{
+			HashSet<ChatModelEndpointCapabilities>? perplexityCapabilities = req.Model.EndpointCapabilities;
+			if (perplexityCapabilities?.Contains(ChatModelEndpointCapabilities.Responses) == true &&
+			    !perplexityCapabilities.Contains(ChatModelEndpointCapabilities.Chat))
+			{
+				return CapabilityEndpoints.Responses;
+			}
+
+			if (req.Model.Name is not null && ChatModelPerplexity.AgentModelNames.Contains(req.Model.Name))
+			{
+				return CapabilityEndpoints.Responses;
+			}
+
+			return req.ResponseRequestParameters is not null ? CapabilityEndpoints.Responses : CapabilityEndpoints.Chat;
+		}
+
+		if (req.Model?.Provider is LLmProviders.Groq)
+		{
+			HashSet<ChatModelEndpointCapabilities>? groqCapabilities = req.Model.EndpointCapabilities;
+			if (groqCapabilities?.Contains(ChatModelEndpointCapabilities.Responses) == true &&
+			    !groqCapabilities.Contains(ChatModelEndpointCapabilities.Chat))
+			{
+				return CapabilityEndpoints.Responses;
+			}
+
+			return req.ResponseRequestParameters is not null || req.UseResponseEndpoint is true
+				? CapabilityEndpoints.Responses
+				: CapabilityEndpoints.Chat;
+		}
+		
+		// if the model is from an unsupported provider
+		if (req.Model?.Provider is not LLmProviders.OpenAi)
 		{
 			return CapabilityEndpoints.Chat;
 		}
@@ -757,6 +864,15 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		// automatically upcast in the case of /chat endpoint not being supported by the model
 		HashSet<ChatModelEndpointCapabilities>? capabilities = req.Model.EndpointCapabilities;
 		if (capabilities?.Contains(ChatModelEndpointCapabilities.Responses) == true && !capabilities.Contains(ChatModelEndpointCapabilities.Chat))
+		{
+			return CapabilityEndpoints.Responses;
+		}
+
+		// GPT-6 Astra and similar models accept Chat Completions without tools, but tool calling
+		// requires the Responses API (these models do not support reasoning_effort none).
+		if (req.Tools is { Count: > 0 } &&
+		    capabilities?.Contains(ChatModelEndpointCapabilities.Responses) == true &&
+		    ChatModelOpenAi.ToolsRequireResponsesModelsAllSet.Contains(req.Model))
 		{
 			return CapabilityEndpoints.Responses;
 		}
@@ -889,6 +1005,7 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		if (provider.Provider is not LLmProviders.Groq)
 		{
 			outboundCopy.ReasoningFormat = null;
+			outboundCopy.IncludeReasoning = null;
 		}
 		
 		TornadoRequestContent serialized = serializeMap.TryGetValue(provider.Provider, out Func<ChatRequest, IEndpointProvider, CapabilityEndpoints, JsonSerializerSettings?, string>? serializerFn) ? new TornadoRequestContent(serializerFn.Invoke(outboundCopy, provider, capabilityEndpoint, pretty ? new JsonSerializerSettings
@@ -984,7 +1101,10 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
             LLmProviders.OpenRouter,
             LLmProviders.Requesty,
             LLmProviders.DeepInfra,
-            LLmProviders.LiteLlm
+            LLmProviders.LiteLlm,
+            LLmProviders.Alibaba,
+            LLmProviders.MoonshotAi,
+            LLmProviders.MiniMax
         ];
         
         public override void WriteJson(JsonWriter writer, IList<ChatMessage>? value, JsonSerializer serializer)
@@ -1054,6 +1174,12 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 			                {
 				                writer.WritePropertyName("prefix");
 				                writer.WriteValue(msg.Prefix.Value);
+			                }
+
+			                if (msg.Partial is true && request?.Model?.Provider is LLmProviders.MoonshotAi)
+			                {
+				                writer.WritePropertyName("partial");
+				                writer.WriteValue(true);
 			                }
 			                
 			                if (msg.ToolCalls is not null)
@@ -1210,12 +1336,13 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
 		                        if (part.Image?.Detail is not null)
 		                        {
 			                        writer.WritePropertyName("detail");
+			                        bool miniMax = request?.Model?.Provider is LLmProviders.MiniMax;
 			                        writer.WriteValue(part.Image.Detail switch
 			                        {
-				                        ImageDetail.Auto => "auto",
+				                        ImageDetail.Auto => miniMax ? "default" : "auto",
 				                        ImageDetail.High => "high",
 				                        ImageDetail.Low => "low",
-				                        _ => "auto"
+				                        _ => miniMax ? "default" : "auto"
 			                        });
 		                        }
 
@@ -1274,7 +1401,32 @@ public class ChatRequest : IModelRequest, ISerializableRequest, IHeaderProvider
                                 writer.WriteStartObject();
 
                                 writer.WritePropertyName("url");
-                                writer.WriteValue(part.Video?.Url);
+                                writer.WriteValue(part.Video?.UrlOverride ?? part.Video?.Url?.ToString());
+
+                                if (part.Video?.Detail is not null)
+                                {
+	                                writer.WritePropertyName("detail");
+	                                bool miniMax = request?.Model?.Provider is LLmProviders.MiniMax;
+	                                writer.WriteValue(part.Video.Detail switch
+	                                {
+		                                ImageDetail.Auto => miniMax ? "default" : "auto",
+		                                ImageDetail.High => "high",
+		                                ImageDetail.Low => "low",
+		                                _ => miniMax ? "default" : "auto"
+	                                });
+                                }
+
+                                if (part.Video?.Fps is not null)
+                                {
+	                                writer.WritePropertyName("fps");
+	                                writer.WriteValue(part.Video.Fps.Value);
+                                }
+
+                                if (part.Video?.MaxLongSidePixel is not null)
+                                {
+	                                writer.WritePropertyName("max_long_side_pixel");
+	                                writer.WriteValue(part.Video.MaxLongSidePixel.Value);
+                                }
 
                                 writer.WriteEndObject();
                                 break;

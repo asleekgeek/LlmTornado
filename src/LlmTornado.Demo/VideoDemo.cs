@@ -413,4 +413,43 @@ public class VideoDemo : DemoBase
 
         Console.WriteLine(result.Data?.Done == true ? $"Process completed. Check {outputPath} for the video." : "Video generation failed or returned no results.");
     }
+
+    [TornadoTest, Flaky("expensive")]
+    public static async Task GenerateSimpleVideoMiniMaxH3()
+    {
+        TornadoApi api = Program.Connect();
+        
+        VideoGenerationRequest request = new VideoGenerationRequest(
+            "A boy playing basketball by the sea at golden hour.",
+            VideoModel.MiniMax.H3.H3,
+            duration: VideoDuration.Seconds5
+        )
+        {
+            MiniMaxExtensions = new VideoMiniMaxExtensions
+            {
+                Resolution = VideoMiniMaxResolution.P768,
+                AspectRatio = VideoMiniMaxAspectRatio.Widescreen
+            }
+        };
+        
+        const string outputPath = "output/generated_video_minimax_h3.mp4";
+        
+        Console.WriteLine("Starting MiniMax H3 video generation...");
+        HttpCallResult<VideoJob>? result = await api.Videos.CreateAndWait(request, new VideoJobEvents
+        {
+            OnPoll = async (job, index, elapsed) =>
+            {
+                Console.WriteLine($"[Poll #{index}] Status: {job.Status} - Elapsed: {elapsed.TotalSeconds:F1}s");
+                await ValueTask.CompletedTask;
+            },
+            OnFinished = async (job, videoStream) =>
+            {
+                Console.WriteLine($"Video generation completed! Size: {job.Size}");
+                string savedTo = await videoStream.SaveToFileAsync(outputPath);
+                Console.WriteLine($"Video saved to: {savedTo}");
+            }
+        });
+
+        Console.WriteLine(result.Data?.Done == true ? $"Process completed. Check {outputPath} for the video." : "Video generation failed or returned no results.");
+    }
 }

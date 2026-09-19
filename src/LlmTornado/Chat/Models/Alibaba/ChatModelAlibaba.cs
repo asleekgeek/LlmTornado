@@ -52,6 +52,11 @@ public class ChatModelAlibaba : BaseVendorModelProvider
     public readonly ChatModelAlibabaOlder Older = new ChatModelAlibabaOlder();
 
     /// <summary>
+    /// Third-party models hosted on Alibaba Cloud Model Studio.
+    /// </summary>
+    public readonly ChatModelAlibabaThirdParty ThirdParty = new ChatModelAlibabaThirdParty();
+
+    /// <summary>
     /// All models owned by the provider.
     /// </summary>
     public override List<IModel> AllModels => ModelsAll;
@@ -69,7 +74,8 @@ public class ChatModelAlibaba : BaseVendorModelProvider
         ..ChatModelAlibabaMultimodal.ModelsAll,
         ..ChatModelAlibabaEmbeddings.ModelsAll,
         ..ChatModelAlibabaReasoning.ModelsAll,
-        ..ChatModelAlibabaOlder.ModelsAll
+        ..ChatModelAlibabaOlder.ModelsAll,
+        ..ChatModelAlibabaThirdParty.ModelsAll
     ]);
 
     /// <summary>

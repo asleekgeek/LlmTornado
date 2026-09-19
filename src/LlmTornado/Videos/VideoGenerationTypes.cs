@@ -163,7 +163,13 @@ public enum VideoAspectRatio
     /// 2:3 aspect ratio (classic portrait). Supported by xAI.
     /// </summary>
     [EnumMember(Value = "2:3")]
-    ClassicPortrait
+    ClassicPortrait,
+    
+    /// <summary>
+    /// 21:9 cinematic widescreen. Supported by MiniMax-H3.
+    /// </summary>
+    [EnumMember(Value = "21:9")]
+    Cinema
 }
 
 /// <summary>
@@ -171,6 +177,12 @@ public enum VideoAspectRatio
 /// </summary>
 public enum VideoResolution
 {
+    /// <summary>
+    /// 360p resolution. Supported by Gemini Omni Flash.
+    /// </summary>
+    [EnumMember(Value = "360p")]
+    NHD,
+    
     /// <summary>
     /// 480p resolution (854x480). Supported by xAI.
     /// </summary>
@@ -184,7 +196,7 @@ public enum VideoResolution
     HD,
 
     /// <summary>
-    /// 1080p resolution (1920x1080). Supported by Google Veo (only 8s duration for Veo 3.1) and sora-2-pro.
+    /// 1080p resolution (1920x1080). Supported by Google Veo (only 8s duration for Veo 3.1), sora-2-pro, and xAI grok-imagine-video-1.5 (T2V / I2V).
     /// </summary>
     [EnumMember(Value = "1080p")]
     FullHD,
@@ -193,7 +205,13 @@ public enum VideoResolution
     /// 4k resolution. Supported by Google Veo 3.1 and Veo 3 (8s duration only). Not available for Veo 3.1 Lite.
     /// </summary>
     [EnumMember(Value = "4k")]
-    UltraHD4K
+    UltraHD4K,
+    
+    /// <summary>
+    /// 2K resolution. Supported by MiniMax-H3.
+    /// </summary>
+    [EnumMember(Value = "2K")]
+    UHD2K
 }
 
 /// <summary>

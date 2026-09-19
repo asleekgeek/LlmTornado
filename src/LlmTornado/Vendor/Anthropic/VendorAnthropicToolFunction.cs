@@ -36,7 +36,12 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
     /// <param name="builtInTool"></param>
     public VendorAnthropicToolFunction(IVendorAnthropicChatRequestBuiltInTool builtInTool)
     {
-        Name = builtInTool.Name;
+        if (builtInTool is not VendorAnthropicChatRequestBuiltInToolComputerToolset20260801
+            and not VendorAnthropicChatRequestBuiltInToolBrowserToolset20260801)
+        {
+            Name = builtInTool.Name;
+        }
+
         Type = builtInTool.Type.ToEnumMember();
         Cache = builtInTool.Cache;
         
@@ -45,6 +50,8 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
             case VendorAnthropicChatRequestBuiltInToolBash20250124:
             case VendorAnthropicChatRequestBuiltInToolCodeExecution20250522:
             case VendorAnthropicChatRequestBuiltInToolCodeExecution20250825:
+            case VendorAnthropicChatRequestBuiltInToolCodeExecution20260120:
+            case VendorAnthropicChatRequestBuiltInToolCodeExecution20260521:
             case VendorAnthropicChatRequestBuiltInToolMemory20250825:
                 // nothing specific
                 break;
@@ -52,6 +59,16 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
                 DisplayHeightPx = computer.DisplayHeightPx;
                 DisplayWidthPx = computer.DisplayWidthPx;
                 DisplayNumber = computer.DisplayNumber;
+                break;
+            case VendorAnthropicChatRequestBuiltInToolComputerToolset20260801 computerToolset:
+                Name = null;
+                Configs = computerToolset.Configs;
+                AllowedCallers = computerToolset.AllowedCallers;
+                break;
+            case VendorAnthropicChatRequestBuiltInToolBrowserToolset20260801 browserToolset:
+                Name = null;
+                Configs = browserToolset.Configs;
+                AllowedCallers = browserToolset.AllowedCallers;
                 break;
             case VendorAnthropicChatRequestBuiltInToolTextEditor20250728 textEditor:
                 MaxCharacters = textEditor.MaxCharacters;
@@ -67,6 +84,13 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
                 AllowedDomains = webSearch2.AllowedDomains;
                 BlockedDomains = webSearch2.BlockedDomains;
                 UserLocation = webSearch2.UserLocation;
+                break;
+            case VendorAnthropicChatRequestBuiltInToolWebSearch20260318 webSearch3:
+                MaxUses = webSearch3.MaxUses;
+                AllowedDomains = webSearch3.AllowedDomains;
+                BlockedDomains = webSearch3.BlockedDomains;
+                UserLocation = webSearch3.UserLocation;
+                ResponseInclusion = webSearch3.ResponseInclusion;
                 break;
             case VendorAnthropicChatRequestBuiltInToolWebFetch20250910 webFetch:
                 MaxUses = webFetch.MaxUses;
@@ -84,6 +108,15 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
                 if (webFetch2.CitationsEnabled.HasValue)
                     Citations = new VendorAnthropicWebFetchCitations { Enabled = webFetch2.CitationsEnabled.Value };
                 break;
+            case VendorAnthropicChatRequestBuiltInToolWebFetch20260318 webFetch3:
+                MaxUses = webFetch3.MaxUses;
+                AllowedDomains = webFetch3.AllowedDomains;
+                BlockedDomains = webFetch3.BlockedDomains;
+                MaxContentTokens = webFetch3.MaxContentTokens;
+                ResponseInclusion = webFetch3.ResponseInclusion;
+                if (webFetch3.CitationsEnabled.HasValue)
+                    Citations = new VendorAnthropicWebFetchCitations { Enabled = webFetch3.CitationsEnabled.Value };
+                break;
             case VendorAnthropicChatRequestBuiltInToolAdvisor20260301 advisor:
                 Model = advisor.AdvisorModel;
                 MaxUses = advisor.MaxUses;
@@ -98,8 +131,8 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
     ///     length of 64.
     ///     Special names: computer, bash, str_replace_editor, web_search
     /// </summary>
-    [JsonProperty("name", Required = Required.Always)]
-    public string Name { get; set; }
+    [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Name { get; set; }
 
     /// <summary>
     ///     The description of what the function does.
@@ -228,6 +261,18 @@ public class VendorAnthropicToolFunction : IVendorAnthropicChatRequestTool
     /// </summary>
     [JsonProperty("max_tokens")]
     public int? MaxTokens { get; set; }
+
+    /// <summary>
+    /// Per-member toolset configuration for <c>computer_toolset_20260801</c> and <c>browser_toolset_20260801</c>.
+    /// </summary>
+    [JsonProperty("configs")]
+    public Dictionary<string, AnthropicToolsetMemberConfig>? Configs { get; set; }
+
+    /// <summary>
+    /// Whether consumed web search/fetch result blocks are included in the API response.
+    /// </summary>
+    [JsonProperty("response_inclusion")]
+    public string? ResponseInclusion { get; set; }
 }
 
 /// <summary>

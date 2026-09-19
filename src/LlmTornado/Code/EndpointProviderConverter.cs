@@ -30,7 +30,19 @@ internal static class EndpointProviderConverter
             },
             LLmProviders.Perplexity => new OpenAiEndpointProvider(LLmProviders.Perplexity)
             {
-                UrlResolver = (endpoint, url, ctx) => $"{string.Format(api.ApiUrlFormat ?? "https://api.perplexity.ai/{0}", OpenAiEndpointProvider.GetEndpointUrlFragment(endpoint, LLmProviders.Perplexity))}{url}"
+                UrlResolver = (endpoint, url, ctx) =>
+                {
+                    string fragment = OpenAiEndpointProvider.GetEndpointUrlFragment(endpoint, LLmProviders.Perplexity);
+                    string format = endpoint switch
+                    {
+                        CapabilityEndpoints.Responses or CapabilityEndpoints.Embeddings
+                            or CapabilityEndpoints.ContextualEmbeddings or CapabilityEndpoints.Models
+                            => "https://api.perplexity.ai/v1/{0}",
+                        _ => "https://api.perplexity.ai/{0}"
+                    };
+
+                    return $"{string.Format(api.ApiUrlFormat ?? format, fragment)}{url}";
+                }
             },
             LLmProviders.Zai => new OpenAiEndpointProvider(LLmProviders.Zai)
             {

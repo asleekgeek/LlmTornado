@@ -11,6 +11,17 @@ namespace LlmTornado.Chat.Models.Mistral;
 public class ChatModelMistralPremier : IVendorModelClassProvider
 {
     /// <summary>
+    /// Mistral Medium 3.5 - frontier-class multimodal model released April 2026.
+    /// Unifies instruct, reasoning, and coding with adjustable <c>reasoning_effort</c> (<c>none</c> / <c>high</c>). 256k context, Modified MIT.
+    /// </summary>
+    public static readonly ChatModel ModelMistralMedium35 = new ChatModel("mistral-medium-3-5", LLmProviders.Mistral, 256_000, [ "mistral-medium-latest", "mistral-medium-3" ]);
+    
+    /// <summary>
+    /// <inheritdoc cref="ModelMistralMedium35"/>
+    /// </summary>
+    public readonly ChatModel MistralMedium35 = ModelMistralMedium35;
+    
+    /// <summary>
     /// Mistral Medium 3.1 - our frontier-class multimodal model released August 2025.
     /// </summary>
     public static readonly ChatModel ModelMistralMedium2508 = new ChatModel("mistral-medium-2508", LLmProviders.Mistral, 128_000);
@@ -93,7 +104,7 @@ public class ChatModelMistralPremier : IVendorModelClassProvider
     /// <summary>
     /// Our top-tier reasoning model for high-complexity tasks with the lastest version released November 2024. 
     /// </summary>
-    public static readonly ChatModel ModelMistralLarge = new ChatModel("mistral-large-2411", LLmProviders.Mistral, 128_000, [ "mistral-large-latest" ]);
+    public static readonly ChatModel ModelMistralLarge = new ChatModel("mistral-large-2411", LLmProviders.Mistral, 128_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelMistralLarge"/>
@@ -123,7 +134,7 @@ public class ChatModelMistralPremier : IVendorModelClassProvider
     /// <summary>
     /// World’s best edge model.
     /// </summary>
-    public static readonly ChatModel ModelMinistral3B = new ChatModel("ministral-3b-2410", LLmProviders.Mistral, 128_000, [ "ministral-3b-latest" ]);
+    public static readonly ChatModel ModelMinistral3B = new ChatModel("ministral-3b-2410", LLmProviders.Mistral, 128_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelMinistral3B"/>
@@ -133,7 +144,7 @@ public class ChatModelMistralPremier : IVendorModelClassProvider
     /// <summary>
     /// Powerful edge model with extremely high performance/price ratio.
     /// </summary>
-    public static readonly ChatModel ModelMinistral8B = new ChatModel("ministral-8b-2410", LLmProviders.Mistral, 128_000, [ "ministral-8b-latest" ]);
+    public static readonly ChatModel ModelMinistral8B = new ChatModel("ministral-8b-2410", LLmProviders.Mistral, 128_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelMinistral8B"/>
@@ -143,7 +154,7 @@ public class ChatModelMistralPremier : IVendorModelClassProvider
     /// <summary>
     /// Mistral Medium 3: frontier-class multimodal model released May 2025.
     /// </summary>
-    public static readonly ChatModel ModelMedium3 = new ChatModel("mistral-medium-2505", LLmProviders.Mistral, 128_000, [ "mistral-medium-latest" ]);
+    public static readonly ChatModel ModelMedium3 = new ChatModel("mistral-medium-2505", LLmProviders.Mistral, 128_000);
     
     /// <summary>
     /// <inheritdoc cref="ModelMedium3"/>
@@ -156,7 +167,7 @@ public class ChatModelMistralPremier : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
-        ModelMistralLarge, ModelPixtralLarge, ModelMistralSaba, ModelMinistral3B, ModelMinistral8B, ModelMedium3, 
+        ModelMistralMedium35, ModelMistralLarge, ModelPixtralLarge, ModelMistralSaba, ModelMinistral3B, ModelMinistral8B, ModelMedium3, 
         ModelMagistralMedium2506, ModelMagistralMedium2507, ModelDevstralMedium2507, ModelDevstral2512, ModelCodestral2501, ModelCodestral2508, 
         ModelMistralMedium2508, ModelMagistralMedium2509
     ]);

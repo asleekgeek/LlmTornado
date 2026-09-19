@@ -11,9 +11,149 @@ namespace LlmTornado.Chat.Models.Alibaba;
 public class ChatModelAlibabaFlagship : IVendorModelClassProvider
 {
     /// <summary>
+    /// Qwen3.8-Max - Native vision-language flagship (2.4T MoE). Hybrid thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen38Max = new ChatModel("qwen3.8-max", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen38Max"/>
+    /// </summary>
+    public readonly ChatModel Qwen38Max = ModelQwen38Max;
+
+    /// <summary>
+    /// Qwen3.8-Max-0902 - September 2, 2026 snapshot with stronger coding and agent orchestration.
+    /// </summary>
+    public static readonly ChatModel ModelQwen38Max0902 = new ChatModel("qwen3.8-max-0902", LLmProviders.Alibaba, 1_000_000, [ "qwen3.8-max-2026-09-02" ]);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen38Max0902"/>
+    /// </summary>
+    public readonly ChatModel Qwen38Max0902 = ModelQwen38Max0902;
+
+    /// <summary>
+    /// Qwen3.7-Plus - Balanced vision-language model with multimodal hybrid agents. Thinking enabled by default.
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Plus = new ChatModel("qwen3.7-plus", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Plus"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Plus = ModelQwen37Plus;
+
+    /// <summary>
+    /// Qwen3.7-Plus-2026-05-26 - Snapshot from May 26, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Plus20260526 = new ChatModel("qwen3.7-plus-2026-05-26", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Plus20260526"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Plus20260526 = ModelQwen37Plus20260526;
+
+    /// <summary>
+    /// Qwen3.7-Max - Flagship of the 3.7 series. Later snapshots add vision. Thinking enabled by default.
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Max = new ChatModel("qwen3.7-max", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Max"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Max = ModelQwen37Max;
+
+    /// <summary>
+    /// Qwen3.7-Max-Preview - Thinking-only preview snapshot
+    /// </summary>
+    public static readonly ChatModel ModelQwen37MaxPreview = new ChatModel("qwen3.7-max-preview", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37MaxPreview"/>
+    /// </summary>
+    public readonly ChatModel Qwen37MaxPreview = ModelQwen37MaxPreview;
+
+    /// <summary>
+    /// Qwen3.7-Max-2026-06-08 - Snapshot with visual-modal understanding
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Max20260608 = new ChatModel("qwen3.7-max-2026-06-08", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Max20260608"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Max20260608 = ModelQwen37Max20260608;
+
+    /// <summary>
+    /// Qwen3.7-Max-2026-05-20 - Text-only snapshot from May 20, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Max20260520 = new ChatModel("qwen3.7-max-2026-05-20", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Max20260520"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Max20260520 = ModelQwen37Max20260520;
+
+    /// <summary>
+    /// Qwen3.7-Max-2026-05-17 - Thinking-only snapshot from May 17, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen37Max20260517 = new ChatModel("qwen3.7-max-2026-05-17", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen37Max20260517"/>
+    /// </summary>
+    public readonly ChatModel Qwen37Max20260517 = ModelQwen37Max20260517;
+
+    /// <summary>
+    /// Qwen3.6-Plus - Native vision-language Plus model. Thinking enabled by default, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen36Plus = new ChatModel("qwen3.6-plus", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen36Plus"/>
+    /// </summary>
+    public readonly ChatModel Qwen36Plus = ModelQwen36Plus;
+
+    /// <summary>
+    /// Qwen3.6-Plus-2026-04-02 - Snapshot from April 2, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen36Plus20260402 = new ChatModel("qwen3.6-plus-2026-04-02", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen36Plus20260402"/>
+    /// </summary>
+    public readonly ChatModel Qwen36Plus20260402 = ModelQwen36Plus20260402;
+
+    /// <summary>
+    /// Qwen3.6-Max-Preview - Largest closed-source 3.6 model. Text-only, 256k context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen36MaxPreview = new ChatModel("qwen3.6-max-preview", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen36MaxPreview"/>
+    /// </summary>
+    public readonly ChatModel Qwen36MaxPreview = ModelQwen36MaxPreview;
+
+    /// <summary>
+    /// Qwen3.8-27B - Open-source native vision-language dense model. Thinking enabled by default.
+    /// </summary>
+    public static readonly ChatModel ModelQwen3827B = new ChatModel("qwen3.8-27b", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3827B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3827B = ModelQwen3827B;
+
+    /// <summary>
+    /// Qwen3.8-2.4T-A95B - Open-source flagship MoE. Thinking-only, 1M context.
+    /// </summary>
+    public static readonly ChatModel ModelQwen3824TA95B = new ChatModel("qwen3.8-2.4t-a95b", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3824TA95B"/>
+    /// </summary>
+    public readonly ChatModel Qwen3824TA95B = ModelQwen3824TA95B;
+
+    /// <summary>
     /// Qwen3-Max - Most powerful general-purpose LLM
     /// </summary>
-    public static readonly ChatModel ModelQwen3Max = new ChatModel("qwen3-max", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwen3Max = new ChatModel("qwen3-max", LLmProviders.Alibaba, 256_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwen3Max"/>
@@ -21,14 +161,49 @@ public class ChatModelAlibabaFlagship : IVendorModelClassProvider
     public readonly ChatModel Qwen3Max = ModelQwen3Max;
 
     /// <summary>
-    /// Qwen3.5-Plus - Native vision-language model
+    /// Qwen3.5-Plus - Native vision-language model. Thinking enabled by default, 1M context.
     /// </summary>
     public static readonly ChatModel ModelQwen35Plus = new ChatModel("qwen3.5-plus", LLmProviders.Alibaba, 1_000_000);
 
     /// <summary>
+    /// <inheritdoc cref="ModelQwen35Plus"/>
+    /// </summary>
+    public readonly ChatModel Qwen35Plus = ModelQwen35Plus;
+
+    /// <summary>
+    /// Qwen3.5-Plus-2026-04-20 - Snapshot with faster inference and stronger agentic coding
+    /// </summary>
+    public static readonly ChatModel ModelQwen35Plus20260420 = new ChatModel("qwen3.5-plus-2026-04-20", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35Plus20260420"/>
+    /// </summary>
+    public readonly ChatModel Qwen35Plus20260420 = ModelQwen35Plus20260420;
+
+    /// <summary>
+    /// Qwen3.5-Plus-2026-02-15 - Initial Qwen3.5-Plus snapshot
+    /// </summary>
+    public static readonly ChatModel ModelQwen35Plus20260215 = new ChatModel("qwen3.5-plus-2026-02-15", LLmProviders.Alibaba, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen35Plus20260215"/>
+    /// </summary>
+    public readonly ChatModel Qwen35Plus20260215 = ModelQwen35Plus20260215;
+
+    /// <summary>
+    /// Qwen3-Max-2026-01-23 - Snapshot from January 23, 2026
+    /// </summary>
+    public static readonly ChatModel ModelQwen3Max20260123 = new ChatModel("qwen3-max-2026-01-23", LLmProviders.Alibaba, 256_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelQwen3Max20260123"/>
+    /// </summary>
+    public readonly ChatModel Qwen3Max20260123 = ModelQwen3Max20260123;
+
+    /// <summary>
     /// Qwen3-Max-Preview - Preview version with state-of-the-art performance
     /// </summary>
-    public static readonly ChatModel ModelQwen3MaxPreview = new ChatModel("qwen3-max-preview", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwen3MaxPreview = new ChatModel("qwen3-max-preview", LLmProviders.Alibaba, 256_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwen3MaxPreview"/>
@@ -58,7 +233,7 @@ public class ChatModelAlibabaFlagship : IVendorModelClassProvider
     /// <summary>
     /// Qwen-MT-Plus - Flagship translation model with 92 languages
     /// </summary>
-    public static readonly ChatModel ModelQwenMtPlus = new ChatModel("qwen-mt-plus", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwenMtPlus = new ChatModel("qwen-mt-plus", LLmProviders.Alibaba, 16_384);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwenMtPlus"/>
@@ -78,7 +253,7 @@ public class ChatModelAlibabaFlagship : IVendorModelClassProvider
     /// <summary>
     /// Qwen-Plus-Character-Japanese - Optimized for Japanese role-playing
     /// </summary>
-    public static readonly ChatModel ModelQwenPlusCharacterJapanese = new ChatModel("qwen-plus-character-japanese", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwenPlusCharacterJapanese = new ChatModel("qwen-plus-character-ja", LLmProviders.Alibaba, 32_768, [ "qwen-plus-character-japanese" ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwenPlusCharacterJapanese"/>
@@ -88,7 +263,7 @@ public class ChatModelAlibabaFlagship : IVendorModelClassProvider
     /// <summary>
     /// Qwen3-Max-2025-09-23 - Snapshot from September 23, 2025
     /// </summary>
-    public static readonly ChatModel ModelQwen3Max20250923 = new ChatModel("qwen3-max-2025-09-23", LLmProviders.Alibaba, 1_000_000);
+    public static readonly ChatModel ModelQwen3Max20250923 = new ChatModel("qwen3-max-2025-09-23", LLmProviders.Alibaba, 256_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelQwen3Max20250923"/>
@@ -241,12 +416,15 @@ public class ChatModelAlibabaFlagship : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ModelQwen38Max, ModelQwen38Max0902, ModelQwen37Plus, ModelQwen37Plus20260526, ModelQwen37Max,
+        ModelQwen37MaxPreview, ModelQwen37Max20260608, ModelQwen37Max20260520, ModelQwen37Max20260517,
+        ModelQwen36Plus, ModelQwen36Plus20260402, ModelQwen36MaxPreview, ModelQwen3827B, ModelQwen3824TA95B,
         ModelQwen3Max, ModelQwen3MaxPreview, ModelQwen3CoderPlus, ModelQwenPlus, ModelQwenMtPlus,
-        ModelQwenPlusLatest, ModelQwenPlusCharacterJapanese, ModelQwen3Max20250923, ModelQwen3CoderPlus20250923,
+        ModelQwenPlusLatest, ModelQwenPlusCharacterJapanese, ModelQwen3Max20260123, ModelQwen3Max20250923, ModelQwen3CoderPlus20250923,
         ModelQwenPlus20250911, ModelQwenPlus20250728, ModelQwen3CoderPlus20250722, ModelQwenPlus20250714,
         ModelQwenPlus20250428, ModelQwen3Next80BA3BInstruct, ModelQwen3Next80BA3BThinking, ModelQwen3Coder480BA35BInstruct,
         ModelQwen3235BA22BInstruct2507, ModelQwen3235BA22BThinking2507, ModelQwen3235BA22B, ModelQwen332B, ModelQwenPlus20250125,
-        ModelQwen35Plus
+        ModelQwen35Plus, ModelQwen35Plus20260420, ModelQwen35Plus20260215
     ]);
 
     /// <summary>

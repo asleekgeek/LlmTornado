@@ -91,6 +91,144 @@ public class OcrPageObject
     /// </summary>
     [JsonProperty("dimensions")]
     public OcrDimensions? Dimensions { get; set; }
+
+    /// <summary>
+    /// Page-level confidence scores when <c>confidence_scores_granularity</c> is set.
+    /// </summary>
+    [JsonProperty("confidence_scores")]
+    public OcrConfidenceScores? ConfidenceScores { get; set; }
+
+    /// <summary>
+    /// Per-word confidence values when granularity is <c>word</c>.
+    /// </summary>
+    [JsonProperty("word_confidence_scores")]
+    public List<OcrWordConfidenceScore>? WordConfidenceScores { get; set; }
+
+    /// <summary>
+    /// Paragraph-level content blocks in reading order when <c>include_blocks</c> is true. OCR 4+.
+    /// </summary>
+    [JsonProperty("blocks")]
+    public List<OcrBlock>? Blocks { get; set; }
+}
+
+/// <summary>
+/// A structural content block extracted by OCR 4+.
+/// </summary>
+public class OcrBlock
+{
+    /// <summary>
+    /// Structural label of the block.
+    /// </summary>
+    [JsonProperty("type")]
+    public OcrBlockType Type { get; set; }
+
+    /// <summary>
+    /// Extracted content. May be empty for image or signature blocks.
+    /// </summary>
+    [JsonProperty("content")]
+    public string? Content { get; set; }
+
+    /// <summary>
+    /// Top-left X coordinate.
+    /// </summary>
+    [JsonProperty("top_left_x")]
+    public int TopLeftX { get; set; }
+
+    /// <summary>
+    /// Top-left Y coordinate.
+    /// </summary>
+    [JsonProperty("top_left_y")]
+    public int TopLeftY { get; set; }
+
+    /// <summary>
+    /// Bottom-right X coordinate.
+    /// </summary>
+    [JsonProperty("bottom_right_x")]
+    public int BottomRightX { get; set; }
+
+    /// <summary>
+    /// Bottom-right Y coordinate.
+    /// </summary>
+    [JsonProperty("bottom_right_y")]
+    public int BottomRightY { get; set; }
+
+    /// <summary>
+    /// Reference to the matching entry in <see cref="OcrPageObject.Images"/> for image blocks.
+    /// </summary>
+    [JsonProperty("image_id")]
+    public string? ImageId { get; set; }
+
+    /// <summary>
+    /// Reference to the matching entry in <see cref="OcrPageObject.Tables"/> for table blocks.
+    /// </summary>
+    [JsonProperty("table_id")]
+    public string? TableId { get; set; }
+
+    /// <summary>
+    /// Block-level confidence scores when granularity is <c>block</c>.
+    /// </summary>
+    [JsonProperty("confidence_scores")]
+    public OcrBlockConfidenceScores? ConfidenceScores { get; set; }
+}
+
+/// <summary>
+/// Aggregate OCR confidence statistics for a page.
+/// </summary>
+public class OcrConfidenceScores
+{
+    /// <summary>
+    /// Average confidence across the page.
+    /// </summary>
+    [JsonProperty("average_page_confidence_score")]
+    public double? AveragePageConfidenceScore { get; set; }
+
+    /// <summary>
+    /// Lowest confidence on the page.
+    /// </summary>
+    [JsonProperty("minimum_page_confidence_score")]
+    public double? MinimumPageConfidenceScore { get; set; }
+}
+
+/// <summary>
+/// Confidence statistics for a single OCR block.
+/// </summary>
+public class OcrBlockConfidenceScores
+{
+    /// <summary>
+    /// Average confidence for the extracted block content. Null for blocks without text.
+    /// </summary>
+    [JsonProperty("average_content_confidence_score")]
+    public double? AverageContentConfidenceScore { get; set; }
+
+    /// <summary>
+    /// Lowest content confidence in the block. Null for blocks without text.
+    /// </summary>
+    [JsonProperty("minimum_content_confidence_score")]
+    public double? MinimumContentConfidenceScore { get; set; }
+
+    /// <summary>
+    /// Confidence that the detected block type is correct.
+    /// </summary>
+    [JsonProperty("block_type_confidence_score")]
+    public double? BlockTypeConfidenceScore { get; set; }
+}
+
+/// <summary>
+/// Per-word OCR confidence.
+/// </summary>
+public class OcrWordConfidenceScore
+{
+    /// <summary>
+    /// Recognized word.
+    /// </summary>
+    [JsonProperty("word")]
+    public string? Word { get; set; }
+
+    /// <summary>
+    /// Confidence in the range 0–1.
+    /// </summary>
+    [JsonProperty("confidence")]
+    public double? Confidence { get; set; }
 }
 
 /// <summary>

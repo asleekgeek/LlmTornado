@@ -216,9 +216,11 @@ public class ResponseWebSearchTool : ResponseTool
     public override string Type => 
         WebSearchToolType switch
         {
+            ResponseWebSearchToolType.WebSearch => "web_search",
+            ResponseWebSearchToolType.WebSearch20250826 => "web_search_2025_08_26",
             ResponseWebSearchToolType.WebSearchPreview => "web_search_preview",
             ResponseWebSearchToolType.WebSearchPreview20250311 => "web_search_preview_2025_03_11",
-            _ => "web_search_preview"
+            _ => "web_search"
         };
 
     /// <summary>
@@ -244,6 +246,48 @@ public class ResponseWebSearchTool : ResponseTool
     /// </summary>
     [JsonProperty("return_token_budget")]
     public ResponseWebSearchReturnTokenBudget? ReturnTokenBudget { get; set; }
+    
+    /// <summary>
+    /// Perplexity Agent API search filters (recency, domain, date, language, location).
+    /// </summary>
+    [JsonProperty("filters")]
+    public JObject? Filters { get; set; }
+    
+    /// <summary>
+    /// xAI: let Grok search for relevant images and embed them in the response as Markdown.
+    /// </summary>
+    [JsonProperty("enable_image_search")]
+    public bool? EnableImageSearch { get; set; }
+    
+    /// <summary>
+    /// xAI: let Grok analyze images found while browsing web pages.
+    /// </summary>
+    [JsonProperty("enable_image_understanding")]
+    public bool? EnableImageUnderstanding { get; set; }
+}
+
+/// <summary>
+/// A hosted tool identified only by its type. Used by the Perplexity Agent API for
+/// <c>fetch_url</c>, <c>finance_search</c>, <c>people_search</c>, and <c>sandbox</c>.
+/// </summary>
+public class ResponseHostedTool : ResponseTool
+{
+    /// <summary>
+    /// Creates a hosted tool with the given type discriminator.
+    /// </summary>
+    public ResponseHostedTool(string type)
+    {
+        ToolType = type;
+    }
+
+    /// <summary>
+    /// Tool type discriminator sent as <c>type</c>.
+    /// </summary>
+    [JsonIgnore]
+    public string ToolType { get; set; }
+
+    /// <inheritdoc />
+    public override string Type => ToolType;
 }
 
 /// <summary>
@@ -1126,7 +1170,9 @@ internal class ResponseToolConverter : JsonConverter
                     WebSearchToolType = webSearchType,
                     SearchContextSize = jo["search_context_size"]?.ToObject<ResponseSearchContextSize>(serializer),
                     UserLocation = jo["user_location"]?.ToObject<ResponseUserLocation>(serializer),
-                    ReturnTokenBudget = jo["return_token_budget"]?.ToObject<ResponseWebSearchReturnTokenBudget>(serializer)
+                    ReturnTokenBudget = jo["return_token_budget"]?.ToObject<ResponseWebSearchReturnTokenBudget>(serializer),
+                    EnableImageSearch = (bool?)jo["enable_image_search"],
+                    EnableImageUnderstanding = (bool?)jo["enable_image_understanding"]
                 };
             case "code_interpreter":
                 ResponseCodeInterpreterContainer? container = null;
@@ -1329,6 +1375,25 @@ internal class ResponseToolConverter : JsonConverter
                     writer.WritePropertyName("return_token_budget");
                     serializer.Serialize(writer, web.ReturnTokenBudget);
                 }
+                if (web.Filters != null)
+                {
+                    writer.WritePropertyName("filters");
+                    serializer.Serialize(writer, web.Filters);
+                }
+                if (web.EnableImageSearch != null)
+                {
+                    writer.WritePropertyName("enable_image_search");
+                    writer.WriteValue(web.EnableImageSearch);
+                }
+                if (web.EnableImageUnderstanding != null)
+                {
+                    writer.WritePropertyName("enable_image_understanding");
+                    writer.WriteValue(web.EnableImageUnderstanding);
+                }
+                break;
+            case ResponseHostedTool hosted:
+                writer.WritePropertyName("type");
+                writer.WriteValue(hosted.Type);
                 break;
             case ResponseCodeInterpreterTool code:
                 writer.WritePropertyName("type");

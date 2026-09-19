@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using LlmTornado.Code;
 using LlmTornado.Common;
+using LlmTornado.Videos.Models;
+using LlmTornado.Videos.Models.MiniMax;
 using Newtonsoft.Json;
 
 namespace LlmTornado.Videos.Vendors.MiniMax;
@@ -27,11 +29,16 @@ internal static class VendorMiniMaxVideoHandler
         EndpointBase endpoint, 
         CancellationToken cancellationToken)
     {
-        VendorMiniMaxVideoGenerationRequest miniMaxRequest = VendorMiniMaxVideoGenerationRequest.FromRequest(request);
-        string json = JsonConvert.SerializeObject(miniMaxRequest, SerializerSettings);
+        bool h3 = VideoModelMiniMaxH3.IsH3Model(request.Model?.Name);
+        string json = h3
+            ? JsonConvert.SerializeObject(VendorMiniMaxVideoGenerationV2Request.FromRequest(request), SerializerSettings)
+            : JsonConvert.SerializeObject(VendorMiniMaxVideoGenerationRequest.FromRequest(request), SerializerSettings);
         
-        // MiniMax uses /v1/video_generation endpoint
         string url = provider.ApiUrl(CapabilityEndpoints.Videos, null);
+        if (h3)
+        {
+            url = ToV2Url(url);
+        }
         
         HttpCallResult<VendorMiniMaxVideoCreateResponse> result = await endpoint.HttpPost<VendorMiniMaxVideoCreateResponse>(
             provider, 
@@ -49,7 +56,6 @@ internal static class VendorMiniMaxVideoHandler
             };
         }
         
-        // Check MiniMax base_resp for errors
         if (result.Data.BaseResp is { StatusCode: not 0 })
         {
             return new HttpCallResult<VideoJob>(result.Code, result.Response, null, false, result.Request)
@@ -58,7 +64,6 @@ internal static class VendorMiniMaxVideoHandler
             };
         }
         
-        // Convert to harmonized VideoJob
         VideoJob job = new VideoJob
         {
             Id = result.Data.TaskId,
@@ -78,10 +83,72 @@ internal static class VendorMiniMaxVideoHandler
         string taskId, 
         IEndpointProvider provider, 
         EndpointBase endpoint, 
+        CancellationToken cancellationToken,
+        VideoModel? model = null)
+    {
+        if (VideoModelMiniMaxH3.IsH3Model(model?.Name))
+        {
+            return await GetV2(taskId, provider, endpoint, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (model is null)
+        {
+            HttpCallResult<VideoJob> v2 = await GetV2(taskId, provider, endpoint, cancellationToken).ConfigureAwait(false);
+            if (v2.Ok && v2.Data is not null && v2.Data.Status is not VideoJobStatus.Unknown)
+            {
+                return v2;
+            }
+        }
+        
+        return await GetV1(taskId, provider, endpoint, cancellationToken).ConfigureAwait(false);
+    }
+    
+    /// <summary>
+    /// Downloads video content. H3 jobs store a direct CDN URL; Hailuo jobs store a file_id
+    /// that must be resolved through GET /v1/files/retrieve.
+    /// </summary>
+    public static async Task<StreamResponse?> GetContent(
+        string fileIdOrUrl,
+        IEndpointProvider provider, 
+        EndpointBase endpoint, 
         CancellationToken cancellationToken)
     {
-        // MiniMax uses GET /v1/query/video_generation?task_id=X
-        // Build the query URL by replacing the endpoint fragment
+        if (string.IsNullOrEmpty(fileIdOrUrl))
+        {
+            return null;
+        }
+
+        if (fileIdOrUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || fileIdOrUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return await endpoint.HttpGetRawStream(provider, fileIdOrUrl, ct: cancellationToken).ConfigureAwait(false);
+        }
+        
+        string baseUrl = provider.ApiUrl(CapabilityEndpoints.Videos, null);
+        string fileUrl = baseUrl.Replace("/video_generation", "/files/retrieve");
+        
+        HttpCallResult<VendorMiniMaxFileRetrieveResponse> result = await endpoint.HttpGet<VendorMiniMaxFileRetrieveResponse>(
+            provider,
+            CapabilityEndpoints.None,
+            fileUrl,
+            queryParams: new Dictionary<string, object> { { "file_id", fileIdOrUrl } },
+            ct: cancellationToken
+        ).ConfigureAwait(false);
+        
+        if (!result.Ok || result.Data?.File?.DownloadUrl is null)
+        {
+            return null;
+        }
+        
+        return await endpoint.HttpGetRawStream(provider, result.Data.File.DownloadUrl, ct: cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<HttpCallResult<VideoJob>> GetV1(
+        string taskId,
+        IEndpointProvider provider,
+        EndpointBase endpoint,
+        CancellationToken cancellationToken)
+    {
         string baseUrl = provider.ApiUrl(CapabilityEndpoints.Videos, null);
         string queryUrl = baseUrl.Replace("/video_generation", "/query/video_generation");
         
@@ -101,23 +168,18 @@ internal static class VendorMiniMaxVideoHandler
             };
         }
         
-        // Convert to harmonized VideoJob
         VideoJob job = new VideoJob
         {
             Id = taskId,
-            SourceProvider = LLmProviders.MiniMax
+            SourceProvider = LLmProviders.MiniMax,
+            Status = MapTaskStatus(result.Data.Status)
         };
         
-        // Map MiniMax status to harmonized VideoJobStatus
-        job.Status = MapTaskStatus(result.Data.Status);
-        
-        // Store file_id as part of the video URI for later retrieval via File API
         if (!string.IsNullOrEmpty(result.Data.FileId))
         {
             job.VideoUri = result.Data.FileId;
         }
         
-        // Set video dimensions as size string
         if (result.Data.VideoWidth.HasValue && result.Data.VideoHeight.HasValue)
         {
             job.Size = $"{result.Data.VideoWidth}x{result.Data.VideoHeight}";
@@ -125,42 +187,61 @@ internal static class VendorMiniMaxVideoHandler
         
         return new HttpCallResult<VideoJob>(result.Code, result.Response, job, true, result.Request);
     }
-    
-    /// <summary>
-    /// Downloads video content. MiniMax uses a two-step process:
-    /// 1. Call GET /v1/files/retrieve?file_id=X to get a JSON response with download_url
-    /// 2. Stream the actual video content from that download_url
-    /// </summary>
-    public static async Task<StreamResponse?> GetContent(
-        string fileId,
-        IEndpointProvider provider, 
-        EndpointBase endpoint, 
+
+    private static async Task<HttpCallResult<VideoJob>> GetV2(
+        string taskId,
+        IEndpointProvider provider,
+        EndpointBase endpoint,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(fileId))
-        {
-            return null;
-        }
-        
-        // Step 1: Call /v1/files/retrieve?file_id=X to get the download URL
         string baseUrl = provider.ApiUrl(CapabilityEndpoints.Videos, null);
-        string fileUrl = baseUrl.Replace("/video_generation", "/files/retrieve");
+        string queryUrl = $"{ToV2Url(baseUrl.Replace("/video_generation", "/query/video_generation"))}/{taskId}";
         
-        HttpCallResult<VendorMiniMaxFileRetrieveResponse> result = await endpoint.HttpGet<VendorMiniMaxFileRetrieveResponse>(
-            provider,
+        HttpCallResult<VendorMiniMaxVideoV2QueryResponse> result = await endpoint.HttpGet<VendorMiniMaxVideoV2QueryResponse>(
+            provider, 
             CapabilityEndpoints.None,
-            fileUrl,
-            queryParams: new Dictionary<string, object> { { "file_id", fileId } },
+            queryUrl,
             ct: cancellationToken
         ).ConfigureAwait(false);
         
-        if (!result.Ok || result.Data?.File?.DownloadUrl is null)
+        if (!result.Ok || result.Data?.Task is null)
         {
-            return null;
+            return new HttpCallResult<VideoJob>(result.Code, result.Response, null, false, result.Request)
+            {
+                Exception = result.Exception ?? (result.Data?.Error is not null
+                    ? new Exception($"MiniMax error {result.Data.Error.Code}: {result.Data.Error.Message}")
+                    : null)
+            };
+        }
+
+        VendorMiniMaxVideoV2Task task = result.Data.Task;
+        VideoJob job = new VideoJob
+        {
+            Id = task.Id ?? taskId,
+            Model = task.Model,
+            SourceProvider = LLmProviders.MiniMax,
+            Status = MapTaskStatus(task.Status),
+            VideoUri = task.Content?.Url,
+            Size = task.Resolution,
+            Seconds = task.Duration?.ToString(),
+            Prompt = task.Content?.Prompt
+        };
+
+        if (task.Error is not null)
+        {
+            job.Error = new VideoJobError
+            {
+                Code = task.Error.Code,
+                Message = task.Error.Message
+            };
         }
         
-        // Step 2: Download the actual video from the CDN URL (no provider auth needed)
-        return await endpoint.HttpGetRawStream(provider, result.Data.File.DownloadUrl, ct: cancellationToken).ConfigureAwait(false);
+        return new HttpCallResult<VideoJob>(result.Code, result.Response, job, true, result.Request);
+    }
+
+    private static string ToV2Url(string url)
+    {
+        return url.Replace("/v1/", "/v2/");
     }
     
     private static VideoJobStatus MapTaskStatus(string? status)
@@ -174,9 +255,14 @@ internal static class VendorMiniMaxVideoHandler
         {
             "Preparing" => VideoJobStatus.Queued,
             "Queueing" => VideoJobStatus.Queued,
+            "queued" => VideoJobStatus.Queued,
             "Processing" => VideoJobStatus.InProgress,
+            "running" => VideoJobStatus.InProgress,
             "Success" => VideoJobStatus.Completed,
+            "succeeded" => VideoJobStatus.Completed,
             "Fail" => VideoJobStatus.Failed,
+            "failed" => VideoJobStatus.Failed,
+            "cancelled" => VideoJobStatus.Failed,
             _ => VideoJobStatus.Unknown
         };
     }

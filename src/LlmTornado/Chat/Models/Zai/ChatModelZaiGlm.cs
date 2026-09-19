@@ -11,6 +11,62 @@ namespace LlmTornado.Chat.Models.Zai;
 public class ChatModelZaiGlm : IVendorModelClassProvider
 {
     /// <summary>
+    /// GLM-5.3 - Flagship coding and agent model. Always reasons; supports reasoning_effort: low, high, max (default max).
+    /// Text-only, 1M context, 128K max output. Thinking cannot be disabled.
+    /// </summary>
+    public static readonly ChatModel ModelGlm53 = new ChatModel("glm-5.3", LLmProviders.Zai, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm53"/>
+    /// </summary>
+    public readonly ChatModel Glm53 = ModelGlm53;
+
+    /// <summary>
+    /// GLM-5.3-Flash - Native multimodal (video/image/text/file) model with frontier intelligence at low cost.
+    /// Always reasons; supports reasoning_effort: low, high, max. 1M context, 128K max output.
+    /// Thinking cannot be disabled.
+    /// </summary>
+    public static readonly ChatModel ModelGlm53Flash = new ChatModel("glm-5.3-flash", LLmProviders.Zai, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm53Flash"/>
+    /// </summary>
+    public readonly ChatModel Glm53Flash = ModelGlm53Flash;
+
+    /// <summary>
+    /// GLM-5.3-FlashX - Ultra-fast variant of GLM-5.3-Flash (~200 tokens/s). Native multimodal, 1M context, 128K max output.
+    /// Always reasons; thinking cannot be disabled.
+    /// </summary>
+    public static readonly ChatModel ModelGlm53FlashX = new ChatModel("glm-5.3-flashx", LLmProviders.Zai, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm53FlashX"/>
+    /// </summary>
+    public readonly ChatModel Glm53FlashX = ModelGlm53FlashX;
+
+    /// <summary>
+    /// GLM-5.2 - Long-horizon coding model with lossless 1M context and 128K max output.
+    /// Supports reasoning_effort: low, high, max.
+    /// </summary>
+    public static readonly ChatModel ModelGlm52 = new ChatModel("glm-5.2", LLmProviders.Zai, 1_000_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm52"/>
+    /// </summary>
+    public readonly ChatModel Glm52 = ModelGlm52;
+
+    /// <summary>
+    /// GLM-5.1 - Long-horizon agentic model aligned with Claude Opus 4.6. Can work autonomously for up to 8 hours.
+    /// 200K context, 128K max output. Thinking is enabled by default and can be disabled.
+    /// </summary>
+    public static readonly ChatModel ModelGlm51 = new ChatModel("glm-5.1", LLmProviders.Zai, 200_000);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelGlm51"/>
+    /// </summary>
+    public readonly ChatModel Glm51 = ModelGlm51;
+
+    /// <summary>
     /// GLM-5 - Flagship Foundation Model designed for Agentic Engineering, capable of complex system engineering and long-range Agent tasks. 200K context, 128K max output.
     /// </summary>
     public static readonly ChatModel ModelGlm5 = new ChatModel("glm-5", LLmProviders.Zai, 200_000);
@@ -151,9 +207,9 @@ public class ChatModelZaiGlm : IVendorModelClassProvider
     public readonly ChatModel Glm432B = ModelGlm432B;
 
     /// <summary>
-    /// GLM-4.5-Flash - Lightweight, High Performance
+    /// GLM-4.5-Flash - Lightweight, High Performance. Free-tier. 200K context.
     /// </summary>
-    public static readonly ChatModel ModelGlm45Flash = new ChatModel("glm-4.5-flash", LLmProviders.Zai, 128_000);
+    public static readonly ChatModel ModelGlm45Flash = new ChatModel("glm-4.5-flash", LLmProviders.Zai, 200_000);
 
     /// <summary>
     /// <inheritdoc cref="ModelGlm45Flash"/>
@@ -181,6 +237,11 @@ public class ChatModelZaiGlm : IVendorModelClassProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ModelGlm53,
+        ModelGlm53Flash,
+        ModelGlm53FlashX,
+        ModelGlm52,
+        ModelGlm51,
         ModelGlm5,
         ModelGlm47,
         ModelGlm47Flash,

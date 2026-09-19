@@ -49,7 +49,11 @@ public enum ChatModelEndpointCapabilities
     /// <summary>
     /// /realtime (voice agents, GA WebSocket/WebRTC)
     /// </summary>
-    Realtime
+    Realtime,
+    /// <summary>
+    /// /live/sessions (GPT-Live full-duplex voice)
+    /// </summary>
+    Live
 }
 
 /// <summary>
@@ -760,14 +764,30 @@ public enum ChatRequestServiceTiers
     /// <summary>
     /// Requests priority-tier inference for lower latency and higher reliability at premium pricing.
     /// Supported by Google Gemini. Also returned as a response value by Anthropic and Google (via the <c>x-gemini-service-tier</c> header).
+    /// For OpenAI, <c>priority</c> is accepted and automatically mapped to Fast mode.
     /// </summary>
     [EnumMember(Value = "priority")]
-    Priority
+    Priority,
+    
+    /// <summary>
+    /// OpenAI Fast mode. Replaces Priority Processing. For GPT-5.6 and later supported models,
+    /// Fast mode delivers up to 2.5× faster speeds than standard processing at twice the price.
+    /// Requests tagged <see cref="Priority"/> automatically use Fast mode.
+    /// </summary>
+    [EnumMember(Value = "fast")]
+    Fast,
+    
+    /// <summary>
+    /// OpenAI Ultrafast mode. Limited-preview service tier for GPT-5.6 Sol that can run
+    /// up to 14× faster than standard processing.
+    /// </summary>
+    [EnumMember(Value = "ultrafast")]
+    Ultrafast
 }
 
 /// <summary>
-/// Controls the inference speed tier for supported models. Currently supported by Anthropic (Claude Opus 4.6, Opus 4.7, and NextOpus / Opus 4.8).
-/// Fast mode provides significantly faster output token generation at premium pricing.
+/// Controls the inference speed tier for supported models. Currently supported by Anthropic (Claude Opus 4.8 and Claude Opus 5).
+/// Fast mode was removed for Opus 4.6 (falls back to standard) and Opus 4.7 (returns an error).
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
 public enum ChatRequestSpeeds
@@ -781,7 +801,7 @@ public enum ChatRequestSpeeds
 
     /// <summary>
     /// Fast mode. Up to 2.5x higher output tokens per second compared to standard speed. Premium pricing applies.
-    /// Supported by Anthropic on Claude Opus 4.6, Opus 4.7, and NextOpus (Opus 4.8). Requires the <c>fast-mode-2026-02-01</c> beta header.
+    /// Supported by Anthropic on Claude Opus 4.8 and Claude Opus 5. Requires the <c>fast-mode-2026-02-01</c> beta header.
     /// </summary>
     [EnumMember(Value = "fast")]
     Fast
@@ -880,7 +900,7 @@ public enum ChatReasoningEfforts
     Minimal,
     
     /// <summary>
-    ///     Low reasoning - fast responses (O1, O1 Mini, GPT-5.1, Grok 3)
+    ///     Low reasoning - fast responses (O1, O1 Mini, GPT-5.1, Grok 3, Kimi K3)
     /// </summary>
     [EnumMember(Value = "low")]
     Low,
@@ -892,20 +912,20 @@ public enum ChatReasoningEfforts
     Medium,
     
     /// <summary>
-    ///     High reasoning - slow responses (O1, O1 Mini, GPT-5.1, Grok 3)
+    ///     High reasoning - slow responses (O1, O1 Mini, GPT-5.1, Grok 3, Kimi K3)
     /// </summary>
     [EnumMember(Value = "high")]
     High,
     
     /// <summary>
-    ///     Extra high reasoning. Available for GPT-5.6, GPT-5.5, GPT-5.2, GPT-5.2-Codex, GPT-5.3-Codex, GPT-5.4, and GPT-5.1-Codex-Max.
+    ///     Extra high reasoning. Available for GPT-6 Astra, GPT-5.6, GPT-5.5, GPT-5.2, GPT-5.2-Codex, GPT-5.3-Codex, GPT-5.4, and GPT-5.1-Codex-Max.
     /// </summary>
     [EnumMember(Value = "xhigh")]
     XHigh,
     
     /// <summary>
     ///     Maximum reasoning with no constraints on token spending.
-    ///     Available for GPT-5.6 and Claude Opus 4.6. Requests using max on other models will return an error.
+    ///     Available for GPT-6 Astra, GPT-5.6, Claude Opus 4.6, and Kimi K3 (K3 default). Requests using max on other models will return an error.
     /// </summary>
     [EnumMember(Value = "max")]
     Max,
@@ -1518,12 +1538,46 @@ public class ChatVideo
     public Uri Url { get; set; }
 
     /// <summary>
+    ///     Raw video location when a custom scheme is required (for example MiniMax <c>mm_file://{file_id}</c>).
+    ///     When set, this value is serialized instead of <see cref="Url"/>.
+    /// </summary>
+    [JsonIgnore]
+    public string? UrlOverride { get; set; }
+
+    /// <summary>
+    ///     Image/video detail hint. MiniMax-M3 accepts <c>low</c>, <c>default</c>, or <c>high</c>.
+    /// </summary>
+    [JsonIgnore]
+    public ImageDetail? Detail { get; set; }
+
+    /// <summary>
+    ///     Frames per second used when sampling a video. MiniMax-M3 defaults to 1 and accepts 0.2–5.
+    /// </summary>
+    [JsonIgnore]
+    public double? Fps { get; set; }
+
+    /// <summary>
+    ///     Longest side in pixels for MiniMax-M3 video/image preprocessing.
+    /// </summary>
+    [JsonIgnore]
+    public int? MaxLongSidePixel { get; set; }
+
+    /// <summary>
     ///     Creates a video url instance from the uri.
     /// </summary>
     /// <param name="url">Publicly available URL for the resource</param>
     public ChatVideo(Uri url)
     {
         Url = url;
+    }
+
+    /// <summary>
+    ///     Creates a video instance from a URL string, including MiniMax <c>mm_file://</c> file references.
+    /// </summary>
+    public ChatVideo(string url)
+    {
+        UrlOverride = url;
+        Url = Uri.TryCreate(url, UriKind.Absolute, out Uri? parsed) ? parsed : new Uri("https://invalid.local/");
     }
 }
 
@@ -2006,7 +2060,7 @@ public enum CapabilityEndpoints
     RealtimeTranslations,
 
     /// <summary>
-    /// Google Gemini Live API (real-time voice and multimodal WebSocket sessions).
+    /// Gemini Live (<c>/live</c>) and OpenAI GPT-Live (<c>/live/sessions</c>).
     /// </summary>
     Live,
 

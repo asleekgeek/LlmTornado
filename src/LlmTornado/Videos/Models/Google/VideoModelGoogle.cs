@@ -17,6 +17,11 @@ public class VideoModelGoogle : BaseVendorModelProvider
     /// Veo models.
     /// </summary>
     public readonly VideoModelGoogleVeo Veo = new VideoModelGoogleVeo();
+
+    /// <summary>
+    /// Gemini Omni conversational video models.
+    /// </summary>
+    public readonly VideoModelGoogleOmni Omni = new VideoModelGoogleOmni();
     
     /// <summary>
     /// All known video models from Google.
@@ -50,7 +55,7 @@ public class VideoModelGoogle : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..VideoModelGoogleVeo.ModelsAll]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..VideoModelGoogleVeo.ModelsAll, ..VideoModelGoogleOmni.ModelsAll]);
     
     internal VideoModelGoogle()
     {

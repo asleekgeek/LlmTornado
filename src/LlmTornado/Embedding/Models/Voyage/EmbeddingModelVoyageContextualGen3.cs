@@ -16,7 +16,7 @@ public class EmbeddingModelVoyageContextualGen3 : BaseVendorModelProvider
     /// <summary>
     /// A novel contextualized chunk embedding model, where chunk embedding encodes not only the chunk's own content, but also captures the contextual information from the full document.
     /// </summary>
-    public static readonly ContextualEmbeddingModel ModelContext3 = new ContextualEmbeddingModel("voyage-context-3", LLmProviders.Voyage, 32_000, 1024, [ 256, 512, 1024, 2048 ]);
+    public static readonly ContextualEmbeddingModel ModelContext3 = new ContextualEmbeddingModel("voyage-context-3", LLmProviders.Voyage, 120_000, 1024, [ 256, 512, 1024, 2048 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelContext3"/>

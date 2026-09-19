@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LlmTornado.Chat;
+using LlmTornado.Chat.Vendors.Perplexity;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using LlmTornado.Common;
@@ -208,7 +209,7 @@ internal static class ResponseHelpers
             }
         }
         
-        return new ResponseRequest
+        ResponseRequest converted = new ResponseRequest
         {
             Model = request.Model ?? chatRequest.Model,
             Background = request.Background,
@@ -240,8 +241,17 @@ internal static class ResponseHelpers
             PromptCacheKey = request.PromptCacheKey ?? chatRequest.PromptCacheKey,
             PromptCacheRetention = request.PromptCacheRetention ?? chatRequest.PromptCacheRetention,
             SafetyIdentifier = request.SafetyIdentifier,
-            ContextManagement = request.ContextManagement
+            ContextManagement = request.ContextManagement,
+            Preset = request.Preset,
+            Models = request.Models
         };
+
+        if (provider.Provider is LLmProviders.Perplexity)
+        {
+            VendorPerplexityAgentSerialization.Apply(converted, chatRequest);
+        }
+
+        return converted;
     }
 
     /// <summary>

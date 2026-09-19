@@ -71,6 +71,9 @@ internal class VendorCohereChatRequest
     [JsonProperty("tool_choice", NullValueHandling = NullValueHandling.Ignore)]
     public VendorCohereToolChoice? ToolChoice { get; set; }
     
+    [JsonProperty("thinking", NullValueHandling = NullValueHandling.Ignore)]
+    public VendorCohereThinking? Thinking { get; set; }
+    
     public JObject Serialize(JsonSerializerSettings settings)
     {
         JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
@@ -185,10 +188,57 @@ internal class VendorCohereChatRequest
                 }
                 case ChatMessageRoles.Assistant:
                 {
-                    VendorCohereAssistantChatMessage assistantMessage = new VendorCohereAssistantChatMessage
+                    VendorCohereAssistantChatMessage assistantMessage = new VendorCohereAssistantChatMessage();
+
+                    List<VendorCohereContentBlock> reasoningBlocks = [];
+
+                    if (m.Parts is { Count: > 0 })
                     {
-                        Content = m.Content
-                    };
+                        foreach (ChatMessagePart part in m.Parts)
+                        {
+                            if (part.Type is ChatMessageTypes.Reasoning && !string.IsNullOrWhiteSpace(part.Reasoning?.Content))
+                            {
+                                reasoningBlocks.Add(new VendorCohereThinkingContentBlock
+                                {
+                                    Thinking = part.Reasoning!.Content
+                                });
+                            }
+                            else if (part.Type is ChatMessageTypes.Text && !part.Text.IsNullOrWhiteSpace())
+                            {
+                                reasoningBlocks.Add(new VendorCohereTextContentBlock
+                                {
+                                    Text = part.Text ?? string.Empty
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!m.ReasoningContent.IsNullOrWhiteSpace())
+                        {
+                            reasoningBlocks.Add(new VendorCohereThinkingContentBlock
+                            {
+                                Thinking = m.ReasoningContent
+                            });
+                        }
+
+                        if (!m.Content.IsNullOrWhiteSpace())
+                        {
+                            reasoningBlocks.Add(new VendorCohereTextContentBlock
+                            {
+                                Text = m.Content
+                            });
+                        }
+                    }
+
+                    if (reasoningBlocks.Count > 1 || reasoningBlocks.Exists(x => x is VendorCohereThinkingContentBlock))
+                    {
+                        assistantMessage.Content = new VendorCohereAssistantMessageContent(reasoningBlocks);
+                    }
+                    else
+                    {
+                        assistantMessage.Content = m.Content;
+                    }
 
                     if (m.ToolCalls is { Count: > 0 })
                     {
@@ -273,7 +323,68 @@ internal class VendorCohereChatRequest
                 };
             }
         }
+
+        Thinking = ResolveThinking(request, extensions);
     }
+
+    private static VendorCohereThinking? ResolveThinking(ChatRequest request, ChatRequestVendorCohereExtensions? extensions)
+    {
+        if (extensions?.Thinking is not null)
+        {
+            return new VendorCohereThinking
+            {
+                Type = extensions.Thinking.Type switch
+                {
+                    ChatVendorCohereThinkingType.Enabled => "enabled",
+                    ChatVendorCohereThinkingType.Disabled => "disabled",
+                    _ => null
+                },
+                TokenBudget = extensions.Thinking.TokenBudget
+            };
+        }
+
+        bool isReasoningModel = request.Model is not null && ChatModelCohere.ReasoningModels.Contains(request.Model);
+
+        if (!isReasoningModel)
+        {
+            return null;
+        }
+
+        if (request.ReasoningBudget is 0 || request.ReasoningEffort is ChatReasoningEfforts.None)
+        {
+            return new VendorCohereThinking
+            {
+                Type = "disabled"
+            };
+        }
+
+        if (request.ReasoningBudget is > 0)
+        {
+            return new VendorCohereThinking
+            {
+                TokenBudget = request.ReasoningBudget
+            };
+        }
+
+        if (request.ReasoningEffort is not null)
+        {
+            return new VendorCohereThinking
+            {
+                Type = "enabled"
+            };
+        }
+
+        return null;
+    }
+}
+
+internal class VendorCohereThinking
+{
+    [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+    public string? Type { get; set; }
+
+    [JsonProperty("token_budget", NullValueHandling = NullValueHandling.Ignore)]
+    public int? TokenBudget { get; set; }
 }
 
 #endregion
@@ -359,6 +470,9 @@ internal class VendorCohereThinkingContentBlock : VendorCohereContentBlock
     {
         Type = "thinking";
     }
+    
+    [JsonProperty("thinking")]
+    public string Thinking { get; set; }
 }
 
 internal class VendorCohereDocumentContentBlock : VendorCohereContentBlock

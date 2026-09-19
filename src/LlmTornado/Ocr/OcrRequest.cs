@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using LlmTornado.Chat;
 using LlmTornado.Code;
 using LlmTornado.Ocr.Models;
+using LlmTornado.Ocr.Vendors.Cohere;
+using LlmTornado.Ocr.Vendors.Zai;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace LlmTornado.Ocr;
 
@@ -57,6 +60,9 @@ public class OcrRequest : ISerializableRequest
         TableFormat = basedOn.TableFormat;
         BboxAnnotationFormat = basedOn.BboxAnnotationFormat;
         DocumentAnnotationFormat = basedOn.DocumentAnnotationFormat;
+        IncludeBlocks = basedOn.IncludeBlocks;
+        ConfidenceScoresGranularity = basedOn.ConfidenceScoresGranularity;
+        PagesRange = basedOn.PagesRange;
     }
 
     /// <summary>
@@ -79,10 +85,18 @@ public class OcrRequest : ISerializableRequest
     public string? Id { get; set; }
 
     /// <summary>
-    /// Specific pages user wants to process. Can be a list of page numbers (0-indexed).
+    /// Specific pages to process as a list of 0-indexed page numbers.
+    /// For comma-separated digits and ranges (e.g. <c>"0,2-4"</c>), use <see cref="PagesRange"/> instead.
     /// </summary>
     [JsonProperty("pages")]
     public List<int>? Pages { get; set; }
+
+    /// <summary>
+    /// Specific pages to process as a string of comma-separated digits and ranges
+    /// (e.g. <c>"0,1,2"</c>, <c>"0-5"</c>, or <c>"0,2-4"</c>). Takes precedence over <see cref="Pages"/> when set.
+    /// </summary>
+    [JsonIgnore]
+    public string? PagesRange { get; set; }
 
     /// <summary>
     /// Include image base64 strings in the response.
@@ -132,6 +146,20 @@ public class OcrRequest : ISerializableRequest
     [JsonProperty("document_annotation_format")]
     public ChatRequestResponseFormats? DocumentAnnotationFormat { get; set; }
 
+    /// <summary>
+    /// When true, each page includes a <c>blocks</c> array with paragraph-level bounding boxes and structural labels.
+    /// Available on OCR 4 and newer.
+    /// </summary>
+    [JsonProperty("include_blocks")]
+    public bool? IncludeBlocks { get; set; }
+
+    /// <summary>
+    /// Granularity of confidence scores: page, block, or word. Defaults to unset (no scores, smaller payload).
+    /// Available on OCR 4 and newer. Block scores require <see cref="IncludeBlocks"/>.
+    /// </summary>
+    [JsonProperty("confidence_scores_granularity")]
+    public OcrConfidenceScoresGranularity? ConfidenceScoresGranularity { get; set; }
+
     [JsonIgnore]
     internal string? UrlOverride { get; set; }
 
@@ -161,6 +189,25 @@ public class OcrRequest : ISerializableRequest
     /// </summary>
     internal TornadoRequestContent SerializeInternal(IEndpointProvider provider, RequestSerializeOptions? options)
     {
-        return new TornadoRequestContent(this.ToJson(options?.Pretty ?? false), Model, UrlOverride ?? EndpointBase.BuildRequestUrl(null, provider, CapabilityEndpoints.Ocr, Model), provider, CapabilityEndpoints.Ocr);
+        string body = provider.Provider switch
+        {
+            LLmProviders.Cohere => VendorCohereParse.SerializeRequest(this),
+            LLmProviders.Zai => JsonConvert.SerializeObject(new VendorZaiOcrRequest(this), EndpointBase.NullSettings),
+            _ => SerializeJson(options?.Pretty ?? false)
+        };
+
+        return new TornadoRequestContent(body, Model, UrlOverride ?? EndpointBase.BuildRequestUrl(null, provider, CapabilityEndpoints.Ocr, Model), provider, CapabilityEndpoints.Ocr);
+    }
+
+    private string SerializeJson(bool pretty)
+    {
+        if (PagesRange.IsNullOrWhiteSpace())
+        {
+            return this.ToJson(pretty);
+        }
+
+        JObject json = JObject.FromObject(this);
+        json["pages"] = PagesRange;
+        return json.ToString(pretty ? Formatting.Indented : Formatting.None);
     }
 }

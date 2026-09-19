@@ -27,6 +27,11 @@ public class AudioModelOpenAi : BaseVendorModelProvider
     /// Gpt4o models.
     /// </summary>
     public readonly AudioModelOpenAiGpt4 Gpt4 = new AudioModelOpenAiGpt4();
+    
+    /// <summary>
+    /// GPT Transcribe / GPT Live Transcribe models (July 30, 2026).
+    /// </summary>
+    public readonly AudioModelOpenAiGpt Gpt = new AudioModelOpenAiGpt();
 
     /// <summary>
     /// All known chat models from OpenAI.
@@ -63,7 +68,8 @@ public class AudioModelOpenAi : BaseVendorModelProvider
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
         ..AudioModelOpenAiWhisper.ModelsAll,
         ..AudioModelOpenAiTts.ModelsAll,
-        ..AudioModelOpenAiGpt4.ModelsAll
+        ..AudioModelOpenAiGpt4.ModelsAll,
+        ..AudioModelOpenAiGpt.ModelsAll
     ]);
 
     /// <summary>
@@ -82,7 +88,8 @@ public class AudioModelOpenAi : BaseVendorModelProvider
 
     private static readonly Lazy<List<IModel>> LazyStreamingCompatibleModels = new Lazy<List<IModel>>(() => [
         ..AudioModelOpenAiTts.ModelsAll,
-        ..AudioModelOpenAiGpt4.ModelsAll
+        ..AudioModelOpenAiGpt4.ModelsAll,
+        ..AudioModelOpenAiGpt.ModelsAll
     ]);
     
     /// <summary>
@@ -91,7 +98,8 @@ public class AudioModelOpenAi : BaseVendorModelProvider
     public static List<IModel> IncludeCompatibleModels => LazyIncludeCompatibleModels.Value;
 
     private static readonly Lazy<List<IModel>> LazyIncludeCompatibleModels = new Lazy<List<IModel>>(() => [
-        ..AudioModelOpenAiGpt4.ModelsAll
+        ..AudioModelOpenAiGpt4.ModelsAll,
+        ..AudioModelOpenAiGpt.ModelsAll
     ]);
     
     internal AudioModelOpenAi()

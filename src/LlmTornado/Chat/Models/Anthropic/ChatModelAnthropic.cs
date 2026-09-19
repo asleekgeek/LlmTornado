@@ -52,7 +52,7 @@ public class ChatModelAnthropic : BaseVendorModelProvider
     public readonly ChatModelAnthropicClaude48 Claude48 = new ChatModelAnthropicClaude48();
 
     /// <summary>
-    /// Claude 5 models (Fable 5, Sonnet 5).
+    /// Claude 5 models (Fable 5/5.1, Mythos 5/5.1, Opus 5, Sonnet 5).
     /// </summary>
     public readonly ChatModelAnthropicClaude5 Claude5 = new ChatModelAnthropicClaude5();
 

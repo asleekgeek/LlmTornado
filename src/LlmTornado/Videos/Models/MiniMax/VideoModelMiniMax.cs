@@ -14,6 +14,11 @@ public class VideoModelMiniMax : BaseVendorModelProvider
     public override LLmProviders Provider => LLmProviders.MiniMax;
     
     /// <summary>
+    /// H3 video generation models.
+    /// </summary>
+    public readonly VideoModelMiniMaxH3 H3 = new VideoModelMiniMaxH3();
+    
+    /// <summary>
     /// Hailuo video generation models.
     /// </summary>
     public readonly VideoModelMiniMaxHailuo Hailuo = new VideoModelMiniMaxHailuo();
@@ -51,6 +56,7 @@ public class VideoModelMiniMax : BaseVendorModelProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ..VideoModelMiniMaxH3.ModelsAll,
         ..VideoModelMiniMaxHailuo.ModelsAll
     ]);
     

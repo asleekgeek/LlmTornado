@@ -14,6 +14,11 @@ public class AudioModelMiniMax : BaseVendorModelProvider
     public override LLmProviders Provider => LLmProviders.MiniMax;
     
     /// <summary>
+    /// Speech synthesis models.
+    /// </summary>
+    public readonly AudioModelMiniMaxSpeech Speech = new AudioModelMiniMaxSpeech();
+    
+    /// <summary>
     /// Music generation models.
     /// </summary>
     public readonly AudioModelMiniMaxMusic Music = new AudioModelMiniMaxMusic();
@@ -51,6 +56,7 @@ public class AudioModelMiniMax : BaseVendorModelProvider
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ..AudioModelMiniMaxSpeech.ModelsAll,
         ..AudioModelMiniMaxMusic.ModelsAll
     ]);
     

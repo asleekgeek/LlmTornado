@@ -19,7 +19,7 @@ public class ChatModelGroq : BaseVendorModelProvider
     public readonly ChatModelGroqMeta Meta = new ChatModelGroqMeta();
     
     /// <summary>
-    /// Models by Groq.
+    /// Systems by Groq (Compound).
     /// </summary>
     public readonly ChatModelGroqGroq Groq = new ChatModelGroqGroq();
     
@@ -47,6 +47,38 @@ public class ChatModelGroq : BaseVendorModelProvider
     /// Models by OpenAI.
     /// </summary>
     public readonly ChatModelGroqOpenAi OpenAi = new ChatModelGroqOpenAi();
+    
+    /// <summary>
+    /// Models by MiniMax.
+    /// </summary>
+    public readonly ChatModelGroqMiniMax MiniMax = new ChatModelGroqMiniMax();
+
+    /// <summary>
+    /// Chat, Responses, and Batch endpoints.
+    /// </summary>
+    internal static readonly HashSet<ChatModelEndpointCapabilities> ChatResponsesBatch =
+    [
+        ChatModelEndpointCapabilities.Chat,
+        ChatModelEndpointCapabilities.Responses,
+        ChatModelEndpointCapabilities.Batch
+    ];
+
+    /// <summary>
+    /// Chat and Responses endpoints.
+    /// </summary>
+    internal static readonly HashSet<ChatModelEndpointCapabilities> ChatResponses =
+    [
+        ChatModelEndpointCapabilities.Chat,
+        ChatModelEndpointCapabilities.Responses
+    ];
+
+    /// <summary>
+    /// Chat completions only.
+    /// </summary>
+    internal static readonly HashSet<ChatModelEndpointCapabilities> ChatOnly =
+    [
+        ChatModelEndpointCapabilities.Chat
+    ];
 
     /// <summary>
     /// All known chat models hosted by Groq.
@@ -64,7 +96,7 @@ public class ChatModelGroq : BaseVendorModelProvider
     }
 
     /// <summary>
-    /// Map of models owned by the provider.
+    /// Map of models owned by the provider (internal names and API names).
     /// </summary>
     public static HashSet<string> AllModelsMap => LazyAllModelsMap.Value;
 
@@ -72,7 +104,15 @@ public class ChatModelGroq : BaseVendorModelProvider
     {
         HashSet<string> map = [];
 
-        ModelsAll.ForEach(x => { map.Add(x.Name); });
+        foreach (IModel model in ModelsAll)
+        {
+            map.Add(model.Name);
+
+            if (!string.IsNullOrWhiteSpace(model.ApiName))
+            {
+                map.Add(model.ApiName);
+            }
+        }
 
         return map;
     });
@@ -82,7 +122,72 @@ public class ChatModelGroq : BaseVendorModelProvider
     /// </summary>
     public static List<IModel> ModelsAll => LazyModelsAll.Value;
 
-    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [..ChatModelGroqMeta.ModelsAll, ..ChatModelGroqGoogle.ModelsAll, ..ChatModelGroqGroq.ModelsAll, ..ChatModelGroqMistral.ModelsAll, ..ChatModelGroqAlibaba.ModelsAll, ..ChatModelGroqMoonshotAi.ModelsAll, ..ChatModelGroqOpenAi.ModelsAll]);
+    private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
+        ..ChatModelGroqMeta.ModelsAll,
+        ..ChatModelGroqGoogle.ModelsAll,
+        ..ChatModelGroqGroq.ModelsAll,
+        ..ChatModelGroqMistral.ModelsAll,
+        ..ChatModelGroqAlibaba.ModelsAll,
+        ..ChatModelGroqMoonshotAi.ModelsAll,
+        ..ChatModelGroqOpenAi.ModelsAll,
+        ..ChatModelGroqMiniMax.ModelsAll
+    ]);
+
+    /// <summary>
+    /// Models that support reasoning_effort / reasoning_format / include_reasoning.
+    /// </summary>
+    public static List<IModel> ReasoningModelsAll => LazyReasoningModelsAll.Value;
+
+    private static readonly Lazy<List<IModel>> LazyReasoningModelsAll = new Lazy<List<IModel>>(() => [
+        ChatModelGroqOpenAi.ModelGptOss120B,
+        ChatModelGroqOpenAi.ModelGptOss20B,
+        ChatModelGroqOpenAi.ModelGptOssSafeguard20B,
+        ChatModelGroqAlibaba.ModelQwen332B,
+        ChatModelGroqAlibaba.ModelQwen3627B,
+        ChatModelGroqAlibaba.ModelQwen3827B,
+        ChatModelGroqMiniMax.ModelM27,
+        ChatModelGroqMiniMax.ModelM25
+    ]);
+
+    /// <summary>
+    /// HashSet version of <see cref="ReasoningModelsAll"/>.
+    /// </summary>
+    internal static HashSet<IModel> ReasoningModelsAllSet => LazyReasoningModelsAllSet.Value;
+
+    private static readonly Lazy<HashSet<IModel>> LazyReasoningModelsAllSet = new Lazy<HashSet<IModel>>(() => [..ReasoningModelsAll]);
+
+    /// <summary>
+    /// Models that accept image inputs.
+    /// </summary>
+    public static List<IModel> VisionModelsAll => LazyVisionModelsAll.Value;
+
+    private static readonly Lazy<List<IModel>> LazyVisionModelsAll = new Lazy<List<IModel>>(() => [
+        ChatModelGroqMeta.ModelLlama4Scout,
+        ChatModelGroqMeta.ModelLlama4Maverick,
+        ChatModelGroqAlibaba.ModelQwen3627B,
+        ChatModelGroqAlibaba.ModelQwen3827B,
+        ChatModelGroqAlibaba.ModelQwen3Vl32BInstruct,
+        ChatModelGroqMeta.ModelLlamaGuard412B
+    ]);
+
+    /// <summary>
+    /// Compound agentic systems with built-in server-side tools.
+    /// </summary>
+    public static List<IModel> CompoundSystemsAll => LazyCompoundSystemsAll.Value;
+
+    private static readonly Lazy<List<IModel>> LazyCompoundSystemsAll = new Lazy<List<IModel>>(() => [
+        ChatModelGroqGroq.ModelCompound,
+        ChatModelGroqGroq.ModelCompoundMini,
+        ChatModelGroqGroq.ModelCompoundBeta,
+        ChatModelGroqGroq.ModelCompoundBetaMini
+    ]);
+
+    /// <summary>
+    /// HashSet version of <see cref="CompoundSystemsAll"/>.
+    /// </summary>
+    internal static HashSet<IModel> CompoundSystemsAllSet => LazyCompoundSystemsAllSet.Value;
+
+    private static readonly Lazy<HashSet<IModel>> LazyCompoundSystemsAllSet = new Lazy<HashSet<IModel>>(() => [..CompoundSystemsAll]);
     
     internal ChatModelGroq()
     {

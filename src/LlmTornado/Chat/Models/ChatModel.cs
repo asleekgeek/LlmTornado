@@ -68,7 +68,7 @@ public class ChatModel : ModelBase
     public static readonly ChatModelXAi XAi = new ChatModelXAi();
     
     /// <summary>
-    /// Models provided by xAI.
+    /// Models provided by Perplexity.
     /// </summary>
     public static readonly ChatModelPerplexity Perplexity = new ChatModelPerplexity();
     

@@ -41,6 +41,11 @@ public class SpeechResponseFormat
     public static SpeechResponseFormat Wav => new SpeechResponseFormat("wav");
 
     /// <summary>
+    ///     Raw float32 LE samples. Recommended for Mistral Voxtral TTS streaming (lowest latency).
+    /// </summary>
+    public static SpeechResponseFormat Pcm => new SpeechResponseFormat("pcm");
+
+    /// <summary>
     ///     Requests a response in ogg format
     /// </summary>
     public static SpeechResponseFormat Ogg => new SpeechResponseFormat("ogg");

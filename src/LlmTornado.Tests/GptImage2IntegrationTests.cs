@@ -44,7 +44,15 @@ public class GptImage2IntegrationTests
 
 		Assert.That(body, Does.Contain("gpt-image-2"));
 		Assert.That(body, Does.Not.Contain("response_format"));
-		Assert.That(body, Does.Not.Contain("transparent"));
+		Assert.That(body, Does.Contain("transparent"), "Transparent backgrounds are supported for gpt-image-2 as of August 20, 2026.");
+	}
+
+	[Test]
+	public void ModelRegistration_IncludesGptImage25()
+	{
+		Assert.That(ImageModel.OpenAi.Gpt.V25Sunburst.Name, Is.EqualTo("gpt-image-2.5-sunburst"));
+		Assert.That(ImageModel.OpenAi.Gpt.V25Flare.Name, Is.EqualTo("gpt-image-2.5-flare"));
+		Assert.That(ImageModel.AllModelsMap.ContainsKey("gpt-image-2.5-sunburst"), Is.True);
 	}
 
 	[Test]

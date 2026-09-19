@@ -17,7 +17,7 @@ public class EmbeddingModelVoyageGen3 : BaseVendorModelProvider
     /// <summary>
     /// The best general-purpose and multilingual retrieval quality.
     /// </summary>
-    public static readonly EmbeddingModel ModelLarge = new EmbeddingModel("voyage-3-large", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1042, 512, 256 ]);
+    public static readonly EmbeddingModel ModelLarge = new EmbeddingModel("voyage-3-large", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelLarge"/>
@@ -25,9 +25,29 @@ public class EmbeddingModelVoyageGen3 : BaseVendorModelProvider
     public readonly EmbeddingModel Large = ModelLarge;
     
     /// <summary>
+    /// Optimized for general-purpose and multilingual retrieval quality.
+    /// </summary>
+    public static readonly EmbeddingModel ModelDefault = new EmbeddingModel("voyage-3", LLmProviders.Voyage, 32_000, 1_024);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelDefault"/>
+    /// </summary>
+    public readonly EmbeddingModel Default = ModelDefault;
+    
+    /// <summary>
+    /// Optimized for latency and cost.
+    /// </summary>
+    public static readonly EmbeddingModel ModelLite = new EmbeddingModel("voyage-3-lite", LLmProviders.Voyage, 32_000, 512);
+
+    /// <summary>
+    /// <inheritdoc cref="ModelLite"/>
+    /// </summary>
+    public readonly EmbeddingModel Lite = ModelLite;
+    
+    /// <summary>
     /// Optimized for code retrieval.
     /// </summary>
-    public static readonly EmbeddingModel ModelCode = new EmbeddingModel("voyage-code-3", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1042, 512, 256 ]);
+    public static readonly EmbeddingModel ModelCode = new EmbeddingModel("voyage-code-3", LLmProviders.Voyage, 32_000, 1_024, [ 2048, 1024, 512, 256 ]);
 
     /// <summary>
     /// <inheritdoc cref="ModelCode"/>
@@ -68,7 +88,9 @@ public class EmbeddingModelVoyageGen3 : BaseVendorModelProvider
 
     private static readonly Lazy<List<IModel>> LazyModelsAll = new Lazy<List<IModel>>(() => [
         ModelLarge,
-        ModelCode,
+        ModelDefault,
+        ModelLite,
+        ModelCode
     ]);
     
     internal EmbeddingModelVoyageGen3()

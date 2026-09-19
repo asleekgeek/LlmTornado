@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using LlmTornado.Code;
 using LlmTornado.Audio.Models;
 using LlmTornado.Audio.Models.OpenAi;
+using LlmTornado.Audio.Vendors.Cohere;
 using LlmTornado.Audio.Vendors.Google;
 using LlmTornado.Audio.Vendors.MiniMax;
+using LlmTornado.Audio.Vendors.Mistral;
 using LlmTornado.Audio.Vendors.Zai;
 using Newtonsoft.Json;
 
@@ -107,8 +109,9 @@ public class AudioEndpoint : EndpointBase
     {
         IEndpointProvider provider = Api.GetProvider(request.Model);
         string url = provider.ApiUrl(CapabilityEndpoints.Audio, $"/speech");
+        object postData = provider.Provider is LLmProviders.Mistral ? new VendorMistralSpeechRequest(request) : request;
         
-        StreamResponse? x = await HttpPostStream(provider, Endpoint, url, request);
+        StreamResponse? x = await HttpPostStream(provider, Endpoint, url, postData);
         return x is null ? null : new SpeechTtsResult(x);
     }
 
@@ -121,8 +124,8 @@ public class AudioEndpoint : EndpointBase
             serializedRequest.Content.Add(new StringContent("True"), "stream");
         }
         
-        // Timestamp granularities: supported by OpenAI Whisper models and Groq models with verbose_json format
-        bool supportsTimestampGranularities = AudioModelOpenAi.VerboseJsonCompatibleModels.Contains(request.Model) || request.Model?.Provider == LLmProviders.Groq;
+        // Timestamp granularities: supported by OpenAI Whisper models, Groq, and Mistral Voxtral
+        bool supportsTimestampGranularities = AudioModelOpenAi.VerboseJsonCompatibleModels.Contains(request.Model) || request.Model?.Provider is LLmProviders.Groq or LLmProviders.Mistral;
         if (request.TimestampGranularities?.Count > 0 && supportsTimestampGranularities && request.ResponseFormat is AudioTranscriptionResponseFormats.VerboseJson)
         {
             foreach (TimestampGranularities granularity in request.TimestampGranularities)
@@ -131,7 +134,7 @@ public class AudioEndpoint : EndpointBase
             }
         }
         
-        if (request.Include?.Count > 0 && AudioModelOpenAi.IncludeCompatibleModels.Contains(request.Model ?? string.Empty) && request.ResponseFormat is AudioTranscriptionResponseFormats.Json && request.Model != AudioModel.OpenAi.Gpt4.Gpt4OTranscribeDiarize)
+        if (request.Include?.Count > 0 && AudioModelOpenAi.IncludeCompatibleModels.Contains(request.Model ?? string.Empty) && request.ResponseFormat is AudioTranscriptionResponseFormats.Json && request.Model != AudioModelOpenAiGpt4.ModelGpt4OTranscribeDiarize)
         {
             foreach (TranscriptionRequestIncludeItems item in request.Include)
             {
@@ -223,6 +226,19 @@ public class AudioEndpoint : EndpointBase
         if (!request.Language.IsNullOrWhiteSpace())
         {
             serializedRequest.Content.Add(new StringContent(request.Language), "language");
+        }
+
+        if (request.Diarize is not null)
+        {
+            serializedRequest.Content.Add(new StringContent(request.Diarize.Value ? "true" : "false"), "diarize");
+        }
+
+        if (request.ContextBias is { Count: > 0 })
+        {
+            foreach (string term in request.ContextBias)
+            {
+                serializedRequest.Content.Add(new StringContent(term), "context_bias");
+            }
         }
 
         return serializedRequest;
@@ -352,6 +368,11 @@ public class AudioEndpoint : EndpointBase
         if (provider.Provider == LLmProviders.Zai)
         {
             return await VendorZaiAudioHandler.CreateTranscription(request, provider, this, request.CancellationToken);
+        }
+        
+        if (provider.Provider == LLmProviders.Cohere)
+        {
+            return await VendorCohereAudioHandler.CreateTranscription(request, provider, this, request.CancellationToken);
         }
         
         url = provider.ApiUrl(CapabilityEndpoints.Audio, url);

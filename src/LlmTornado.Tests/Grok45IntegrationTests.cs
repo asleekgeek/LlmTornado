@@ -14,7 +14,7 @@ public class Grok45IntegrationTests
         Assert.That(ChatModel.XAi.Grok45.V45.Name, Is.EqualTo("grok-4.5"));
         Assert.That(ChatModel.XAi.Grok45.V45.ContextTokens, Is.EqualTo(500_000));
         Assert.That(ChatModel.XAi.Grok45.V45.Aliases, Does.Contain("grok-4.5-latest"));
-        Assert.That(ChatModel.XAi.Grok45.V45.Aliases, Does.Contain("grok-build-latest"));
+        Assert.That(ChatModel.XAi.Grok45.V45.Aliases, Does.Not.Contain("grok-build-latest"));
         Assert.That(ChatModel.XAi.AllModels, Does.Contain(ChatModel.XAi.Grok45.V45));
         Assert.That(ChatModel.XAi.OwnsModel("grok-4.5"), Is.True);
     }
