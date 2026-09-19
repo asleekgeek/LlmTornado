@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LlmTornado.Chat.Models;
 using LlmTornado.Code;
+using LlmTornado.Code.Vendor;
 using LlmTornado.Live.OpenAi;
 using LlmTornado.Responses;
 using Newtonsoft.Json;
