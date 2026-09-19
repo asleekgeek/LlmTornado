@@ -287,7 +287,7 @@ public sealed class OpenAiLiveSession : IAsyncDisposable
         try
         {
 #if MODERN
-            await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+            await webSocket.SendAsync(bytes.AsMemory(), WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
 #else
             await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
 #endif
@@ -317,7 +317,7 @@ public sealed class OpenAiLiveSession : IAsyncDisposable
                 do
                 {
 #if MODERN
-                    result = await webSocket.ReceiveAsync(buffer, linkedCts.Token).ConfigureAwait(false);
+                    result = await webSocket.ReceiveAsync(buffer.AsMemory(), linkedCts.Token).ConfigureAwait(false);
 #else
                     result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), linkedCts.Token).ConfigureAwait(false);
 #endif

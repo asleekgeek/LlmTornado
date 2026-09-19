@@ -121,7 +121,7 @@ public sealed class RealtimeSession : IAsyncDisposable
     public async Task SendRawAsync(string json, CancellationToken cancellationToken = default)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(json);
-        await webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+        await webSocket.SendAsync(bytes.AsMemory(), WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task ReceiveLoopAsync()
@@ -138,7 +138,7 @@ public sealed class RealtimeSession : IAsyncDisposable
 
                 do
                 {
-                    result = await webSocket.ReceiveAsync(buffer, linkedCts.Token).ConfigureAwait(false);
+                    result = await webSocket.ReceiveAsync(buffer.AsMemory(), linkedCts.Token).ConfigureAwait(false);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None).ConfigureAwait(false);
