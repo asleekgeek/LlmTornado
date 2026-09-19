@@ -408,9 +408,21 @@ public sealed class CodexOAuthHistoryItem
         string name,
         string arguments)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(callId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentNullException.ThrowIfNull(arguments);
+        if (string.IsNullOrWhiteSpace(callId))
+        {
+            throw new ArgumentException("Call id cannot be empty.", nameof(callId));
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Function name cannot be empty.", nameof(name));
+        }
+
+        if (arguments is null)
+        {
+            throw new ArgumentNullException(nameof(arguments));
+        }
+
         return new CodexOAuthHistoryItem(new JObject
         {
             ["type"] = "function_call",
@@ -425,8 +437,16 @@ public sealed class CodexOAuthHistoryItem
     /// </summary>
     public static CodexOAuthHistoryItem FunctionOutput(string callId, string output)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(callId);
-        ArgumentNullException.ThrowIfNull(output);
+        if (string.IsNullOrWhiteSpace(callId))
+        {
+            throw new ArgumentException("Call id cannot be empty.", nameof(callId));
+        }
+
+        if (output is null)
+        {
+            throw new ArgumentNullException(nameof(output));
+        }
+
         return new CodexOAuthHistoryItem(new JObject
         {
             ["type"] = "function_call_output",
@@ -443,7 +463,11 @@ public sealed class CodexOAuthHistoryItem
         string text,
         string contentType)
     {
-        ArgumentNullException.ThrowIfNull(text);
+        if (text is null)
+        {
+            throw new ArgumentNullException(nameof(text));
+        }
+
         return new CodexOAuthHistoryItem(new JObject
         {
             ["type"] = "message",

@@ -40,7 +40,11 @@ public sealed class CodexOAuthThread
         {
             foreach (CodexOAuthHistoryItem item in initialHistory)
             {
-                ArgumentNullException.ThrowIfNull(item);
+                if (item is null)
+                {
+                    throw new ArgumentNullException(nameof(item));
+                }
+
                 history.Add(item.ToJson());
             }
         }
@@ -74,7 +78,11 @@ public sealed class CodexOAuthThread
         CodexOAuthTurnOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(functionCallHandler);
+        if (functionCallHandler is null)
+        {
+            throw new ArgumentNullException(nameof(functionCallHandler));
+        }
+
         return await RunAsyncCore(
             input,
             options,
@@ -91,7 +99,11 @@ public sealed class CodexOAuthThread
         CodexOAuthTurnOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(functionCallHandler);
+        if (functionCallHandler is null)
+        {
+            throw new ArgumentNullException(nameof(functionCallHandler));
+        }
+
         return await RunAsyncCore(input, options, functionCallHandler, cancellationToken).ConfigureAwait(false);
     }
 
