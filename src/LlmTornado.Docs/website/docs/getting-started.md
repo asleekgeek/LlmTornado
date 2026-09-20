@@ -287,7 +287,7 @@ Now that you've got the basics, explore more advanced features:
 
 ### Advanced Topics
 - [Agents](./2.%20Agents/1.%20Getting-Started.md) - Build autonomous AI agents
-- [MCP Integration](./3.%20MPC/MPC.md) - Model Context Protocol support
+- [MCP Integration](./3.%20MCP/MCP.md) - Model Context Protocol support
 - [Vector Databases](./6.%20VectorDatabases/1.%20Getting-Started.md) - Semantic search and embeddings
 
 ## Troubleshooting
